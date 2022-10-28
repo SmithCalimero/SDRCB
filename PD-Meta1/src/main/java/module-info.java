@@ -5,6 +5,7 @@ module com.example.pdmeta1 {
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
+    requires java.sql;
 
     opens com.example.pdmeta1 to javafx.fxml;
     exports pt.isec.pa.Client.gui;
