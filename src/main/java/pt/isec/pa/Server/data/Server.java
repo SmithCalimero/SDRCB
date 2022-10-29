@@ -6,7 +6,7 @@ public class Server {
     private final HeartBeatController hbc;
     private final DataBaseConn db;
 
-    public Server(String dbPath) throws SQLException {
+    public Server(int port,String dbPath) throws SQLException {
         db = new DataBaseConn(dbPath);
         hbc = new HeartBeatController();
     }

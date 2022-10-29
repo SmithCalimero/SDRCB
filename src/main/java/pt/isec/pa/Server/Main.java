@@ -1,11 +1,11 @@
 package pt.isec.pa.Server;
 
+import pt.isec.pa.Server.data.Server;
+
 import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-        SqLiteDB sqLiteDB = new SqLiteDB(Integer.parseInt(args[0]),args[1]);
-        sqLiteDB.getCurrentVersion();
-        sqLiteDB.updateVersion();
+        Server server = new Server(Integer.parseInt(args[0]),args[1]);
     }
 }

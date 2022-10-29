@@ -6,7 +6,7 @@ public class SqLiteDB {
     private  String DATABASE_URL = "jdbc:sqlite:";
     private final Connection dbConn;
 
-    public SqLiteDB(int i, String path) throws SQLException {
+    public SqLiteDB(String path) throws SQLException {
         DATABASE_URL += path;
         dbConn = DriverManager.getConnection(DATABASE_URL);
     }
