@@ -1,6 +1,6 @@
-package pt.isec.pa.Client.model.fsm;
+package pt.isec.pd.Client.model.fsm;
 
-import pt.isec.pa.Client.model.data.Client;
+import pt.isec.pd.Client.model.data.Client;
 
 public abstract class StateAdapter implements IState {
     protected Context context;

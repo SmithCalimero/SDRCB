@@ -1,9 +1,9 @@
-package pt.isec.pa.Client.gui;
+package pt.isec.pd.Client.gui;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
-import pt.isec.pa.Client.model.fsm.State;
-import pt.isec.pa.Client.model.ModelManager;
+import pt.isec.pd.Client.model.fsm.State;
+import pt.isec.pd.Client.model.ModelManager;
 
 public class LoginUI extends BorderPane {
     ModelManager model;

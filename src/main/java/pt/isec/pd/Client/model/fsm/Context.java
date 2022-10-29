@@ -1,7 +1,7 @@
-package pt.isec.pa.Client.model.fsm;
+package pt.isec.pd.Client.model.fsm;
 
-import pt.isec.pa.Client.model.data.Client;
-import pt.isec.pa.Client.model.data.ServerAddress;
+import pt.isec.pd.Client.model.data.Client;
+import pt.isec.pd.Client.model.data.ServerAddress;
 
 public class Context {
     Client data;

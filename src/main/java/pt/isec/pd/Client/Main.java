@@ -1,8 +1,7 @@
-package pt.isec.pa.Client;
+package pt.isec.pd.Client;
 
 import javafx.application.Application;
-import pt.isec.pa.Client.gui.MainJFX;
-import pt.isec.pa.Client.model.data.Client;
+import pt.isec.pd.Client.gui.MainJFX;
 
 public class Main {
     public static void main(String[] args) {

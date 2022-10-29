@@ -1,15 +1,15 @@
-package pt.isec.pa.Client.gui;
+package pt.isec.pd.Client.gui;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
-import pt.isec.pa.Client.model.fsm.State;
-import pt.isec.pa.Client.model.ModelManager;
+import pt.isec.pd.Client.model.fsm.State;
+import pt.isec.pd.Client.model.ModelManager;
 
-public class RegisterUI extends BorderPane {
+public class EditUserUI extends BorderPane {
     ModelManager model;
     Button btnNext;
 
-    public RegisterUI(ModelManager model) {
+    public EditUserUI(ModelManager model) {
         this.model = model;
         createViews();
         registerHandlers();
@@ -18,7 +18,7 @@ public class RegisterUI extends BorderPane {
 
     private void createViews() {
         this.setStyle("-fx-background-color: #FFFFFF;");
-        btnNext = new Button("Register");
+        btnNext = new Button("Edit");
         this.setCenter(btnNext);
     }
 
@@ -32,7 +32,7 @@ public class RegisterUI extends BorderPane {
     }
 
     private void update() {
-        this.setVisible(model != null && model.getState() == State.REGISTER);
+        this.setVisible(model != null && model.getState() == State.EDIT_USER);
     }
 }
 

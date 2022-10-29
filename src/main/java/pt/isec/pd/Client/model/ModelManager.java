@@ -1,8 +1,8 @@
-package pt.isec.pa.Client.model;
+package pt.isec.pd.Client.model;
 
-import pt.isec.pa.Client.model.data.ServerAddress;
-import pt.isec.pa.Client.model.fsm.Context;
-import pt.isec.pa.Client.model.fsm.State;
+import pt.isec.pd.Client.model.data.ServerAddress;
+import pt.isec.pd.Client.model.fsm.Context;
+import pt.isec.pd.Client.model.fsm.State;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

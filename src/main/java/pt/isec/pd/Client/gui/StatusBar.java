@@ -1,9 +1,9 @@
-package pt.isec.pa.Client.gui;
+package pt.isec.pd.Client.gui;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import pt.isec.pa.Client.model.ModelManager;
+import pt.isec.pd.Client.model.ModelManager;
 
 public class StatusBar extends HBox {
     ModelManager model;

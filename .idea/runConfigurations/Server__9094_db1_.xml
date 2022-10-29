@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Server [9094 db1]" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="pt.isec.pa.Server.Main" />
+    <option name="MAIN_CLASS_NAME" value="pt.isec.pd.Server.Main" />
     <module name="PD-Meta1" />
     <option name="PROGRAM_PARAMETERS" value="9094 PD-Meta1/src/SqLiteDataBases/db1.db" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="pt.isec.pa.Server.*" />
+        <option name="PATTERN" value="pt.isec.pd.Server.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

@@ -1,6 +1,6 @@
-package pt.isec.pa.Server;
+package pt.isec.pd.Server;
 
-import pt.isec.pa.Server.data.Server;
+import pt.isec.pd.Server.data.Server;
 
 import java.sql.SQLException;
 

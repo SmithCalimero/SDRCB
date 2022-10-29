@@ -8,6 +8,6 @@ module com.example.pdmeta {
     requires java.sql;
 
     opens com.example.pdmeta1 to javafx.fxml;
-    exports pt.isec.pa.Client.gui;
-    opens pt.isec.pa.Client.gui to javafx.fxml;
+    exports pt.isec.pd.Client.gui;
+    opens pt.isec.pd.Client.gui to javafx.fxml;
 }

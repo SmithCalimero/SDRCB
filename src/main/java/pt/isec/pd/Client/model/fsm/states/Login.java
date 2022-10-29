@@ -1,9 +1,9 @@
-package pt.isec.pa.Client.model.fsm.states;
+package pt.isec.pd.Client.model.fsm.states;
 
-import pt.isec.pa.Client.model.fsm.Context;
-import pt.isec.pa.Client.model.fsm.State;
-import pt.isec.pa.Client.model.fsm.StateAdapter;
-import pt.isec.pa.Client.model.data.Client;
+import pt.isec.pd.Client.model.fsm.Context;
+import pt.isec.pd.Client.model.fsm.State;
+import pt.isec.pd.Client.model.fsm.StateAdapter;
+import pt.isec.pd.Client.model.data.Client;
 
 public class Login extends StateAdapter {
     public Login(Context context, Client data) {
