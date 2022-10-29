@@ -2,12 +2,12 @@
   <configuration default="false" name="Server [9094 db1]" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="openjdk-19" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="MAIN_CLASS_NAME" value="pt.isec.pd.Server.Main" />
+    <option name="MAIN_CLASS_NAME" value="pt.isec.pd.server.Main" />
     <module name="SDRCB" />
     <option name="PROGRAM_PARAMETERS" value="9094 databases/db1.db" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="pt.isec.pd.Server.*" />
+        <option name="PATTERN" value="pt.isec.pd.server.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

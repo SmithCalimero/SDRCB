@@ -1,9 +1,9 @@
-package pt.isec.pd.Client.model.fsm.states;
+package pt.isec.pd.client.model.fsm.states;
 
-import pt.isec.pd.Client.model.fsm.Context;
-import pt.isec.pd.Client.model.fsm.State;
-import pt.isec.pd.Client.model.fsm.StateAdapter;
-import pt.isec.pd.Client.model.data.Client;
+import pt.isec.pd.client.model.fsm.Context;
+import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.client.model.fsm.StateAdapter;
+import pt.isec.pd.client.model.data.Client;
 
 public class Register extends StateAdapter {
     public Register(Context context, Client data) {

@@ -1,11 +1,11 @@
-package pt.isec.pd.Client.gui;
+package pt.isec.pd.client.gui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import pt.isec.pd.Client.model.ModelManager;
-import pt.isec.pd.Client.model.data.ServerAddress;
+import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ServerAddress;
 
 import java.io.IOException;
 import java.util.List;

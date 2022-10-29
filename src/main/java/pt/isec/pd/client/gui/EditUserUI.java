@@ -1,9 +1,9 @@
-package pt.isec.pd.Client.gui;
+package pt.isec.pd.client.gui;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
-import pt.isec.pd.Client.model.fsm.State;
-import pt.isec.pd.Client.model.ModelManager;
+import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.client.model.ModelManager;
 
 public class EditUserUI extends BorderPane {
     ModelManager model;

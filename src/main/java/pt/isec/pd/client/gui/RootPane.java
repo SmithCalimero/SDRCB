@@ -1,7 +1,7 @@
-package pt.isec.pd.Client.gui;
+package pt.isec.pd.client.gui;
 
 import javafx.scene.layout.*;
-import pt.isec.pd.Client.model.ModelManager;
+import pt.isec.pd.client.model.ModelManager;
 
 public class RootPane extends BorderPane {
     ModelManager model;

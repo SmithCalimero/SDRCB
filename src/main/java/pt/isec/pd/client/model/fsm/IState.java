@@ -1,4 +1,4 @@
-package pt.isec.pd.Client.model.fsm;
+package pt.isec.pd.client.model.fsm;
 
 public interface IState {
     void next();

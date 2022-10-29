@@ -1,4 +1,4 @@
-package pt.isec.pd.Server.data;
+package pt.isec.pd.server.data;
 
 import java.sql.SQLException;
 

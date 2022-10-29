@@ -1,9 +1,9 @@
-package pt.isec.pd.Client.model.fsm;
+package pt.isec.pd.client.model.fsm;
 
-import pt.isec.pd.Client.model.data.Client;
-import pt.isec.pd.Client.model.fsm.states.Login;
-import pt.isec.pd.Client.model.fsm.states.Register;
-import pt.isec.pd.Client.model.fsm.states.EditUser;
+import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.fsm.states.Login;
+import pt.isec.pd.client.model.fsm.states.Register;
+import pt.isec.pd.client.model.fsm.states.EditUser;
 
 public enum State {
     LOGIN, REGISTER, EDIT_USER;

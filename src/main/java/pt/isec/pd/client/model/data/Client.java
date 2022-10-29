@@ -1,4 +1,4 @@
-package pt.isec.pd.Client.model.data;
+package pt.isec.pd.client.model.data;
 
 import java.io.*;
 import java.net.*;
