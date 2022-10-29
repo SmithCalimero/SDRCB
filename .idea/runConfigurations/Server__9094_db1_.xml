@@ -1,8 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Server [9094 db1]" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-19" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="pt.isec.pd.Server.Main" />
-    <module name="PD-Meta1" />
-    <option name="PROGRAM_PARAMETERS" value="9094 PD-Meta1/src/SqLiteDataBases/db1.db" />
+    <module name="SDRCB" />
+    <option name="PROGRAM_PARAMETERS" value="9094 C:\Users\35191\OneDrive\Ambiente de Trabalho\SDRCB\src\databases" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="pt.isec.pd.Server.*" />
