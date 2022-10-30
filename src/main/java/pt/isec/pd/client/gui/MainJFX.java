@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import pt.isec.pd.client.model.ModelManager;
-import pt.isec.pd.client.model.data.ServerAddress;
+import pt.isec.pd.sharedData.ServerAddress;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,11 +25,8 @@ public class MainJFX extends Application {
         BorderPane root = new RootPane(model);
         Scene scene = new Scene(root,1280,720);
         stage.setScene(scene);
-        stage.setTitle("PD");
+        stage.setTitle("PD-meta1");
         stage.setMinWidth(400);
         stage.show();
-
-
-
     }
 }

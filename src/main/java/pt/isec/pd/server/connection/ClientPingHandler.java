@@ -1,6 +1,6 @@
 package pt.isec.pd.server.connection;
 
-import pt.isec.pd.server.data.ServerAddress;
+import pt.isec.pd.sharedData.ServerAddress;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
