@@ -1,4 +1,4 @@
-package pt.isec.pd.server.data;
+package pt.isec.pd.server.connection;
 
 public class HeartBeatController {
     public void handleHeartBeat() {

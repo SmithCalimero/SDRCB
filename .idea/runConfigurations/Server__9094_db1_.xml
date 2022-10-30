@@ -7,7 +7,7 @@
     <option name="PROGRAM_PARAMETERS" value="9094 databases/db1.db" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="pt.isec.pd.server.*" />
+        <option name="PATTERN" value="pt.isec.pd.server.data.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

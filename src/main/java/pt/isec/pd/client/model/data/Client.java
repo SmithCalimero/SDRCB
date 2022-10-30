@@ -1,11 +1,15 @@
 package pt.isec.pd.client.model.data;
 
+import pt.isec.pd.server.data.Server;
+import pt.isec.pd.utils.Log;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
 public class Client extends Thread {
     private final ServerAddress udpConn;
+    private final Log LOG = Log.getLogger(Client.class);
 
     public Client(ServerAddress udpConn) {
         this.udpConn = udpConn;
@@ -23,6 +27,7 @@ public class Client extends Thread {
 
         try {
             DatagramSocket ds = new DatagramSocket();
+            LOG.log("DatagramSocket created on the port: " + ds.getLocalPort());
 
             //Serialization
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -32,6 +37,7 @@ public class Client extends Thread {
 
             DatagramPacket dpSend = new DatagramPacket(infoBytes,infoBytes.length, InetAddress.getByName(ipUdp),portUdp);
             ds.send(dpSend);
+            LOG.log("DatagramPacket sent to the server : "+  ipUdp + ":" + portUdp);
 
             DatagramPacket dpReceive = new DatagramPacket(new byte[256],256);
             ds.receive(dpReceive);

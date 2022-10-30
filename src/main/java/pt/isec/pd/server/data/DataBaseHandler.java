@@ -1,14 +1,12 @@
-package pt.isec.pd.Server.data;
+package pt.isec.pd.server.data;
 
 import java.sql.*;
 
-public class DataBaseConn {
-    private  String DATABASE_URL = "jdbc:sqlite:";
+public class DataBaseHandler {
     private final Connection dbConn;
 
-    public DataBaseConn(String path) throws SQLException {
-        DATABASE_URL += path;
-        dbConn = DriverManager.getConnection(DATABASE_URL);
+    public DataBaseHandler(String path) throws SQLException {
+        dbConn = DriverManager.getConnection("jdbc:sqlite:" + path);
     }
 
     public void close() throws SQLException {

@@ -1,0 +1,57 @@
+package pt.isec.pd.server.connection;
+
+import pt.isec.pd.server.data.Server;
+import pt.isec.pd.server.data.ServerAddress;
+import pt.isec.pd.utils.Log;
+
+import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/* UDP: Receives the ping from a client and sends a list of servers to later initialize a tcp connection*/
+public class ClientPingHandler extends Thread{
+    private final int port;
+    private final Log LOG;
+
+    public ClientPingHandler(int port, Log LOG) {
+        this.port = port;
+        this.LOG = LOG;
+        start();
+    }
+
+    @Override
+    public void run() {
+        try {
+            LOG.log("DatagramSocket created on the port: " + port);
+            DatagramSocket ds = new DatagramSocket(port);
+
+            while(true) {
+                DatagramPacket dp = new DatagramPacket(new byte[256],256);
+                ds.receive(dp);
+                LOG.log("Ping has been received from " + dp.getAddress().getHostAddress() + ":" + dp.getPort());
+
+                //Deserialization (ping)
+                ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
+                ObjectInputStream ois = new ObjectInputStream(bais);
+
+                //TODO: send a list of servers organized by their tcp connection
+                List<ServerAddress> list = new ArrayList<>();
+
+                //Serialization
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oss = new ObjectOutputStream(baos);
+                oss.writeObject(list);
+                byte[] listBytes = baos.toByteArray();
+
+                dp.setData(listBytes,0,listBytes.length);
+                ds.send(dp);
+                LOG.log("The list of servers was sent to the client");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
