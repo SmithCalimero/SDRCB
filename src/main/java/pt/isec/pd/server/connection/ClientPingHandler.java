@@ -1,8 +1,8 @@
 package pt.isec.pd.server.connection;
 
-import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.ServerAddress;
 import pt.isec.pd.utils.Log;
+import pt.isec.pd.utils.Utils;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -24,28 +24,18 @@ public class ClientPingHandler extends Thread{
 
     @Override
     public void run() {
-        try {
+        try(DatagramSocket ds = new DatagramSocket(port)) {
             LOG.log("DatagramSocket created on the port: " + port);
-            DatagramSocket ds = new DatagramSocket(port);
 
             while(true) {
                 DatagramPacket dp = new DatagramPacket(new byte[256],256);
                 ds.receive(dp);
                 LOG.log("Ping has been received from " + dp.getAddress().getHostAddress() + ":" + dp.getPort());
 
-                //Deserialization (ping)
-                ByteArrayInputStream bais = new ByteArrayInputStream(dp.getData());
-                ObjectInputStream ois = new ObjectInputStream(bais);
-
                 //TODO: send a list of servers organized by their tcp connection
                 List<ServerAddress> list = new ArrayList<>();
 
-                //Serialization
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oss = new ObjectOutputStream(baos);
-                oss.writeObject(list);
-                byte[] listBytes = baos.toByteArray();
-
+                byte[] listBytes = Utils.serializeObject(list);
                 dp.setData(listBytes,0,listBytes.length);
                 ds.send(dp);
                 LOG.log("The list of servers was sent to the client");
