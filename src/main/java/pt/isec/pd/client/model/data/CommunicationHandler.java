@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.data;
 
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
@@ -36,7 +37,7 @@ public class CommunicationHandler extends Thread{
             ds.send(dpSend);
             LOG.log("DatagramPacket sent to the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
 
-            DatagramPacket dpReceive = new DatagramPacket(new byte[256],256);
+            DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
             ds.receive(dpReceive);
             LOG.log("DatagramPacket received from the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
 

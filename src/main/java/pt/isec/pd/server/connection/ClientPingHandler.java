@@ -1,6 +1,7 @@
 package pt.isec.pd.server.connection;
 
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
@@ -28,7 +29,7 @@ public class ClientPingHandler extends Thread{
             LOG.log("DatagramSocket created on the port: " + port);
 
             while(true) {
-                DatagramPacket dp = new DatagramPacket(new byte[256],256);
+                DatagramPacket dp = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                 ds.receive(dp);
                 LOG.log("Ping has been received from " + dp.getAddress().getHostAddress() + ":" + dp.getPort());
 

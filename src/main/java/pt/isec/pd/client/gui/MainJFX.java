@@ -14,7 +14,7 @@ public class MainJFX extends Application {
     ModelManager model;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         //Receive arguments from main
         Parameters params = getParameters();
         List<String> arguments = params.getRaw();
