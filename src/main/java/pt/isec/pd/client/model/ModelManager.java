@@ -2,7 +2,7 @@ package pt.isec.pd.client.model;
 
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
-import pt.isec.pd.sharedData.ServerAddress;
+import pt.isec.pd.shared_data.ServerAddress;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

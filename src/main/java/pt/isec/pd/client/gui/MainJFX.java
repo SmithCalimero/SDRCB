@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import pt.isec.pd.client.model.ModelManager;
-import pt.isec.pd.sharedData.ServerAddress;
+import pt.isec.pd.shared_data.ServerAddress;
 
 import java.io.IOException;
 import java.util.List;

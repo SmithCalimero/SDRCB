@@ -1,4 +1,4 @@
-package pt.isec.pd.sharedData;
+package pt.isec.pd.shared_data;
 
 import java.io.Serializable;
 

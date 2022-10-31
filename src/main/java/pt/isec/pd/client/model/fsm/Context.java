@@ -1,7 +1,7 @@
 package pt.isec.pd.client.model.fsm;
 
 import pt.isec.pd.client.model.data.Client;
-import pt.isec.pd.sharedData.ServerAddress;
+import pt.isec.pd.shared_data.ServerAddress;
 
 public class Context {
     Client data;

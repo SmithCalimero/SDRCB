@@ -1,6 +1,6 @@
 package pt.isec.pd.client.model.data;
 
-import pt.isec.pd.sharedData.ServerAddress;
+import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
@@ -8,14 +8,18 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommunicationHandler extends Thread{
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
-    public CommunicationHandler(ServerAddress pingAddr) {
+    private final Socket socket;
+
+    public CommunicationHandler(ServerAddress pingAddr,Socket socket) {
         this.pingAddr = pingAddr;
+        this.socket = socket;
     }
 
     @Override
@@ -24,7 +28,7 @@ public class CommunicationHandler extends Thread{
         establishingTcpConn(serversAddr);
     }
 
-    private ArrayList<ServerAddress> sendPing() {
+    public ArrayList<ServerAddress> sendPing() {
         try(DatagramSocket ds = new DatagramSocket()) {
             LOG.log("DatagramSocket created on the port: " + ds.getLocalPort());
 
@@ -44,9 +48,9 @@ public class CommunicationHandler extends Thread{
     }
 
 
-    private void establishingTcpConn(List<ServerAddress> serversAddr) {
+    public synchronized void establishingTcpConn(List<ServerAddress> serversAddr) {
         for (ServerAddress address : serversAddr) {
-
+            //TODO:
         }
     }
 

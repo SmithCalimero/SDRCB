@@ -7,7 +7,7 @@
     <option name="PROGRAM_PARAMETERS" value="9094 databases/db1.db" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="pt.isec.pd.sharedData.*" />
+        <option name="PATTERN" value="pt.isec.pd.shared_data.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

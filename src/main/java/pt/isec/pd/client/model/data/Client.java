@@ -1,17 +1,14 @@
 package pt.isec.pd.client.model.data;
 
-import pt.isec.pd.sharedData.ServerAddress;
-import pt.isec.pd.utils.Log;
-import pt.isec.pd.utils.Utils;
+import pt.isec.pd.shared_data.ServerAddress;
 
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
+import java.net.Socket;
 
 public class Client extends Thread {
     private final CommunicationHandler ch;
+    private Socket socket;
     public Client(ServerAddress pingAddr) {
-        ch = new CommunicationHandler(pingAddr);
+        ch = new CommunicationHandler(pingAddr,socket);
         ch.start();
     }
     public void login() {
