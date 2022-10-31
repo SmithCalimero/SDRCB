@@ -38,6 +38,7 @@ public class ClientPingHandler extends Thread{
 
                 byte[] listBytes = Utils.serializeObject(list);
                 dp.setData(listBytes,0,listBytes.length);
+                dp.setLength(listBytes.length);
                 ds.send(dp);
                 LOG.log("The list of servers was sent to the client");
             }
