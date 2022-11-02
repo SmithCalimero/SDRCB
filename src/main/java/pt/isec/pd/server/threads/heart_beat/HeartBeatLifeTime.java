@@ -21,12 +21,8 @@ public class HeartBeatLifeTime extends Thread{
         while (true) {
             Date date = new Date();
             synchronized (hbList) {
-                for (int i = 0; i < hbList.size(); i++) {
-                    if (hbList.get(i).getTimeout().compareTo(date) > 0) {
-                        break;
-                    }
-                    LOG.log("HeartBeat " + hbList.get(i).getPortTcp() + " was removed");
-                    hbList.remove(hbList.get(i));
+                if(hbList.removeIf(n -> (n.getTimeout().compareTo(date) < 0))) {
+                    LOG.log("heartbeats were removed");
                 }
             }
 
@@ -36,6 +32,5 @@ public class HeartBeatLifeTime extends Thread{
                 throw new RuntimeException(e);
             }
         }
-
     }
 }

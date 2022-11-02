@@ -1,32 +1,25 @@
 package pt.isec.pd.server.data;
 
+import pt.isec.pd.server.data.database.ClientController;
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
 import pt.isec.pd.server.threads.ClientPingHandler;
 import pt.isec.pd.utils.Log;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.SQLException;
 
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
     private final HeartBeatList hbList;
-    private final ServerSocket serverSocket;
+    private final ClientController clientController;
     private final String dbPath;
     private final HeartBeatController hbc;
     private DataBaseHandler db;
-    private final ClientPingHandler cc;
+    private final ClientPingHandler clientPing;
 
     public Server(int port,String dbPath) {
         this.dbPath = dbPath;
         hbList = new HeartBeatList();
-
-        try {
-            serverSocket = new ServerSocket(0);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         try {
             db = new DataBaseHandler(dbPath);
@@ -35,8 +28,9 @@ public class Server {
             db = null;
         }
 
+        clientController = new ClientController();
         hbc = new HeartBeatController(hbList,this);
-        cc = new ClientPingHandler(port,LOG);
+        clientPing = new ClientPingHandler(port,LOG);
     }
 
     public boolean createDataBase() {
@@ -54,8 +48,8 @@ public class Server {
         return false;
     }
 
-    public int getTcpPort() {
-        return serverSocket.getLocalPort();
+    public int getServerPort() {
+        return clientController.getServerPort();
     }
 
     public int getDBVersion() {
@@ -65,6 +59,4 @@ public class Server {
             throw new RuntimeException(e);
         }
     }
-
-
 }

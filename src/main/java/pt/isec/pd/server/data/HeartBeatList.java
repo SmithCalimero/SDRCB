@@ -16,12 +16,7 @@ public class HeartBeatList extends LinkedList<HeartBeatEvent>{
             add(element);
             return;
         }
-        replaceHeartBeat(index, element);
-    }
-
-    private void replaceHeartBeat(int index,HeartBeatEvent newHeartBeat) {
-        remove(index);
-        add(newHeartBeat);
+        add(index,element);
     }
 
     public List<HeartBeatEvent> getOrderList() {

@@ -67,7 +67,7 @@ public class HeartBeatController {
 
     public HeartBeatEvent updateHeartBeat() {
         if (hbEvent == null) {
-            hbEvent = new HeartBeatEvent(server.getTcpPort(), true, server.getDBVersion(),0);
+            hbEvent = new HeartBeatEvent(server.getServerPort(), true, server.getDBVersion(),0);
         }
         return hbEvent;
     }
