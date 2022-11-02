@@ -62,6 +62,8 @@ public class HeartBeatController {
 
         if (hbList.size() == 0) {
             server.createDataBase();
+         } else {
+            server.sendDataBase();
         }
     }
 

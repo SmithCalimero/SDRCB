@@ -4,8 +4,12 @@ import pt.isec.pd.server.data.database.ClientController;
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
 import pt.isec.pd.server.threads.ClientPingHandler;
+import pt.isec.pd.server.threads.DataBase.DataBaseSender;
+import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.sql.SQLException;
 
 public class Server {
@@ -56,6 +60,17 @@ public class Server {
         try {
             return db.getCurrentVersion();
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void sendDataBase() {
+        HeartBeatEvent hbEvent = hbList.getOrderList().get(0);
+        try {
+            Socket socket = new Socket("localhost",hbEvent.getPortTcp());
+            LOG.log("starting database transfer");
+            new DataBaseSender(dbPath,socket);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

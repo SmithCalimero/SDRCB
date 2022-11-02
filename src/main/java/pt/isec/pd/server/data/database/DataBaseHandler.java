@@ -4,7 +4,6 @@ import java.sql.*;
 
 public class DataBaseHandler {
     private final Connection dbConn;
-
     public DataBaseHandler(String path) throws SQLException {
         dbConn = DriverManager.getConnection("jdbc:sqlite:" + path);
 
