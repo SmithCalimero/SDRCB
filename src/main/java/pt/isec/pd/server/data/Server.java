@@ -1,6 +1,5 @@
 package pt.isec.pd.server.data;
 
-import pt.isec.pd.server.data.database.ClientController;
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
 import pt.isec.pd.server.threads.ClientPingHandler;

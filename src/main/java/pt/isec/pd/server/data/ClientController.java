@@ -1,4 +1,4 @@
-package pt.isec.pd.server.data.database;
+package pt.isec.pd.server.data;
 
 import java.io.IOException;
 import java.net.ServerSocket;
