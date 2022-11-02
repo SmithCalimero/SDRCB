@@ -1,4 +1,4 @@
-package pt.isec.pd.server.connection;
+package pt.isec.pd.server.threads;
 
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Constants;

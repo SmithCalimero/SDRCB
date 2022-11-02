@@ -1,4 +1,4 @@
-package pt.isec.pd.server.data;
+package pt.isec.pd.server.data.database;
 
 import java.sql.*;
 
@@ -7,6 +7,9 @@ public class DataBaseHandler {
 
     public DataBaseHandler(String path) throws SQLException {
         dbConn = DriverManager.getConnection("jdbc:sqlite:" + path);
+
+        //Just to test if the path of the database actually exist; (Throws exception)
+        listUsers(null);
     }
 
     public void close() throws SQLException {
@@ -27,7 +30,6 @@ public class DataBaseHandler {
             String username = resultSet.getString("username");
             String nome = resultSet.getString("nome");
             String password = resultSet.getString("password");
-            System.out.println("[" + id + "] " + username + " (" + nome + ") + ");
         }
 
         resultSet.close();
