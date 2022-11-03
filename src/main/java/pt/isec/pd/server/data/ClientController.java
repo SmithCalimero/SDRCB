@@ -1,19 +1,28 @@
 package pt.isec.pd.server.data;
 
+import pt.isec.pd.server.threads.ClientPingHandler;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
 public class ClientController {
     //TODO: Finish class 
-    private final ServerSocket serverSocket;
+    private ServerSocket serverSocket;
+    private final ClientPingHandler pingHandler;
     private int numConnections;
 
-    public ClientController() {
+    public ClientController(int pingPort) {
+        pingHandler = new ClientPingHandler(pingPort);
+
         try {
             serverSocket = new ServerSocket(0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void start() {
+        pingHandler.start();
     }
 
     public int getServerPort() {

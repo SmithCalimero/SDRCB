@@ -1,5 +1,6 @@
 package pt.isec.pd.server.threads;
 
+import pt.isec.pd.server.data.Server;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
@@ -14,13 +15,10 @@ import java.util.List;
 
 /* UDP: Receives the ping from a client and sends a list of servers to later initialize a tcp connection*/
 public class ClientPingHandler extends Thread{
+    private final Log LOG = Log.getLogger(Server.class);
     private final int port;
-    private final Log LOG;
-
-    public ClientPingHandler(int port, Log LOG) {
+    public ClientPingHandler(int port) {
         this.port = port;
-        this.LOG = LOG;
-        start();
     }
 
     @Override

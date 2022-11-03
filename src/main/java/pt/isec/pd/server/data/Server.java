@@ -2,7 +2,6 @@ package pt.isec.pd.server.data;
 
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
-import pt.isec.pd.server.threads.ClientPingHandler;
 import pt.isec.pd.server.threads.DataBase.DataBaseSender;
 import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
@@ -13,35 +12,51 @@ import java.sql.SQLException;
 
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
-    private final HeartBeatList hbList;
-    private final ClientController clientController;
+    private HeartBeatList hbList;
+    private ClientController clientController;
     private final String dbPath;
-    private final HeartBeatController hbc;
-    private DataBaseHandler db;
-    private final ClientPingHandler clientPing;
+    private HeartBeatController heartBeatController;
+    private DataBaseHandler dataBaseHandler;
 
-    public Server(int port,String dbPath) {
+    public Server(int pingPort,String dbPath) {
         this.dbPath = dbPath;
+
+        init(pingPort);
+        start();
+    }
+
+    public void init(int pingPort) {
         hbList = new HeartBeatList();
 
         try {
-            db = new DataBaseHandler(dbPath);
+            dataBaseHandler = new DataBaseHandler(dbPath);
         } catch (SQLException e) {
             LOG.log("DataBase could no be loaded");
-            db = null;
+            dataBaseHandler = null;
         }
 
-        clientController = new ClientController();
-        hbc = new HeartBeatController(hbList,this);
-        clientPing = new ClientPingHandler(port,LOG);
+        clientController = new ClientController(pingPort);
+        heartBeatController = new HeartBeatController(hbList,this);
+    }
+
+    public void start() {
+        heartBeatController.start();
+
+        if (hbList.size() == 0) {
+            createDataBase();
+            return;
+        }
+        transferDataBase();
+
+        clientController.start();
     }
 
     public boolean createDataBase() {
-        if (db == null) {
+        if (dataBaseHandler == null) {
             new CreateDataBase(dbPath);
 
             try {
-                db = new DataBaseHandler(dbPath);
+                dataBaseHandler = new DataBaseHandler(dbPath);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -57,13 +72,13 @@ public class Server {
 
     public int getDBVersion() {
         try {
-            return db.getCurrentVersion();
+            return dataBaseHandler.getCurrentVersion();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void sendDataBase() {
+    public void transferDataBase() {
         HeartBeatEvent hbEvent = hbList.getOrderList().get(0);
         try {
             Socket socket = new Socket("localhost",hbEvent.getPortTcp());

@@ -31,8 +31,6 @@ public class HeartBeatController {
         receiver = new HeartBeatReceiver(ms,hbList);
         sender = new HeartBeatSender(ms,this);
         lifeTimeChecker = new HeartBeatLifeTime(hbList);
-
-        startup();
     }
 
     private void joinGroup() {
@@ -48,7 +46,7 @@ public class HeartBeatController {
         LOG.log("Joined the group");
     }
 
-    private void startup() {
+    public void start() {
         receiver.start();
         lifeTimeChecker.start();
 
@@ -63,7 +61,7 @@ public class HeartBeatController {
         if (hbList.size() == 0) {
             server.createDataBase();
          } else {
-            server.sendDataBase();
+            server.transferDataBase();
         }
     }
 

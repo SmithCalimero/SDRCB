@@ -1,23 +1,20 @@
 package pt.isec.pd.server.data.database;
 
+import pt.isec.pd.server.data.HeartBeatController;
+
 import java.sql.*;
 
 public class DataBaseHandler {
-    private final Connection dbConn;
+    private final Connection conn;
     public DataBaseHandler(String path) throws SQLException {
-        dbConn = DriverManager.getConnection("jdbc:sqlite:" + path);
+        conn = DriverManager.getConnection("jdbc:sqlite:" + path);
 
         //Just to test if the path of the database actually exist; (Throws exception)
-        listUsers(null);
+        getUsers(null);
     }
 
-    public void close() throws SQLException {
-        if (dbConn != null)
-            dbConn.close();
-    }
-
-    public void listUsers(String whereName) throws SQLException {
-        Statement statement = dbConn.createStatement();
+    public void getUsers(String whereName) throws SQLException {
+        Statement statement = conn.createStatement();
 
         String sqlQuery = "SELECT id, username, nome, password FROM utilizador";
         if (whereName != null)
@@ -36,7 +33,7 @@ public class DataBaseHandler {
     }
 
     public int getCurrentVersion() throws SQLException {
-        Statement statement = dbConn.createStatement();
+        Statement statement = conn.createStatement();
 
         String sqlQuery = "PRAGMA user_version;";
         ResultSet resultSet = statement.executeQuery(sqlQuery);
@@ -50,7 +47,7 @@ public class DataBaseHandler {
     }
 
     public void updateVersion() throws SQLException {
-        Statement statement = dbConn.createStatement();
+        Statement statement = conn.createStatement();
 
         String sqlQuery = "PRAGMA user_version = " + (getCurrentVersion() + 1);
         statement.execute(sqlQuery);
@@ -61,7 +58,7 @@ public class DataBaseHandler {
     }
 
     public void insertUser(String nome, String password,String username) throws SQLException {
-        Statement statement = dbConn.createStatement();
+        Statement statement = conn.createStatement();
 
         String sqlQuery = "INSERT INTO users VALUES (NULL,'" + nome + "','" + username + "','" + password + "')";
         statement.executeUpdate(sqlQuery);
@@ -69,10 +66,16 @@ public class DataBaseHandler {
     }
 
     public void updateUser(int id, String name, String birthdate) throws SQLException {
-        Statement statement = dbConn.createStatement();
+        Statement statement = conn.createStatement();
 
         String sqlQuery = "UPDATE users SET name='" + name + "', " +
                 "BIRTHDATE='" + birthdate + "' WHERE id=" + id;
         statement.executeUpdate(sqlQuery);
     }
+
+    public void close() throws SQLException {
+        if (conn != null)
+            conn.close();
+    }
+
 }
