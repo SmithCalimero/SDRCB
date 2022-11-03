@@ -44,9 +44,10 @@ public class Server {
 
         if (hbList.size() == 0) {
             createDataBase();
-            return;
+        } else {
+            transferDataBase();
         }
-        transferDataBase();
+
 
         clientController.start();
     }
