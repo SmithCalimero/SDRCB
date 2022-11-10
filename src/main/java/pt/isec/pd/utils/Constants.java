@@ -8,4 +8,5 @@ public final class Constants {
     public final static int PORT_MULTICAST = 4004;
     public static final int STARTUP = 30;
     public static final int MAX_BYTES = 254;
+    public static final int TIME_TO_PAY = 10;
 }

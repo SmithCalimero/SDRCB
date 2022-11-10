@@ -2,6 +2,7 @@ package pt.isec.pd.server.data;
 
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
+import pt.isec.pd.server.threads.ClientManagement;
 import pt.isec.pd.server.threads.DataBase.DataBaseSender;
 import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
@@ -13,7 +14,8 @@ import java.sql.SQLException;
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
     private HeartBeatList hbList;
-    private ClientController clientController;
+    private ClientManagement clientManagement;
+    //private ClientController clientController;
     private final String dbPath;
     private HeartBeatController heartBeatController;
     private DataBaseHandler dataBaseHandler;
@@ -35,7 +37,8 @@ public class Server {
             dataBaseHandler = null;
         }
 
-        clientController = new ClientController(pingPort);
+        //clientController = new ClientController(pingPort);
+        clientManagement = new ClientManagement(pingPort,dataBaseHandler);
         heartBeatController = new HeartBeatController(hbList,this);
     }
 
@@ -48,8 +51,9 @@ public class Server {
             transferDataBase();
         }
 
-
-        clientController.start();
+        //clientController.start();
+        clientManagement.startPingHandler();
+        clientManagement.start();
     }
 
     public boolean createDataBase() {
@@ -68,7 +72,7 @@ public class Server {
     }
 
     public int getServerPort() {
-        return clientController.getServerPort();
+        return clientManagement.getServerPort();
     }
 
     public int getDBVersion() {

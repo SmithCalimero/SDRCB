@@ -25,8 +25,6 @@ public class ClientController {
         pingHandler.start();
     }
 
-    public int getServerPort() {
-        return serverSocket.getLocalPort();
-    }
+    public int getServerPort() { return serverSocket.getLocalPort(); }
 
 }

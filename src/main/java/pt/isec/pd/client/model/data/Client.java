@@ -6,9 +6,10 @@ import java.net.Socket;
 
 public class Client extends Thread {
     private final CommunicationHandler ch;
-    private Socket socket;
+    //private Socket socket;
+
     public Client(ServerAddress pingAddr) {
-        ch = new CommunicationHandler(pingAddr,socket);
+        ch = new CommunicationHandler(pingAddr);
         ch.start();
     }
     public void login() {

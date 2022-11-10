@@ -22,7 +22,6 @@ public class HeartBeatController {
 
     private MulticastSocket ms;
 
-
     public HeartBeatController(HeartBeatList hbList, Server server) {
         joinGroup();
 

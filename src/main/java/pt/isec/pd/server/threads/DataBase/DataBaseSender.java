@@ -13,7 +13,6 @@ public class DataBaseSender {
 
     public DataBaseSender(String path, Socket socket) {
         this.socket = socket;
-
         this.path = path;
     }
 
