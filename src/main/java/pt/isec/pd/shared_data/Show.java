@@ -11,7 +11,7 @@ public class Show implements Serializable {
     private String description;
     private String type;
     private String dateHour;
-    private String duration;
+    private int duration;
     private String location;
     private String locality;
     private String country;
@@ -23,7 +23,7 @@ public class Show implements Serializable {
             String description,
             String type,
             String dateHour,
-            String duration,
+            int duration,
             String location,
             String locality,
             String country,
@@ -49,7 +49,7 @@ public class Show implements Serializable {
 
     public String getDateHour() { return dateHour; }
 
-    public String getDuration() { return duration; }
+    public int getDuration() { return duration; }
 
     public String getLocation() { return location; }
 

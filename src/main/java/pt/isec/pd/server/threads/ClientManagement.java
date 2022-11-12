@@ -1,6 +1,5 @@
 package pt.isec.pd.server.threads;
 
-import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.database.DataBaseHandler;
 
@@ -36,7 +35,7 @@ public class ClientManagement extends Thread {
             while (isConnected) {
                 Socket clientSocket = serverSocket.accept();
 
-                increaseConnections();
+                numConnections++;
 
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
@@ -59,7 +58,7 @@ public class ClientManagement extends Thread {
                         case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                         case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                         case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
-                        case DISCONNECTED -> { dbHandler.disconnect(clientData,oos,ois); decreaseConnections(); }
+                        case DISCONNECTED -> { dbHandler.disconnect(clientData,oos,ois); numConnections--;; }
                         default -> throw new IllegalArgumentException("Unexpected action value");
                     }
                 } catch (ClassNotFoundException | SQLException e) {
@@ -75,13 +74,11 @@ public class ClientManagement extends Thread {
 
     public void setConnected() { isConnected = false; }
 
-    private void decreaseConnections() { this.numConnections--; }
-
-    private void increaseConnections() { this.numConnections++; }
-
     public void startPingHandler() {
         pingHandler.start();
     }
 
     public int getServerPort() { return serverSocket.getLocalPort(); }
+
+    public int getNumConnections() { return numConnections; }
 }
