@@ -57,7 +57,8 @@ public class CommunicationHandler extends Thread{
         for (ServerAddress address : serversAddr) {
             if (tryConnection(address)) {
                 LOG.log("Connected to " + address.getIp() + ":" + address.getPort());
-                client.register();
+                //client.register();
+                client.login();
                 return true;
             }
         }

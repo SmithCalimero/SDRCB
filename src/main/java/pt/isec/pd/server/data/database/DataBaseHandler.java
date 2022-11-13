@@ -117,7 +117,7 @@ public class DataBaseHandler {
 
         // Execute a query
         ResultSet result = statement.executeQuery(
-                "SELECT id, username, nome FROM utilizador"
+                "SELECT * FROM utilizador"
         );
 
         // Verify if admin is registered
@@ -126,27 +126,25 @@ public class DataBaseHandler {
             isAdmin = true;
 
         // If table has registered users, verify if username and name are unique
-        if (result.next())  {
-            while (result.next()) {
-                id = result.getInt("id");
-                String username = result.getString("username");
-                String name = result.getString("nome");
+        while (result.next()) {
+            id = result.getInt("id");
+            String username = result.getString("username");
+            String name = result.getString("nome");
 
-                // Validate client username & name
-                if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
-                    LOG.log("User[" + data.getFirst() + "] already exists");
-                    oos.writeObject(false);
-                    requestAccepted = false;
-                    break;
-                }
+            // Validate client username & name
+            if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
+                LOG.log("User[" + data.getFirst() + "] already exists");
+                oos.writeObject(false);
+                requestAccepted = false;
+                break;
             }
         }
 
         if (requestAccepted) {
             try {
                 // Register user
-                statement.executeUpdate(
-                        "INSERT INTO utilizador(id,username,nome,password,admistrador,autenticado)"
+                int rs = statement.executeUpdate(
+                        "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
                                 + "VALUES("
                                 + "'" + ++id + "',"
                                 + "'" + data.getFirst() + "',"
@@ -155,13 +153,14 @@ public class DataBaseHandler {
                                 + "'" + isAdmin + "',"
                                 + "'" + isAuthenticated + "')"
                 );
-
-                LOG.log("User[" + data.getFirst() + "] has registered succesfully");
-                clientData.setId(id);
-                oos.writeObject(true);
-
+                if (rs == 1) {
+                    LOG.log("User[" + data.getFirst() + "] has registered succesfully");
+                    clientData.setId(id);
+                    oos.writeObject(true);
+                }
             } catch(SQLException e) {
                 LOG.log("Unable to register user[" + data.getFirst() + "]");
+                oos.writeObject(false);
             } finally {
                 if (statement != null) statement.close();
                 if (result != null) result.close();
@@ -191,20 +190,15 @@ public class DataBaseHandler {
             boolean authenticated = result.getBoolean("autenticado");
 
             // Validate login data and authentication
-            if (clientData.getId() == id &&
-                    username.equals(loginData.getKey()) &&
-                    password.equals(loginData.getValue()) &&
-                    authenticated) {
+            if (username.equals(loginData.getKey()) && password.equals(loginData.getValue()) && authenticated) {
                 requestAccepted = false;
                 isAuthenticated = true;
                 break;
             }
             // Validate username & password
-            else if (clientData.getId() == id &&
-                    username.equals(loginData.getKey()) &&
-                    password.equals(loginData.getValue()) &&
-                    !authenticated) {
+            else if (username.equals(loginData.getKey()) && password.equals(loginData.getValue()) && !authenticated) {
                 requestAccepted = true;
+                clientData.setId(id);
                 break;
             }
         }
@@ -212,11 +206,13 @@ public class DataBaseHandler {
         // The user was not found
         if (requestAccepted) {
             try {
-                statement.executeUpdate(
+                int rs = statement.executeUpdate(
                         "UPDATE utilizador SET autenticado = 1 WHERE id = '" + clientData.getId() + "'"
                 );
-                LOG.log("User[" + loginData.getKey() + "]  logged in successfully");
-                oos.writeObject(true);
+                if (rs == 1) {
+                    LOG.log("User[" + loginData.getKey() + "]  logged in successfully");
+                    oos.writeObject(true);
+                }
             } catch (SQLException e) {
                 LOG.log("Unable to login user[" + loginData.getKey() + "]");
                 oos.writeObject(false);
@@ -261,21 +257,28 @@ public class DataBaseHandler {
 
                 // if unique=true, update value
                 if (requestAccepted) {
-                    statement.executeUpdate(
-                            "UPDATE utilizador SET nome = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                    );
+                    try {
+                        int rs = statement.executeUpdate(
+                                "UPDATE utilizador SET nome = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
+                        );
+                        if (rs == 1) {
+                            LOG.log("Name updated succesfully");
+                        }
+                    } catch(SQLException e) {
+                        LOG.log("Unable to update name[" + newValue + "]");
+                    } finally {
+                        if (result != null) result.close();
+                    }
                 }
-
-                if (result != null) result.close();
             }
             case EDIT_USERNAME -> {
                 ResultSet result = statement.executeQuery(
-                        "SELECT user_name FROM utilizador"
+                        "SELECT username FROM utilizador"
                 );
 
                 while (result.next()) {
                     // Verify if its a unique username
-                    if (newValue.equals(result.getString("user_name"))) {
+                    if (newValue.equals(result.getString("username"))) {
                         LOG.log("This username[" + newValue + "] already exists...");
                         requestAccepted = false;
                     }
@@ -283,9 +286,18 @@ public class DataBaseHandler {
 
                 // if unique=true, update value
                 if (requestAccepted) {
-                    statement.executeUpdate(
-                            "UPDATE utilizador SET user_name = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                    );
+                    try {
+                        int rs = statement.executeUpdate(
+                                "UPDATE utilizador SET username = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
+                        );
+                        if (rs == 1) {
+                            LOG.log("Username updated succesfully");
+                        }
+                    } catch(SQLException e) {
+                        LOG.log("Unable to update username[" + newValue + "]");
+                    } finally {
+                        if (result != null) result.close();
+                    }
                 }
 
                 if (result != null) result.close();
@@ -303,12 +315,19 @@ public class DataBaseHandler {
 
                 // Update password
                 if (requestAccepted) {
-                    statement.executeUpdate(
-                            "UPDATE utilizador SET password = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                    );
+                    try {
+                        int rs = statement.executeUpdate(
+                                "UPDATE utilizador SET password = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
+                        );
+                        if (rs == 1) {
+                            LOG.log("Password updated succesfully");
+                        }
+                    } catch(SQLException e) {
+                        LOG.log("Unable to update password");
+                    } finally {
+                        if (result != null) result.close();
+                    }
                 }
-
-                if (result != null) result.close();
             }
         }
 
@@ -329,7 +348,7 @@ public class DataBaseHandler {
 
         // Execute query to get the clients name
         ResultSet clientName = statement.executeQuery(
-                "SELECT user_name FROM utilizadores WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizadores WHERE id = '" + clientData.getId() + "'"
         );
 
         while(result.next()) {
@@ -380,7 +399,7 @@ public class DataBaseHandler {
 
         // Execute query to get the clients name
         ResultSet clientName = statement.executeQuery(
-                "SELECT user_name FROM utilizadores WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizadores WHERE id = '" + clientData.getId() + "'"
         );
 
         while(result.next()) {
@@ -430,7 +449,7 @@ public class DataBaseHandler {
 
         // Execute query to get the clients name
         ResultSet clientName = statement.executeQuery(
-                "SELECT user_name FROM utilizadores WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizadores WHERE id = '" + clientData.getId() + "'"
         );
 
         // Verify the type of info the user pretends to be searched
@@ -589,7 +608,7 @@ public class DataBaseHandler {
         oos.writeObject(available);
 
         ResultSet username = statement.executeQuery(
-                "SELECT user_name FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
         if (available.isEmpty())
@@ -621,7 +640,7 @@ public class DataBaseHandler {
 
         // Execute a query to get the clients name
         ResultSet username = statement.executeQuery(
-                "SELECT user_name FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
         // Verify if reserves table is empty
@@ -675,7 +694,7 @@ public class DataBaseHandler {
 
         // Execute a query to get the clients name
         ResultSet username = statement.executeQuery(
-                "SELECT user_name FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
         while(result.next()) {
@@ -730,9 +749,9 @@ public class DataBaseHandler {
 
         // Get username
         ResultSet usernameRes = statement.executeQuery(
-                "SELECT user_name FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
-        String username = usernameRes.getString("user_name");
+        String username = usernameRes.getString("username");
 
         // Verify if the time limit was exceeded
         if (differenceSeconds > Constants.TIME_TO_PAY) {
@@ -803,11 +822,11 @@ public class DataBaseHandler {
 
         // Execute a query to get the clients data
         ResultSet isAdmin = statement.executeQuery(
-                "SELECT user_name, nome FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                "SELECT username, nome FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
         // Verify if the client has admin previlege
-        if (isAdmin.getString("user_name").equalsIgnoreCase("admin") &&
+        if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                 isAdmin.getString("nome").equalsIgnoreCase("admin")) {
             // Receive from client the ID of the show to be deleted
             Integer deleteShowId = (Integer)ois.readObject();
@@ -868,7 +887,7 @@ public class DataBaseHandler {
 
         while (result.next()) {
             int id = result.getInt("id");
-            String username = result.getString("user_name");
+            String username = result.getString("username");
             boolean authenticated = result.getBoolean("autenticado");
 
             // User found and its authenticated
