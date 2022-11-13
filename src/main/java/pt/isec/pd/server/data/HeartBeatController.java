@@ -56,12 +56,6 @@ public class HeartBeatController {
         }
 
         sender.start();
-
-        if (hbList.size() == 0) {
-            server.createDataBase();
-         } else {
-            server.transferDataBase();
-        }
     }
 
     public HeartBeatEvent updateHeartBeat() {

@@ -21,6 +21,12 @@ public class Seat implements Serializable {
         this.showId = showId;
     }
 
+    public Seat(String row, String number, double price) {
+        this.row = row;
+        this.number = number;
+        this.price = price;
+    }
+
     public int getId() { return id; }
 
     public String getRow() { return row; }

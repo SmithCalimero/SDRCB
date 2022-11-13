@@ -2,7 +2,7 @@ package pt.isec.pd.server.data;
 
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DataBaseHandler;
-import pt.isec.pd.server.threads.ClientManagement;
+import pt.isec.pd.server.threads.client.ClientManagement;
 import pt.isec.pd.server.threads.DataBase.DataBaseSender;
 import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
@@ -38,18 +38,18 @@ public class Server {
         }
 
         //clientController = new ClientController(pingPort);
-        clientManagement = new ClientManagement(pingPort,dataBaseHandler);
+        clientManagement = new ClientManagement(pingPort,dataBaseHandler,hbList);
         heartBeatController = new HeartBeatController(hbList,this);
     }
 
     public void start() {
         heartBeatController.start();
 
-        if (hbList.size() == 0) {
+       /* if (hbList.size() == 0) {
             createDataBase();
         } else {
             transferDataBase();
-        }
+        }*/
 
         //clientController.start();
         clientManagement.startPingHandler();
@@ -83,6 +83,7 @@ public class Server {
         }
     }
 
+    /*
     public void transferDataBase() {
         HeartBeatEvent hbEvent = hbList.getOrderList().get(0);
         try {
@@ -92,5 +93,5 @@ public class Server {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 }

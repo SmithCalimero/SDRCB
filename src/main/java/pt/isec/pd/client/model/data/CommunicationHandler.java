@@ -20,9 +20,11 @@ public class CommunicationHandler extends Thread{
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
     private Socket socket;
+    private Client client;
 
-    public CommunicationHandler(ServerAddress pingAddr) {
+    public CommunicationHandler(ServerAddress pingAddr,Client client) {
         this.pingAddr = pingAddr;
+        this.client = client;
     }
 
     @Override
@@ -55,6 +57,7 @@ public class CommunicationHandler extends Thread{
         for (ServerAddress address : serversAddr) {
             if (tryConnection(address)) {
                 LOG.log("Connected to " + address.getIp() + ":" + address.getPort());
+                client.register();
                 return true;
             }
         }
@@ -74,12 +77,18 @@ public class CommunicationHandler extends Thread{
 
     private void setSocket(Socket socket) { this.socket = socket; }
 
-    public synchronized void writeToSocket(Socket socket, ClientAction action, Object object) throws IOException {
+    public synchronized void writeToSocket(ClientAction action, Object object) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         //ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
-        HashMap<ClientAction,Object> sendObject = new HashMap<>();
-        sendObject.put(action,object);
-        oos.writeObject(sendObject);
+        ClientData clientData = new ClientData();
+        clientData.setAction(action);
+
+        oos.writeObject(clientData);
+        oos.writeObject(object);
+
+        //HashMap<ClientAction,Object> sendObject = new HashMap<>();
+        //sendObject.put(action,object);
+        //oos.writeObject(sendObject);
     }
 }

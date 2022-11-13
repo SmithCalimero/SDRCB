@@ -1,5 +1,6 @@
-package pt.isec.pd.server.threads;
+package pt.isec.pd.server.threads.client;
 
+import pt.isec.pd.server.data.HeartBeatList;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Constants;
@@ -17,8 +18,11 @@ import java.util.List;
 public class ClientPingHandler extends Thread{
     private final Log LOG = Log.getLogger(Server.class);
     private final int port;
-    public ClientPingHandler(int port) {
+    private HeartBeatList hbList;
+
+    public ClientPingHandler(int port,HeartBeatList hbList) {
         this.port = port;
+        this.hbList = hbList;
     }
 
     @Override
@@ -31,10 +35,7 @@ public class ClientPingHandler extends Thread{
                 ds.receive(dp);
                 LOG.log("Ping has been received from " + dp.getAddress().getHostAddress() + ":" + dp.getPort());
 
-                //TODO: send a list of servers organized by their tcp connection
-                List<ServerAddress> list = new ArrayList<>();
-
-                byte[] listBytes = Utils.serializeObject(list);
+                byte[] listBytes = Utils.serializeObject(hbList.getOrderList());
                 dp.setData(listBytes,0,listBytes.length);
                 dp.setLength(listBytes.length);
                 ds.send(dp);
