@@ -2,28 +2,25 @@ package pt.isec.pd.client.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.fsm.State;
 
-public class LoginForm {
+public class RegisterForm {
     @FXML
-    public TextField usernameField;
+    public AnchorPane pane;
     @FXML
     public PasswordField passwordField;
     @FXML
-    public Label errorMessage;
+    public TextField nameField;
     @FXML
-    public AnchorPane pane;
+    public TextField userNameField;
     @FXML
     public Button loginButton;
     @FXML
     public Button registerButton;
-
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -32,26 +29,21 @@ public class LoginForm {
         registerHandlers();
         update();
     }
+
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
         });
         loginButton.setOnAction(actionEvent -> {
-            errorMessage.setText("");
-            Pair<Boolean,String> response = model.login(usernameField.getText(),passwordField.getText());
-            if (response.getKey()) {
-                model.next();
-            } else {
-                errorMessage.setText(response.getValue());
-            }
-        });
-        registerButton.setOnAction(actionEvent -> {
             model.swapToRegister();
+        });
+
+        registerButton.setOnAction(actionEvent -> {
+            model.register(userNameField.getText(),nameField.getText(),passwordField.getText());
         });
     }
 
-
     private void update() {
-        pane.setVisible(model != null && model.getState() == State.LOGIN);
+        pane.setVisible(model != null && model.getState() == State.REGISTER);
     }
 }

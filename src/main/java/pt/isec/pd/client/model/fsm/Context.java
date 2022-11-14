@@ -45,4 +45,6 @@ public class Context {
         state.disconnect();
     }
 
+    public void swapToRegister() {state.swapToRegister();}
+
 }

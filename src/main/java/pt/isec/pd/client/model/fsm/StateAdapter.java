@@ -46,4 +46,9 @@ public abstract class StateAdapter implements IState {
     public void disconnect() {
         context.disconnect();
     }
+
+    @Override
+    public void swapToRegister() {
+        context.swapToRegister();
+    }
 }

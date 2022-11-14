@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import pt.isec.pd.client.Main;
@@ -28,21 +29,13 @@ public class MainJFX extends Application {
 
         model = new ModelManager(udpConn);
 
-        /*BorderPane root = new RootPane(model);
-        Scene scene = new Scene(root,1280,720);
+        BorderPane root = new RootPane(model);
+        Scene scene = new Scene(root,640,360);
         stage.setScene(scene);
-        stage.setTitle("PD-meta1");
-        stage.setMinWidth(400);
-        stage.show();*/
-
-        FXMLLoader fxmlLoader = new FXMLLoader(MainJFX.class.getResource("/fxml/login-form.fxml"));
-        stage.setScene(new Scene(fxmlLoader.load(),640,360));
         stage.setTitle("PD-meta1");
         stage.setMinWidth(400);
         stage.show();
 
-        LoginForm controller = fxmlLoader.<LoginForm>getController();
-        controller.setModel(model);
         /*
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override

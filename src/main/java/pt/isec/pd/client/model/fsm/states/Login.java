@@ -13,7 +13,7 @@ public class Login extends StateAdapter {
 
     @Override
     public void next() {
-        changeState(State.REGISTER);
+        changeState(State.EDIT_USER);
     }
 
     @Override
@@ -29,5 +29,10 @@ public class Login extends StateAdapter {
     @Override
     public void disconnect() {
         data.disconnect();
+    }
+
+    @Override
+    public void swapToRegister() {
+        changeState(State.REGISTER);
     }
 }

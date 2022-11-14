@@ -54,4 +54,9 @@ public class ModelManager {
     public void disconnect() {
         context.disconnect();
     }
+
+    public void swapToRegister() {
+        context.swapToRegister();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
 }
