@@ -1,5 +1,6 @@
-module com.example.pdmeta {
+module fxml {
     requires javafx.controls;
+    requires javafx.graphics;
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
@@ -8,7 +9,9 @@ module com.example.pdmeta {
     requires java.sql;
     requires org.xerial.sqlitejdbc;
 
-    opens com.example.pdmeta1 to javafx.fxml;
+
+    opens pt.isec.pd.client.gui.view to javafx.fxml;
+    exports pt.isec.pd.client.gui.view;
+    exports pt.isec.pd.client.model;
     exports pt.isec.pd.client.gui;
-    opens pt.isec.pd.client.gui to javafx.fxml;
 }

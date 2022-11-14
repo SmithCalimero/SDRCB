@@ -1,5 +1,6 @@
 package pt.isec.pd.client.model.fsm.states;
 
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
@@ -21,8 +22,13 @@ public class EditUser extends StateAdapter {
     }
 
     @Override
-    public void edit() {
-        data.edit();
+    public void edit(ClientAction action, String edit){
+        data.edit(action,edit);
+    }
+
+    @Override
+    public void disconnect() {
+        data.disconnect();
     }
 
     @Override

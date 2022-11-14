@@ -1,5 +1,6 @@
 package pt.isec.pd.client.model.fsm.states;
 
+import javafx.util.Pair;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
@@ -16,12 +17,17 @@ public class Login extends StateAdapter {
     }
 
     @Override
-    public boolean login() {
-        return data.login();
+    public Pair<Boolean,String> login(String userName, String password) {
+        return data.login(userName,password);
     }
 
     @Override
     public State getState() {
         return State.LOGIN;
+    }
+
+    @Override
+    public void disconnect() {
+        data.disconnect();
     }
 }

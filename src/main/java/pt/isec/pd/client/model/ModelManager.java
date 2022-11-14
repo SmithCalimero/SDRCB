@@ -1,5 +1,7 @@
 package pt.isec.pd.client.model;
 
+import javafx.util.Pair;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.ServerAddress;
@@ -37,15 +39,19 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public boolean login() {
-        return context.login();
+    public Pair<Boolean,String> login(String userName, String password) {
+        return context.login(userName,password);
     }
 
-    public void register() {
-        context.register();
+    public void register(String userName,String name,String password){
+        context.register(userName,name,password);
     }
 
-    public void edit() {
-        context.edit();
+    public void edit(ClientAction action, String edit) {
+        context.edit(action,edit);
+    }
+
+    public void disconnect() {
+        context.disconnect();
     }
 }

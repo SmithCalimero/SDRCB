@@ -11,19 +11,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class CommunicationHandler extends Thread{
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
     private Socket socket;
-    private DatagramSocket ds;
-    private Client client;
+    private final DatagramSocket ds;
 
-    public CommunicationHandler(ServerAddress pingAddr,Client client) {
+    public CommunicationHandler(ServerAddress pingAddr) {
         try {
             ds = new DatagramSocket();
             ds.setSoTimeout(Constants.TIMEOUT);
@@ -31,7 +27,6 @@ public class CommunicationHandler extends Thread{
         } catch (SocketException e) { throw new RuntimeException(e); }
 
         this.pingAddr = pingAddr;
-        this.client = client;
     }
 
     @Override
@@ -41,47 +36,47 @@ public class CommunicationHandler extends Thread{
 
     public void sendPing() {
         try {
+            //1. send ping to server
             DatagramPacket dpSend = new DatagramPacket(new byte[0],0, InetAddress.getByName(pingAddr.getIp()), pingAddr.getPort());
             ds.send(dpSend);
             LOG.log("DatagramPacket sent to the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
 
             DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
             ds.receive(dpReceive);
-            LOG.log("DatagramPacket received from the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
 
-            //try tcp connections
+            //2. try establishing connection
             List<ServerAddress> serverAddr = Utils.deserializeObject(dpReceive.getData());
-            if(!establishingTcpConn(serverAddr)) throw new NoServerFound();
+            LOG.log("List received from the server : "+  serverAddr.toString());
+            establishingTcpConn(serverAddr);
 
         } catch (IOException | ClassNotFoundException | NoServerFound e) {
+            // Udp Time-out or no establish connection
             LOG.log("No tcp connection found or the udp connection was not establish: shutting down application : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
             Platform.exit();
             System.exit(0);
         }
     }
 
-    public synchronized boolean establishingTcpConn(List<ServerAddress> serversAddr) {
+    public synchronized void establishingTcpConn(List<ServerAddress> serversAddr) throws NoServerFound {
         for (ServerAddress address : serversAddr) {
             if (tryConnection(address)) {
                 LOG.log("Connected to " + address.getIp() + ":" + address.getPort());
-                return true;
+                return;
             }
         }
+
         LOG.log("The client was not able to connect to any server");
-        return false;
+        throw new NoServerFound();
     }
 
     private boolean tryConnection(ServerAddress address) {
         try {
             socket = new Socket(address.getIp(), address.getPort());
-            setSocket(socket);
             return true;
         } catch(IOException e) {
             return false;
         }
     }
-
-    private void setSocket(Socket socket) { this.socket = socket; }
 
     public synchronized void writeToSocket(ClientAction action, Object object) throws IOException {
         try {
@@ -91,7 +86,9 @@ public class CommunicationHandler extends Thread{
             clientData.setAction(action);
 
             oos.writeObject(clientData);
-            oos.writeObject(object);
+            if (object != null) {
+                oos.writeObject(object);
+            }
         } catch (SocketException e) {
             sendPing();
             writeToSocket(action,object);
@@ -101,14 +98,11 @@ public class CommunicationHandler extends Thread{
     public synchronized Object readFromSocket() throws IOException {
         try {
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-
-            try {
-                return ois.readObject();
-            } catch (NullPointerException | ClassNotFoundException ignored) {}
-
+            return ois.readObject();
         } catch (SocketException e) {
             sendPing();
-            readFromSocket();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }

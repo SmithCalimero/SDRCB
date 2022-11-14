@@ -153,7 +153,7 @@ public class DataBaseHandler {
                                 + "'" + isAuthenticated + "')"
                 );
                 if (rs == 1) {
-                    LOG.log("User[" + data.getFirst() + "] has registered succesfully");
+                    LOG.log("User[" + data.getFirst() + "] has registered successfully");
                     clientData.setId(id);
                     oos.writeObject(true);
                 }
@@ -161,8 +161,8 @@ public class DataBaseHandler {
                 LOG.log("Unable to register user[" + data.getFirst() + "]");
                 oos.writeObject(false);
             } finally {
-                if (statement != null) statement.close();
-                if (result != null) result.close();
+                statement.close();
+                result.close();
             }
         }
     }
@@ -170,6 +170,7 @@ public class DataBaseHandler {
     public synchronized void login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException,IOException, ClassNotFoundException {
         boolean requestAccepted = false;
         boolean isAuthenticated = false;
+        boolean isAdmin = false;
 
         // Receives clients data (format: username, password)
         Pair<String,String> loginData = (Pair<String,String>) ois.readObject();
@@ -185,12 +186,11 @@ public class DataBaseHandler {
             int id = result.getInt("id");
             String username = result.getString("username");
             String password = result.getString("password");
-            boolean admin = result.getBoolean("administrador");
+            isAdmin = result.getBoolean("administrador");
             boolean authenticated = result.getBoolean("autenticado");
 
             // Validate login data and authentication
             if (username.equals(loginData.getKey()) && password.equals(loginData.getValue()) && authenticated) {
-                requestAccepted = false;
                 isAuthenticated = true;
                 break;
             }
@@ -202,6 +202,7 @@ public class DataBaseHandler {
             }
         }
 
+        String msg;
         // The user was not found
         if (requestAccepted) {
             try {
@@ -209,27 +210,32 @@ public class DataBaseHandler {
                         "UPDATE utilizador SET autenticado = 1 WHERE id = '" + clientData.getId() + "'"
                 );
                 if (rs == 1) {
-                    LOG.log("User[" + loginData.getKey() + "]  logged in successfully");
-                    oos.writeObject(true);
+                    msg = "User[" + loginData.getKey() + "]  logged in successfully";
+                    LOG.log(msg);
+                    oos.writeObject(new Triple<>(true,isAdmin,msg));
                 }
             } catch (SQLException e) {
-                LOG.log("Unable to login user[" + loginData.getKey() + "]");
-                oos.writeObject(false);
+                msg = "Unable to login user[" + loginData.getKey() + "]";
+                LOG.log(msg);
+                oos.writeObject(new Triple<>(false,isAdmin,msg));
             } finally {
-                if (statement != null) statement.close();
-                if (result != null) result.close();
-                return;
+                statement.close();
+                result.close();
             }
+            return;
         }
 
-        if (!isAuthenticated && !requestAccepted)
-            LOG.log("The username[" + loginData.getKey() + "] or password are incorret");
-        else if (isAuthenticated)
-            LOG.log("This user[" + loginData.getKey() + "] is already authenticated");
+        if (!isAuthenticated) {
+            msg = "The username " + loginData.getKey() + " or password are incorrect";
+            LOG.log(msg);
+        } else  {
+            msg = "This user " + loginData.getKey() + " is already authenticated";
+            LOG.log(msg);
+        }
 
-        oos.writeObject(false);
-        if (statement != null) statement.close();
-        if (result != null) result.close();
+        oos.writeObject(new Triple<>(false,null,msg));
+        statement.close();
+        result.close();
     }
 
     public synchronized void editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
@@ -261,12 +267,12 @@ public class DataBaseHandler {
                                 "UPDATE utilizador SET nome = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
                         );
                         if (rs == 1) {
-                            LOG.log("Name updated succesfully");
+                            LOG.log("Name updated successfully");
                         }
                     } catch(SQLException e) {
                         LOG.log("Unable to update name[" + newValue + "]");
                     } finally {
-                        if (result != null) result.close();
+                        result.close();
                     }
                 }
             }
@@ -290,23 +296,23 @@ public class DataBaseHandler {
                                 "UPDATE utilizador SET username = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
                         );
                         if (rs == 1) {
-                            LOG.log("Username updated succesfully");
+                            LOG.log("Username updated successfully");
                         }
                     } catch(SQLException e) {
                         LOG.log("Unable to update username[" + newValue + "]");
                     } finally {
-                        if (result != null) result.close();
+                        result.close();
                     }
                 }
 
-                if (result != null) result.close();
+                result.close();
             }
             case EDIT_PASSWORD -> {
                 ResultSet result = statement.executeQuery(
                         "SELECT password FROM utilizador WHERE id = '" + clientData.getId() + "'"
                 );
 
-                // Verify if the password its the same
+                // Verify if the password it's the same
                 if (newValue.equals(result.getString("password"))) {
                     LOG.log("The password cant be the same");
                     requestAccepted = false;
@@ -319,12 +325,12 @@ public class DataBaseHandler {
                                 "UPDATE utilizador SET password = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
                         );
                         if (rs == 1) {
-                            LOG.log("Password updated succesfully");
+                            LOG.log("Password updated successfully");
                         }
                     } catch(SQLException e) {
                         LOG.log("Unable to update password");
                     } finally {
-                        if (result != null) result.close();
+                        result.close();
                     }
                 }
             }
@@ -334,7 +340,7 @@ public class DataBaseHandler {
     }
 
     public synchronized void consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
-        // Stores reserves awating payment to be sent to the user
+        // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
 
         // Create statement
@@ -357,7 +363,7 @@ public class DataBaseHandler {
             int userId = result.getInt("id_utilizador");
             int showId = result.getInt("id_espetaculo");
 
-            // Validate client id & verify if the reserve is unpaied
+            // Validate client id & verify if the reserve is unpaid
             if (clientData.getId() == userId && !paid) {
                 try {
                     reserves.add(new Reserve(
@@ -368,19 +374,19 @@ public class DataBaseHandler {
                             showId
                     ));
                 } catch (Exception e) {
-                    LOG.log("Unable to consult unpaied reserves from user [" + clientName + "]");
+                    LOG.log("Unable to consult unpaid reserves from user [" + clientName + "]");
                 }
             }
         }
 
         if (reserves.isEmpty())
-            LOG.log("No payments awating from user [" + clientName + "]");
+            LOG.log("No payments awaiting from user [" + clientName + "]");
 
         // Send list to client
         oos.writeObject(reserves);
 
-        if (statement != null) statement.close();
-        if (result != null) result.close();
+        statement.close();
+        result.close();
         if (clientName != null) clientName.close();
     }
 
@@ -408,7 +414,7 @@ public class DataBaseHandler {
             int userId = result.getInt("id_utilizador");
             int showId = result.getInt("id_espetaculo");
 
-            // Validate client id & verify if the reserve is paied
+            // Validate client id & verify if the reserve is paid
             if (clientData.getId() == userId && paid) {
                 try {
                     reserves.add(new Reserve(
@@ -419,25 +425,25 @@ public class DataBaseHandler {
                             showId
                     ));
                 } catch (Exception e) {
-                    LOG.log("Unable to consult paied reserves from user [" + clientName + "]");
+                    LOG.log("Unable to consult paid reserves from user [" + clientName + "]");
                     e.printStackTrace();
                 }
             }
         }
 
         if (reserves.isEmpty())
-            LOG.log("No payments awating from user [" + clientName + "]");
+            LOG.log("No payments awaiting from user [" + clientName + "]");
 
         // Send list to client
         oos.writeObject(reserves);
 
-        if (statement != null) statement.close();
-        if (result != null) result.close();
+        statement.close();
+        result.close();
         if (clientName != null) clientName.close();
     }
 
     public synchronized void consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
-        // stores reservers to be sent to the user
+        // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
 
         // Received filters from user
@@ -474,7 +480,7 @@ public class DataBaseHandler {
                         result.getString("classificacao_etaria"),
                         result.getBoolean("visivel"))
                 );
-                if (result != null) result.close();
+                result.close();
             }
         }
 
@@ -484,14 +490,14 @@ public class DataBaseHandler {
         // Send list to client
         oos.writeObject(shows);
 
-        if (statement != null) statement.close();
+        statement.close();
         if (clientName != null) clientName.close();
     }
 
     public synchronized void selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException, ParseException {
         //  When client clicks a button to select a show this function returns a list of available shows
         //  Prevents: client click and then server says not available
-        //  This way he only sees whats available
+        //  This way he only sees what's available
 
         // List to store available shows to send to the client
         ArrayList<Show> availableShows = new ArrayList<>();
@@ -513,7 +519,7 @@ public class DataBaseHandler {
             String local = result.getString("local");
             String locality = result.getString("localidade");
             String country = result.getString("pais");
-            String ageClassif = result.getString("classificacao_etaria");
+            String ageClassification = result.getString("classificacao_etaria");
             boolean visible = result.getBoolean("visivel");
 
             // If the show is visible
@@ -539,7 +545,7 @@ public class DataBaseHandler {
                             local,
                             locality,
                             country,
-                            ageClassif,
+                            ageClassification,
                             visible
                     ));
                 }
@@ -552,8 +558,8 @@ public class DataBaseHandler {
         if (availableShows.isEmpty())
             LOG.log("No shows available at the moment");
 
-        if (statement != null) statement.close();
-        if (result != null) result.close();
+        statement.close();
+        result.close();
     }
 
     public synchronized void viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException {
@@ -615,9 +621,9 @@ public class DataBaseHandler {
         else
             LOG.log("Available seats for the selected show[" + recShowId + "] sent to user[" + username + "]");
 
-        if (statement != null) statement.close();
-        if (availableSeats != null) availableSeats.close();
-        if (reservedSeats != null) reservedSeats.close();
+        statement.close();
+        availableSeats.close();
+        reservedSeats.close();
         if (username != null) username.close();
     }
 
@@ -667,14 +673,14 @@ public class DataBaseHandler {
                 );
             }
 
-            LOG.log("Reservation submited with success from user [" + username + "]");
+            LOG.log("Reservation submitted with success from user [" + username + "]");
             oos.writeObject(true);
         } catch (SQLException e) {
             LOG.log("Unable to submit reservation from user[" + username + "]");
             oos.writeObject(false);
         } finally {
-            if (statement != null) statement.close();
-            if (reserves != null) reserves.close();
+            statement.close();
+            reserves.close();
             if (username != null) username.close();
         }
     }
@@ -711,8 +717,8 @@ public class DataBaseHandler {
                     LOG.log("Unable to delete unpaid reservation from user [" + username + "]");
                     oos.writeObject(false);
                 } finally {
-                    if (statement != null) statement.close();
-                    if (result != null) result.close();
+                    statement.close();
+                    result.close();
                     if (username != null) username.close();
                 }
             }
@@ -726,7 +732,7 @@ public class DataBaseHandler {
         // Create connection
         Statement statement = connection.createStatement();
 
-        // Search reserver by id
+        // Search reserve by id
         ResultSet result = statement.executeQuery(
                 "SELECT * FROM reserva WHERE id = '" + resId + "'"
         );
@@ -761,13 +767,13 @@ public class DataBaseHandler {
             statement.executeQuery(
                     "UPDATE reserva SET pago = '" + 1 + "' WHERE id = '" + resId + "'"
             );
-            LOG.log("Reservation from user [" + username + "] was paid succesfully...");
+            LOG.log("Reservation from user [" + username + "] was paid successfully...");
             oos.writeObject(true);
         }
 
-        if (statement != null) statement.close();
-        if (result != null) result.close();
-        if (usernameRes != null) usernameRes.close();
+        statement.close();
+        result.close();
+        usernameRes.close();
     }
 
     public synchronized boolean insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException {
@@ -824,7 +830,7 @@ public class DataBaseHandler {
                 "SELECT username, nome FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
-        // Verify if the client has admin previlege
+        // Verify if the client has admin privilege
         if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                 isAdmin.getString("nome").equalsIgnoreCase("admin")) {
             // Receive from client the ID of the show to be deleted
@@ -861,17 +867,17 @@ public class DataBaseHandler {
                         LOG.log("Unable to delete show[" + deleteShowId + "]");
                         oos.writeObject(false);
                     } finally {
-                        if (statement != null) statement.close();
-                        if (reservations != null) reservations.close();
-                        if (isAdmin != null) isAdmin.close();
+                        statement.close();
+                        reservations.close();
+                        isAdmin.close();
                     }
                 }
             }
         } else {
             LOG.log("Unable to delete show. Only the admin can execute this function");
             oos.writeObject(false);
-            if (statement != null) statement.close();
-            if (isAdmin != null) isAdmin.close();
+            statement.close();
+            isAdmin.close();
         }
     }
 
@@ -902,8 +908,8 @@ public class DataBaseHandler {
                     LOG.log("Unable to logout user[" + username + "]");
                     oos.writeObject(false);
                 } finally {
-                    if (statement != null) statement.close();
-                    if (result != null) result.close();
+                    statement.close();
+                    result.close();
                 }
             }
         }

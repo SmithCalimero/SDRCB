@@ -1,6 +1,8 @@
 package pt.isec.pd.client.model.fsm;
 
+import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.data.ClientAction;
 
 public abstract class StateAdapter implements IState {
     protected Context context;
@@ -21,22 +23,27 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public boolean login() {
-        return context.login();
+    public Pair<Boolean,String> login(String userName, String password) {
+        return context.login(userName,password);
     }
 
     @Override
-    public void register() {
-        context.register();
+    public void register(String userName,String name,String password) {
+        context.register(userName,name,password);
     }
 
     @Override
-    public void edit() {
-        context.edit();
+    public void edit(ClientAction action, String edit) {
+        context.edit(action,edit);
     }
 
     @Override
     public void previous() {
         context.previous();
+    }
+
+    @Override
+    public void disconnect() {
+        context.disconnect();
     }
 }
