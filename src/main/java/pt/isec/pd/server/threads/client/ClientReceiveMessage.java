@@ -1,7 +1,9 @@
 package pt.isec.pd.server.threads.client;
 
 import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DataBaseHandler;
+import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,6 +13,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 
 public class ClientReceiveMessage extends Thread {
+    private final Log LOG = Log.getLogger(Server.class);
     private Socket socket;
     private DataBaseHandler dbHandler;
     private Integer numConnections;
@@ -54,9 +57,13 @@ public class ClientReceiveMessage extends Thread {
                     default -> throw new IllegalArgumentException("Unexpected action value");
                 }
             } catch (ClassNotFoundException | SQLException e) {
-                System.out.println("Unable to read client data: " + e);
+                LOG.log("Unable to read client data: " + e);
             } catch (ParseException | IOException e) {
-                e.printStackTrace();
+                LOG.log("Client left");
+                synchronized (numConnections){
+                    numConnections--;
+                }
+               break;
             }
         }
     }
