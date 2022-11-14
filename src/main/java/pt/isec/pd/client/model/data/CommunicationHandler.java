@@ -1,42 +1,46 @@
 package pt.isec.pd.client.model.data;
 
+import javafx.application.Platform;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Constants;
+import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class CommunicationHandler extends Thread{
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
     private Socket socket;
+    private DatagramSocket ds;
     private Client client;
 
     public CommunicationHandler(ServerAddress pingAddr,Client client) {
+        try {
+            ds = new DatagramSocket();
+            ds.setSoTimeout(Constants.TIMEOUT);
+            LOG.log("DatagramSocket created on the port: " + ds.getLocalPort());
+        } catch (SocketException e) { throw new RuntimeException(e); }
+
         this.pingAddr = pingAddr;
         this.client = client;
     }
 
     @Override
     public void run() {
-        List<ServerAddress> serversAddr = sendPing();
-        establishingTcpConn(serversAddr);
+        sendPing();
     }
 
-    public ArrayList<ServerAddress> sendPing() {
-        try(DatagramSocket ds = new DatagramSocket()) {
-            LOG.log("DatagramSocket created on the port: " + ds.getLocalPort());
-
+    public void sendPing() {
+        try {
             DatagramPacket dpSend = new DatagramPacket(new byte[0],0, InetAddress.getByName(pingAddr.getIp()), pingAddr.getPort());
             ds.send(dpSend);
             LOG.log("DatagramPacket sent to the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
@@ -45,20 +49,21 @@ public class CommunicationHandler extends Thread{
             ds.receive(dpReceive);
             LOG.log("DatagramPacket received from the server : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
 
-            return Utils.deserializeObject(dpReceive.getData());
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
+            //try tcp connections
+            List<ServerAddress> serverAddr = Utils.deserializeObject(dpReceive.getData());
+            if(!establishingTcpConn(serverAddr)) throw new NoServerFound();
+
+        } catch (IOException | ClassNotFoundException | NoServerFound e) {
+            LOG.log("No tcp connection found or the udp connection was not establish: shutting down application : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
+            Platform.exit();
+            System.exit(0);
         }
     }
-
 
     public synchronized boolean establishingTcpConn(List<ServerAddress> serversAddr) {
         for (ServerAddress address : serversAddr) {
             if (tryConnection(address)) {
                 LOG.log("Connected to " + address.getIp() + ":" + address.getPort());
-                //client.register();
-                client.login();
                 return true;
             }
         }
@@ -79,17 +84,32 @@ public class CommunicationHandler extends Thread{
     private void setSocket(Socket socket) { this.socket = socket; }
 
     public synchronized void writeToSocket(ClientAction action, Object object) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-        //ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
-        ClientData clientData = new ClientData();
-        clientData.setAction(action);
+            ClientData clientData = new ClientData();
+            clientData.setAction(action);
 
-        oos.writeObject(clientData);
-        oos.writeObject(object);
+            oos.writeObject(clientData);
+            oos.writeObject(object);
+        } catch (SocketException e) {
+            sendPing();
+            writeToSocket(action,object);
+        }
+    }
 
-        //HashMap<ClientAction,Object> sendObject = new HashMap<>();
-        //sendObject.put(action,object);
-        //oos.writeObject(sendObject);
+    public synchronized Object readFromSocket() throws IOException {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+
+            try {
+                return ois.readObject();
+            } catch (NullPointerException | ClassNotFoundException ignored) {}
+
+        } catch (SocketException e) {
+            sendPing();
+            readFromSocket();
+        }
+        return null;
     }
 }

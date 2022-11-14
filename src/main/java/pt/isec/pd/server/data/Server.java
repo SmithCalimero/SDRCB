@@ -83,6 +83,10 @@ public class Server {
         }
     }
 
+    public synchronized int getActiveConnections() {
+        return clientManagement.getNumConnections();
+    }
+
     /*
     public void transferDataBase() {
         HeartBeatEvent hbEvent = hbList.getOrderList().get(0);

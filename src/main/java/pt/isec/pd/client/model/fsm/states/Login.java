@@ -16,8 +16,8 @@ public class Login extends StateAdapter {
     }
 
     @Override
-    public void login() {
-        data.login();
+    public boolean login() {
+        return data.login();
     }
 
     @Override

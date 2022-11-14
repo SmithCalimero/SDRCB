@@ -45,7 +45,12 @@ public class ClientReceiveMessage extends Thread {
                     case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                     case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                     case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
-                    case DISCONNECTED -> { dbHandler.disconnect(clientData,oos,ois); numConnections--; }
+                    case DISCONNECTED -> {
+                        dbHandler.disconnect(clientData,oos,ois);
+                        synchronized (numConnections){
+                            numConnections--;
+                        }
+                    }
                     default -> throw new IllegalArgumentException("Unexpected action value");
                 }
             } catch (ClassNotFoundException | SQLException e) {

@@ -21,8 +21,8 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public void login() {
-        context.login();
+    public boolean login() {
+        return context.login();
     }
 
     @Override

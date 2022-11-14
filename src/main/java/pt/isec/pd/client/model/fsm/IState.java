@@ -4,7 +4,7 @@ public interface IState {
     void next();
     void previous();
 
-    void login();
+    boolean login();
     void register();
     void edit();
     State getState();

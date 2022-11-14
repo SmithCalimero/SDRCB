@@ -24,8 +24,8 @@ public class Context {
         state.next();
     }
 
-    public void login() {
-        state.login();
+    public boolean login() {
+        return state.login();
     }
 
     public void register() {

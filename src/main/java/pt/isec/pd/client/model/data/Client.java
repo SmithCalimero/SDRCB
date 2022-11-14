@@ -16,22 +16,24 @@ public class Client extends Thread {
         ch = new CommunicationHandler(pingAddr,this);
         ch.start();
     }
-    public void login() {
+    public boolean login() {
         try {
-            //ch.writeToSocket(ClientAction.LOGIN,new Pair<>("eduardo","1234"));
             ch.writeToSocket(ClientAction.LOGIN,new Pair<>("ruben","1234"));
+            return (Boolean) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public void register() {
+    public boolean register() {
         try {
-            //ch.writeToSocket(ClientAction.REGISTER,new Triple<>("eduardo","eduardo bento","1234"));
             ch.writeToSocket(ClientAction.REGISTER,new Triple<>("ruben","ruben santos","1234"));
+            return (Boolean) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public void edit() {

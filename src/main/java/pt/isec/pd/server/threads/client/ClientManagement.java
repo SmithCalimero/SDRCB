@@ -43,7 +43,9 @@ public class ClientManagement extends Thread {
         try {
             while (isConnected) {
                 Socket clientSocket = serverSocket.accept();
-                numConnections++;
+                synchronized (numConnections){
+                    numConnections++;
+                }
                 LOG.log("New connection established: " + numConnections);
 
                 // Creates a thread for that client

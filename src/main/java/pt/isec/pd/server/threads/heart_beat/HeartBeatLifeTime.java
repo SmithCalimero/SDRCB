@@ -21,10 +21,9 @@ public class HeartBeatLifeTime extends Thread{
         while (true) {
             Date date = new Date();
             synchronized (hbList) {
-                /*
                 if(hbList.removeIf(n -> (n.getTimeout().compareTo(date) < 0 || !n.isStatus()))) {
                     LOG.log("heartbeats were removed");
-                }*/
+                }
             }
 
             try {

@@ -57,7 +57,6 @@ public class DataBaseHandler {
 
         int version = resultSet.getInt(1);
 
-        System.out.println(version);
         statement.close();
 
         return version;

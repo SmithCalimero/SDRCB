@@ -14,6 +14,8 @@ public class HeartBeatList extends LinkedList<HeartBeatEvent>{
             add(element);
             return;
         }
+
+        remove(index);
         add(index,element);
     }
 

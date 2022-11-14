@@ -27,7 +27,7 @@ public class RegisterUI extends BorderPane {
             update();
         });
         btnNext.setOnAction(actionEvent -> {
-            model.next();
+            model.register();
         });
     }
 

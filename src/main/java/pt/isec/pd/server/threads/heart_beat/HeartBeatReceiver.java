@@ -27,7 +27,7 @@ public class HeartBeatReceiver extends Thread{
                 DatagramPacket dp = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                 ms.receive(dp);
                 HeartBeatEvent hbEvent = Utils.deserializeObject(dp.getData());
-                LOG.log("New heartbeat\n" + hbEvent);
+                LOG.log("\nNew heartbeat\n" + hbEvent);
 
                 synchronized (hbList) {
                     hbList.updateList(hbEvent);

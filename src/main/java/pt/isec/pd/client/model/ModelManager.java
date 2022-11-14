@@ -37,8 +37,8 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public void login() {
-        context.login();
+    public boolean login() {
+        return context.login();
     }
 
     public void register() {

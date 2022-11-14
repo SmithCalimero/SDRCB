@@ -90,6 +90,6 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
         return  "tcp port: " + portTcp + "\n" +
                 "status: " + status + "\n" +
                 "db version: " + dbVersion + "\n" +
-                "active connections: " + activeConnections + "\n";
+                "active connections: " + activeConnections;
     }
 }

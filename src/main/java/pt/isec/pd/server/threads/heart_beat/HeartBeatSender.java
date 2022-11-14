@@ -28,7 +28,6 @@ public class HeartBeatSender extends Thread {
         while(true) {
             try {
                 Thread.sleep(10 * Constants.TO_SECONDS);
-
                 byte[] bytes = Utils.serializeObject(hbController.updateHeartBeat());
 
                 DatagramPacket dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
