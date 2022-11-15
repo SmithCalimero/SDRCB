@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.fsm.states;
 
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.client.model.data.Type;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
@@ -26,9 +27,12 @@ public class EditUser extends StateAdapter {
         data.edit(action,edit);
     }
 
+
     @Override
-    public void disconnect() {
-        data.disconnect();
+    public void editTransition() {
+        if (data.getType() == Type.NORMAl_MODE) {
+            changeState(State.MENU_CLIENT);
+        }
     }
 
     @Override

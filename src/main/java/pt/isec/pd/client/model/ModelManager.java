@@ -29,22 +29,12 @@ public class ModelManager {
         return context.getState();
     }
 
-    public void next() {
-        context.next();
-        pcs.firePropertyChange(PROP_STATE,null,context.getState());
-    }
-
-    public void previous() {
-        context.previous();
-        pcs.firePropertyChange(PROP_STATE,null,context.getState());
-    }
-
     public Pair<Boolean,String> login(String userName, String password) {
         return context.login(userName,password);
     }
 
-    public void register(String userName,String name,String password){
-        context.register(userName,name,password);
+    public String register(String userName,String name,String password){
+        return context.register(userName,name,password);
     }
 
     public void edit(ClientAction action, String edit) {
@@ -55,8 +45,25 @@ public class ModelManager {
         context.disconnect();
     }
 
+
+    //Change States
+    public void next() {
+        context.next();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public void previous() {
+        context.previous();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
     public void swapToRegister() {
         context.swapToRegister();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public void editTransition() {
+        context.editTransition();
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 }

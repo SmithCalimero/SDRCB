@@ -2,6 +2,7 @@ package pt.isec.pd.client.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -21,6 +22,8 @@ public class RegisterForm {
     public Button loginButton;
     @FXML
     public Button registerButton;
+    @FXML
+    public Label errorMsg;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -39,7 +42,12 @@ public class RegisterForm {
         });
 
         registerButton.setOnAction(actionEvent -> {
-            model.register(userNameField.getText(),nameField.getText(),passwordField.getText());
+            errorMsg.setText("");
+            String msg = model.register(userNameField.getText(),nameField.getText(),passwordField.getText());
+            if (msg.equals(""))
+                model.swapToRegister();
+
+            errorMsg.setText(msg);
         });
     }
 

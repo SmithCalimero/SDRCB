@@ -30,8 +30,8 @@ public class Context {
         return state.login(userName,password);
     }
 
-    public void register(String userName,String name,String password) {
-        state.register(userName,name,password);
+    public String register(String userName,String name,String password) {
+        return state.register(userName,name,password);
     }
 
     public void edit(ClientAction action, String edit) {
@@ -42,9 +42,12 @@ public class Context {
         state.previous();
     }
     public void disconnect() {
-        state.disconnect();
+        data.disconnect();
     }
 
     public void swapToRegister() {state.swapToRegister();}
 
+    public void editTransition() {
+        state.editTransition();
+    }
 }

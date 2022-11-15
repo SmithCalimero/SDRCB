@@ -13,6 +13,7 @@ public class EditForm {
     public ChoiceBox choiceBox;
     public Button editButton;
     public TextField editField;
+    public Button cancelButton;
 
     private ModelManager model;
 
@@ -35,6 +36,10 @@ public class EditForm {
                 case "Name" -> model.edit(ClientAction.EDIT_NAME,editField.getText());
                 case "Password" -> model.edit(ClientAction.EDIT_PASSWORD,editField.getText());
             }
+        });
+
+        cancelButton.setOnAction(actionEvent -> {
+            model.editTransition();
         });
     }
 

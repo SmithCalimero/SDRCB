@@ -107,6 +107,7 @@ public class DataBaseHandler {
         boolean isAdmin = false;
         boolean isAuthenticated = false;
         boolean requestAccepted = true;
+        String msg = "";
 
         // Receives clients register data (format: username, name, password)
         Triple<String,String,String> data = (Triple<String,String,String>) ois.readObject();
@@ -132,8 +133,8 @@ public class DataBaseHandler {
 
             // Validate client username & name
             if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
-                LOG.log("User[" + data.getFirst() + "] already exists");
-                oos.writeObject(false);
+                msg = "User[" + data.getFirst() + "] already exists";
+                LOG.log(msg);
                 requestAccepted = false;
                 break;
             }
@@ -155,16 +156,16 @@ public class DataBaseHandler {
                 if (rs == 1) {
                     LOG.log("User[" + data.getFirst() + "] has registered successfully");
                     clientData.setId(id);
-                    oos.writeObject(true);
                 }
             } catch(SQLException e) {
-                LOG.log("Unable to register user[" + data.getFirst() + "]");
-                oos.writeObject(false);
+                msg = "Unable to register user[" + data.getFirst() + "]";
+                LOG.log(msg);
             } finally {
                 statement.close();
                 result.close();
             }
         }
+        oos.writeObject(msg);
     }
 
     public synchronized void login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException,IOException, ClassNotFoundException {
@@ -201,6 +202,8 @@ public class DataBaseHandler {
                 break;
             }
         }
+
+        oos.writeObject(clientData.getId());
 
         String msg;
         // The user was not found
@@ -892,7 +895,6 @@ public class DataBaseHandler {
     public synchronized void disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
         // Create statement
         Statement statement = connection.createStatement();
-
         // Execute a query to get the clients data
         ResultSet result = statement.executeQuery(
                 "SELECT id,username, nome, autenticado FROM utilizador"

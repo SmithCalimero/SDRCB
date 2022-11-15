@@ -17,6 +17,8 @@ public class CommunicationHandler extends Thread {
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
     private Socket socket;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
     private final DatagramSocket ds;
     private ClientData clientData;
 
@@ -48,7 +50,7 @@ public class CommunicationHandler extends Thread {
 
             //2. try establishing connection
             List<ServerAddress> serverAddr = Utils.deserializeObject(dpReceive.getData());
-            LOG.log("List received from the server : "+  serverAddr.toString());
+            LOG.log("List received from the server");
             establishingTcpConn(serverAddr);
 
         } catch (IOException | ClassNotFoundException | NoServerFound e) {
@@ -74,6 +76,8 @@ public class CommunicationHandler extends Thread {
     private boolean tryConnection(ServerAddress address) {
         try {
             socket = new Socket(address.getIp(), address.getPort());
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
             return true;
         } catch(IOException e) {
             return false;
@@ -82,12 +86,9 @@ public class CommunicationHandler extends Thread {
 
     public synchronized void writeToSocket(ClientAction action, Object object) throws IOException {
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-
-            //clientData = new ClientData();
             clientData.setAction(action);
 
-            oos.writeObject(clientData);
+            oos.writeUnshared(clientData);
             if (object != null) {
                 oos.writeObject(object);
             }
@@ -99,7 +100,6 @@ public class CommunicationHandler extends Thread {
 
     public synchronized Object readFromSocket() throws IOException {
         try {
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             return ois.readObject();
         } catch (SocketException e) {
             sendPing();
@@ -110,4 +110,8 @@ public class CommunicationHandler extends Thread {
     }
 
     public ClientAction getClientAction() { return clientData.getAction(); }
+
+    public ClientData getClientData() {
+        return clientData;
+    }
 }

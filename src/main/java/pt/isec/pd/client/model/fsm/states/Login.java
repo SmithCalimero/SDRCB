@@ -13,7 +13,7 @@ public class Login extends StateAdapter {
 
     @Override
     public void next() {
-        changeState(State.EDIT_USER);
+        changeState(State.MENU_CLIENT);
     }
 
     @Override
@@ -24,11 +24,6 @@ public class Login extends StateAdapter {
     @Override
     public State getState() {
         return State.LOGIN;
-    }
-
-    @Override
-    public void disconnect() {
-        data.disconnect();
     }
 
     @Override

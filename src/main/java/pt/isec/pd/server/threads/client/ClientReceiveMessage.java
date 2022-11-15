@@ -17,6 +17,8 @@ public class ClientReceiveMessage extends Thread {
     private Socket socket;
     private DataBaseHandler dbHandler;
     private Integer numConnections;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
     private boolean requestAccepted = false;
     ClientManagement clientManagement;
 
@@ -25,15 +27,18 @@ public class ClientReceiveMessage extends Thread {
         this.dbHandler = dbHandler;
         this.numConnections = numConnections;
         this.clientManagement = clientManagement;
+        try {
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public synchronized void run() {
         while (true) {
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
 

@@ -25,11 +25,16 @@ public class Client extends Thread {
         try {
             ch.writeToSocket(ClientAction.LOGIN,new Pair<>(userName,password));
 
+            Integer id = (Integer) ch.readFromSocket();
+
             //<isLogin,isAdmin?,ErrorMessage?>
             Triple<Boolean,Boolean,String> response = (Triple<Boolean,Boolean,String>) ch.readFromSocket();
 
             //Assign the mode;
             if (response.getFirst()) {
+                synchronized (ch.getClientData()) {
+                    ch.getClientData().setId(id);
+                }
                 type = response.getSecond() ? Type.ADMIN : Type.NORMAl_MODE;
             }
 
@@ -42,14 +47,14 @@ public class Client extends Thread {
         return null;
     }
 
-    public boolean register(String userName,String name,String password) {
+    public String register(String userName,String name,String password) {
         try {
             ch.writeToSocket(ClientAction.REGISTER,new Triple<>(userName,name,password));
-            return (Boolean) ch.readFromSocket();
+            return (String) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
     public void edit(ClientAction action,String edit) {

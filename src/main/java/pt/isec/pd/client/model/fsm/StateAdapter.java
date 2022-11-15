@@ -28,8 +28,8 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public void register(String userName,String name,String password) {
-        context.register(userName,name,password);
+    public String register(String userName,String name,String password) {
+        return context.register(userName,name,password);
     }
 
     @Override
@@ -50,5 +50,10 @@ public abstract class StateAdapter implements IState {
     @Override
     public void swapToRegister() {
         context.swapToRegister();
+    }
+
+    @Override
+    public void editTransition() {
+        context.editTransition();
     }
 }

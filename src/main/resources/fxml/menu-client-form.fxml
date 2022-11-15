@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane fx:id="pane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.MenuClientForm">
+   <children>
+      <Button fx:id="editButton" layoutX="274.0" layoutY="188.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Editar" textFill="WHITE" />
+   </children>
+</AnchorPane>
