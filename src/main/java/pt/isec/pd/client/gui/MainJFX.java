@@ -11,13 +11,17 @@ import javafx.stage.WindowEvent;
 import pt.isec.pd.client.Main;
 import pt.isec.pd.client.gui.view.LoginForm;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.server.data.Server;
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
 public class MainJFX extends Application {
+    private final Log LOG = Log.getLogger(Client.class);
     ModelManager model;
 
     @Override
@@ -36,12 +40,13 @@ public class MainJFX extends Application {
         stage.setMinWidth(400);
         stage.show();
 
-        /*
+
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
+                LOG.log("Disconnecting");
                 model.disconnect();
             }
-        });*/
+        });
     }
 }

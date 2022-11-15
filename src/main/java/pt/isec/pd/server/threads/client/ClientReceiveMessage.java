@@ -33,7 +33,6 @@ public class ClientReceiveMessage extends Thread {
 
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
-
                 switch(clientData.getAction()) {
                     case REGISTER -> dbHandler.register(clientData,oos,ois);
                     case LOGIN /*, LOGIN_ADM */ -> dbHandler.login(clientData,oos,ois);

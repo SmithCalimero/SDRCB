@@ -87,9 +87,6 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
 
     @Override
     public String toString() {
-        return  "tcp port: " + portTcp + "\n" +
-                "status: " + status + "\n" +
-                "db version: " + dbVersion + "\n" +
-                "active connections: " + activeConnections;
+        return  "tcp port: " + portTcp + "\n";
     }
 }
