@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
-<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.LoginForm">
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="442.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.LoginForm">
    <children>
-      <Button fx:id="loginButton" layoutX="298.0" layoutY="224.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Login" textFill="WHITE" />
-      <PasswordField fx:id="passwordField" layoutX="246.0" layoutY="184.0" />
-      <TextField fx:id="usernameField" layoutX="246.0" layoutY="132.0" />
-      <Label layoutX="246.0" layoutY="111.0" text="Username" />
-      <Label layoutX="248.0" layoutY="167.0" text="Password" />
+      <AnchorPane prefHeight="360.0" prefWidth="230.0" style="-fx-background-color: #bd220d;" />
+      <Button fx:id="loginButton" layoutX="284.0" layoutY="237.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: #000000;" text="Login" textFill="WHITE" />
+      <PasswordField fx:id="passwordField" layoutX="322.0" layoutY="155.0" />
+      <TextField fx:id="usernameField" layoutX="322.0" layoutY="105.0" />
+      <Label layoutX="247.0" layoutY="109.0" text="Username">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
+      <Label layoutX="249.0" layoutY="159.0" text="Password">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
       <Label fx:id="errorMessage" alignment="CENTER" layoutX="146.0" layoutY="300.0" prefHeight="17.0" prefWidth="349.0" />
-      <Button fx:id="registerButton" layoutX="54.0" layoutY="50.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Registar" textAlignment="CENTER" textFill="WHITE" />
+      <Button fx:id="registerButton" layoutX="284.0" layoutY="288.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: #000000;" text="Registar" textAlignment="CENTER" textFill="WHITE" />
    </children>
 </AnchorPane>
