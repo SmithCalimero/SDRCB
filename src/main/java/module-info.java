@@ -14,4 +14,5 @@ module fxml {
     exports pt.isec.pd.client.gui.view;
     exports pt.isec.pd.client.model;
     exports pt.isec.pd.client.gui;
+    exports pt.isec.pd.shared_data;
 }

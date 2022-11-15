@@ -19,6 +19,13 @@ public class MenuClient extends StateAdapter {
     }
 
     @Override
+    public void showsTransition() {
+        if (data.getType() == Type.NORMAl_MODE) {
+            changeState(State.SHOWS);
+        }
+    }
+
+    @Override
     public State getState() {
         return State.MENU_CLIENT;
     }

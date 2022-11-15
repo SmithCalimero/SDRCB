@@ -119,4 +119,9 @@ public class Show implements Serializable {
     }
 
     public boolean isVisible() { return visible; }
+
+    @Override
+    public String toString() {
+        return "descrição: " + description + ";duração: " + duration + ";data: " + dateHour;
+    }
 }

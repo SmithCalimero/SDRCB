@@ -13,6 +13,7 @@ import pt.isec.pd.client.model.fsm.State;
 public class MenuClientForm {
     public AnchorPane pane;
     public Button editButton;
+    public Button showsButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -28,6 +29,9 @@ public class MenuClientForm {
 
         editButton.setOnAction(actionEvent -> {
             model.editTransition();
+        });
+        showsButton.setOnAction(actionEvent -> {
+            model.showsTransition();
         });
     }
     private void update() {

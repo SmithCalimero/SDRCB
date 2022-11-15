@@ -4,6 +4,10 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.shared_data.Show;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class Context {
     Client data;
@@ -49,5 +53,13 @@ public class Context {
 
     public void editTransition() {
         state.editTransition();
+    }
+
+    public void showsTransition() {
+        state.showsTransition();
+    }
+
+    public List<Show> consultShows(HashMap<String,String> filters) {
+        return state.consultShows(filters);
     }
 }

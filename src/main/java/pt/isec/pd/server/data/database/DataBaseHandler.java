@@ -457,7 +457,7 @@ public class DataBaseHandler {
 
         // Execute query to get the clients name
         ResultSet clientName = statement.executeQuery(
-                "SELECT username FROM utilizadores WHERE id = '" + clientData.getId() + "'"
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
         // Verify the type of info the user pretends to be searched
@@ -466,7 +466,7 @@ public class DataBaseHandler {
 
             // Get all the shows from DB
             ResultSet result = statement.executeQuery(
-                    "SELECT * FROM espetaculo WHERE '" + i.getKey() + "' LIKE '%" + i.getValue() + "%'"
+                    "SELECT * FROM espetaculo WHERE " + i.getKey() + " LIKE '%" + i.getValue() + "%'"
             );
 
             // Add objects to array

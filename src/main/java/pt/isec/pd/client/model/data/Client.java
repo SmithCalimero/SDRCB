@@ -19,6 +19,11 @@ public class Client extends Thread {
     public Client(ServerAddress pingAddr) {
         ch = new CommunicationHandler(pingAddr);
         ch.start();
+        try {
+            ch.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Pair<Boolean,String> login(String userName,String password) {

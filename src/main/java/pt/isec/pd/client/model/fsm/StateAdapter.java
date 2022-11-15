@@ -3,6 +3,11 @@ package pt.isec.pd.client.model.fsm;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.client.model.fsm.states.Shows;
+import pt.isec.pd.shared_data.Show;
+
+import java.util.HashMap;
+import java.util.List;
 
 public abstract class StateAdapter implements IState {
     protected Context context;
@@ -55,5 +60,15 @@ public abstract class StateAdapter implements IState {
     @Override
     public void editTransition() {
         context.editTransition();
+    }
+
+    @Override
+    public void showsTransition() {
+        context.showsTransition();
+    }
+
+    @Override
+    public List<Show> consultShows(HashMap<String, String> filters) {
+        return context.consultShows(filters);
     }
 }
