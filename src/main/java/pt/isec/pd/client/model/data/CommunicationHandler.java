@@ -13,11 +13,12 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.List;
 
-public class CommunicationHandler extends Thread{
+public class CommunicationHandler extends Thread {
     private final Log LOG = Log.getLogger(Client.class);
     private final ServerAddress pingAddr;
     private Socket socket;
     private final DatagramSocket ds;
+    private ClientData clientData;
 
     public CommunicationHandler(ServerAddress pingAddr) {
         try {
@@ -27,6 +28,7 @@ public class CommunicationHandler extends Thread{
         } catch (SocketException e) { throw new RuntimeException(e); }
 
         this.pingAddr = pingAddr;
+        this.clientData = new ClientData();
     }
 
     @Override
@@ -82,7 +84,7 @@ public class CommunicationHandler extends Thread{
         try {
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
-            ClientData clientData = new ClientData();
+            //clientData = new ClientData();
             clientData.setAction(action);
 
             oos.writeObject(clientData);
@@ -106,4 +108,6 @@ public class CommunicationHandler extends Thread{
         }
         return null;
     }
+
+    public ClientAction getClientAction() { return clientData.getAction(); }
 }

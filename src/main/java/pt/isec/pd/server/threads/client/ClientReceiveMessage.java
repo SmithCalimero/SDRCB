@@ -17,11 +17,14 @@ public class ClientReceiveMessage extends Thread {
     private Socket socket;
     private DataBaseHandler dbHandler;
     private Integer numConnections;
+    private boolean requestAccepted = false;
+    ClientManagement clientManagement;
 
-    public ClientReceiveMessage(Socket socket, DataBaseHandler dbHandler,Integer numConnections) {
+    public ClientReceiveMessage(Socket socket, DataBaseHandler dbHandler,Integer numConnections,ClientManagement clientManagement) {
         this.socket = socket;
         this.dbHandler = dbHandler;
         this.numConnections = numConnections;
+        this.clientManagement = clientManagement;
     }
 
     @Override
@@ -33,6 +36,7 @@ public class ClientReceiveMessage extends Thread {
 
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
+
                 switch(clientData.getAction()) {
                     case REGISTER -> dbHandler.register(clientData,oos,ois);
                     case LOGIN /*, LOGIN_ADM */ -> dbHandler.login(clientData,oos,ois);
@@ -41,8 +45,12 @@ public class ClientReceiveMessage extends Thread {
                     case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos,ois);
                     case CONSULT_SHOWS -> dbHandler.consultShows(clientData,oos,ois);
                     case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
-                    case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos,ois);
-                    case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData,oos,ois);
+                    case VIEW_SEATS_PRICES -> {
+                        clientManagement.addClientViewingSeats(socket);
+                        dbHandler.viewSeatsAndPrices(clientData,oos,ois);
+                    }
+                    case STOPPED_VIEWING_SEATS -> clientManagement.isViewingSeats(socket);
+                    case SUBMIT_RESERVATION -> requestAccepted = dbHandler.submitReservation(clientData,oos,ois);
                     case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                     case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                     case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
@@ -55,6 +63,9 @@ public class ClientReceiveMessage extends Thread {
                     }
                     default -> throw new IllegalArgumentException("Unexpected action value");
                 }
+
+                if (requestAccepted)
+                    clientManagement.notifyClients();
             } catch (ClassNotFoundException | SQLException e) {
                 LOG.log("Unable to read client data: " + e);
             } catch (ParseException | IOException e) {

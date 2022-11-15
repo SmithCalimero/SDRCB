@@ -17,5 +17,6 @@ public enum ClientAction {
     PAY_RESERVATION,                // done
     INSERT_SHOWS,
     DELETE_SHOW,                    // done
-    DISCONNECTED                    // done
+    DISCONNECTED,                   // done
+    STOPPED_VIEWING_SEATS
 }

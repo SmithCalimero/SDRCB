@@ -563,71 +563,76 @@ public class DataBaseHandler {
     }
 
     public synchronized void viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException {
-        // At this moment the client has already selected the show, so we search by the show id
-        // Receive show id
-        Integer recShowId = (Integer)ois.readObject();
+        try {
+            // At this moment the client has already selected the show, so we search by the show id
+            // Receive show id
+            Integer recShowId = (Integer) ois.readObject();
 
-        // Get unavailable seats ids
-        ArrayList<Integer> unavailable = new ArrayList<>();
+            // Get unavailable seats ids
+            ArrayList<Integer> unavailable = new ArrayList<>();
 
-        Statement statement = connection.createStatement();
-        ResultSet reservedSeats = statement.executeQuery(
-                "SELECT id_lugar FROM reserva_lugar"
-        );
+            Statement statement = connection.createStatement();
+            ResultSet reservedSeats = statement.executeQuery(
+                    "SELECT id_lugar FROM reserva_lugar"
+            );
 
-        while(reservedSeats.next()) {
-            int reservedSeatId = reservedSeats.getInt("id_lugar");
-            unavailable.add(reservedSeatId);
-        }
-
-        // Get available seats
-        ArrayList<Seat> available = new ArrayList<>();
-
-        ResultSet availableSeats = statement.executeQuery(
-                "SELECT * FROM lugar"
-        );
-
-        while(availableSeats.next()) {
-            int seatId = availableSeats.getInt("id");
-            String row = availableSeats.getString("fila");
-            String seat = availableSeats.getString("assento");
-            double price = availableSeats.getDouble("preco");
-            int showId = availableSeats.getInt("espetaculo_id");
-
-            // ignore this seat, skips to next
-            if (unavailable.contains(seatId))
-                continue;
-
-            if (showId == recShowId) {
-                available.add(new Seat(
-                        seatId,
-                        row,
-                        seat,
-                        price,
-                        showId
-                ));
+            while (reservedSeats.next()) {
+                int reservedSeatId = reservedSeats.getInt("id_lugar");
+                unavailable.add(reservedSeatId);
             }
+
+            // Get available seats
+            ArrayList<Seat> available = new ArrayList<>();
+
+            ResultSet availableSeats = statement.executeQuery(
+                    "SELECT * FROM lugar"
+            );
+
+            while (availableSeats.next()) {
+                int seatId = availableSeats.getInt("id");
+                String row = availableSeats.getString("fila");
+                String seat = availableSeats.getString("assento");
+                double price = availableSeats.getDouble("preco");
+                int showId = availableSeats.getInt("espetaculo_id");
+
+                // ignore this seat, skips to next
+                if (unavailable.contains(seatId))
+                    continue;
+
+                if (showId == recShowId) {
+                    available.add(new Seat(
+                            seatId,
+                            row,
+                            seat,
+                            price,
+                            showId
+                    ));
+                }
+            }
+
+            // Send available seats list to client
+            oos.writeObject(available);
+
+            ResultSet username = statement.executeQuery(
+                    "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
+            );
+
+            /*if (available.isEmpty())
+                LOG.log("No available seats for the selected show[" + recShowId + "] by user[" + username + "]");
+            else
+                LOG.log("Available seats for the selected show[" + recShowId + "] sent to user[" + username + "]");
+            username.close();
+            */
+
+            statement.close();
+            availableSeats.close();
+            reservedSeats.close();
+        } catch(IOException e) {
+            LOG.log("Unable to read show id from client");
         }
-
-        // Send available seats list to client
-        oos.writeObject(available);
-
-        ResultSet username = statement.executeQuery(
-                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
-        );
-
-        if (available.isEmpty())
-            LOG.log("No available seats for the selected show[" + recShowId + "] by user[" + username + "]");
-        else
-            LOG.log("Available seats for the selected show[" + recShowId + "] sent to user[" + username + "]");
-
-        statement.close();
-        availableSeats.close();
-        reservedSeats.close();
-        if (username != null) username.close();
     }
 
-    public synchronized void submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException {
+    public synchronized boolean submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, SQLException {
         int id = 0;
         Date currentTime = new Date();  // Get current time of the server to set in reserve object
         boolean isPaid = false;
@@ -675,13 +680,16 @@ public class DataBaseHandler {
 
             LOG.log("Reservation submitted with success from user [" + username + "]");
             oos.writeObject(true);
+            return true;
         } catch (SQLException e) {
             LOG.log("Unable to submit reservation from user[" + username + "]");
             oos.writeObject(false);
+            return false;
         } finally {
             statement.close();
             reserves.close();
             if (username != null) username.close();
+            return false;
         }
     }
 
