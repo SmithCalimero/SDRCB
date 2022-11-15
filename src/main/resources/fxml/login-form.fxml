@@ -7,18 +7,24 @@
 <AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.LoginForm">
    <children>
       <AnchorPane prefHeight="360.0" prefWidth="320.0" style="-fx-background-color: #bd220d;" />
-      <Button fx:id="loginButton" layoutX="420.0" layoutY="208.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: #000000;" text="Login" textFill="WHITE" />
-      <PasswordField fx:id="passwordField" layoutX="421.0" layoutY="128.0" />
-      <TextField fx:id="usernameField" layoutX="421.0" layoutY="78.0" />
-      <Label layoutX="422.0" layoutY="61.0" text="Username">
+      <Button fx:id="loginButton" layoutX="397.0" layoutY="241.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: #000000;" text="Conectar" textFill="WHITE" />
+      <PasswordField fx:id="passwordField" layoutX="397.0" layoutY="192.0" />
+      <TextField fx:id="usernameField" layoutX="397.0" layoutY="142.0" />
+      <Label layoutX="398.0" layoutY="125.0" text="Username">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="Consolas" size="12.0" />
          </font></Label>
-      <Label layoutX="423.0" layoutY="111.0" text="Password">
+      <Label layoutX="399.0" layoutY="175.0" text="Password">
          <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="Consolas" size="12.0" />
          </font></Label>
       <Label fx:id="errorMessage" alignment="CENTER" layoutX="146.0" layoutY="300.0" prefHeight="17.0" prefWidth="349.0" />
-      <Button fx:id="registerButton" layoutX="420.0" layoutY="259.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" style="-fx-background-color: #000000;" text="Registar" textAlignment="CENTER" textFill="WHITE" />
+      <Button fx:id="registerButton" layoutX="382.0" layoutY="292.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: transparent;" text="Registe-se aqui!" textAlignment="CENTER" underline="true" />
+      <Label layoutX="408.0" layoutY="83.0" text="Faça login para continuar" />
+      <Label layoutX="425.0" layoutY="28.0" text="Login">
+         <font>
+            <Font name="System Bold" size="38.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

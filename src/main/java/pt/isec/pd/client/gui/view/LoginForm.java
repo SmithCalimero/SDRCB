@@ -23,6 +23,7 @@ public class LoginForm {
     public Button loginButton;
     @FXML
     public Button registerButton;
+    public Label registerLabel;
 
     private ModelManager model;
 
