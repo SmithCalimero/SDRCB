@@ -2,6 +2,7 @@ package pt.isec.pd.client.model.data;
 
 import pt.isec.pd.shared_data.Seat;
 
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -13,13 +14,16 @@ import java.util.ArrayList;
 //          needing the updated list
 
 public class UpdateSeatsView extends Thread {
+    public static final String PROP_DATA  = "data";
     Client client;
     CommunicationHandler ch;
     int showId;
     ArrayList<Seat> seats;
     boolean update = false;
+    PropertyChangeSupport pcs;
 
-    public UpdateSeatsView(Client client, CommunicationHandler communicationHandler, int showId) {
+    public UpdateSeatsView(Client client, CommunicationHandler communicationHandler, int showId, PropertyChangeSupport pcs) {
+        this.pcs = pcs;
         this.client = client;
         this.ch = communicationHandler;
         this.showId = showId;
@@ -31,7 +35,11 @@ public class UpdateSeatsView extends Thread {
         // Send the request and receive the list for the first time
         try {
             ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
-            seats = (ArrayList<Seat>) ch.readFromSocket();
+            synchronized (seats) {
+                seats = (ArrayList<Seat>) ch.readFromSocket();
+                pcs.firePropertyChange(PROP_DATA,null,seats);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,22 +56,19 @@ public class UpdateSeatsView extends Thread {
                     ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
 
                     // Receive the updated list
-                    seats = (ArrayList<Seat>) ch.readFromSocket();
+                    synchronized (seats) {
+                        seats = (ArrayList<Seat>) ch.readFromSocket();
+                    }
 
                     // Reset update value
                     update = false;
+
+                    pcs.firePropertyChange(PROP_DATA,null,seats);
                 }
             } catch(IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public void interrupt() {
-        // Send to server the action that he's no longer on SELECTING_SEATS state
-        client.notifyServer();
-        super.interrupt();
     }
 
     public ArrayList<Seat> getSeatsList() { return seats; }

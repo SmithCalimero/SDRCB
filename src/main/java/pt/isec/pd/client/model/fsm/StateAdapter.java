@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.states.Shows;
+import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 
 import java.util.HashMap;
@@ -70,5 +71,15 @@ public abstract class StateAdapter implements IState {
     @Override
     public List<Show> consultShows(HashMap<String, String> filters) {
         return context.consultShows(filters);
+    }
+
+    @Override
+    public List<Seat> getSeatsAndPrices() {
+        return context.getSeatsAndPrices();
+    }
+
+    @Override
+    public void seatsTransition(Integer idSwow) {
+        context.seatsTransition(idSwow);
     }
 }

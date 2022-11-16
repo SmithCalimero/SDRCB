@@ -36,4 +36,11 @@ public class Seat implements Serializable {
     public double getPrice() { return price; }
 
     public int getShowId() { return showId; }
+
+    @Override
+    public String toString() {
+        return "row: " + row + "   " +
+                "number: " + number + "   " +
+                "price: " + price;
+        }
 }

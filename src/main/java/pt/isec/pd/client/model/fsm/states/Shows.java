@@ -17,6 +17,13 @@ public class Shows extends StateAdapter {
     public List<Show> consultShows(HashMap<String,String> filters) {
         return data.consultShows(filters);
     }
+
+    @Override
+    public void seatsTransition(Integer idShow) {
+        changeState(State.SEATS_PRICES);
+        data.viewSeatsAndPrices(idShow);
+    }
+
     @Override
     public State getState() {
         return State.SHOWS;

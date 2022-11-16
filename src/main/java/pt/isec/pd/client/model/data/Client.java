@@ -6,6 +6,9 @@ import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.shared_data.Show;
 import pt.isec.pd.shared_data.Triple;
 
+import javax.swing.text.Style;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +18,13 @@ public class Client extends Thread {
     private Type type;
     private final CommunicationHandler ch;
     private UpdateSeatsView updateSeatsView;
+    private PropertyChangeSupport pcs;
 
-    public Client(ServerAddress pingAddr) {
+    public Client(ServerAddress pingAddr, PropertyChangeSupport pcs) {
+        this.pcs = pcs;
+
         ch = new CommunicationHandler(pingAddr);
         ch.start();
-        try {
-            ch.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public Pair<Boolean,String> login(String userName,String password) {
@@ -78,22 +79,13 @@ public class Client extends Thread {
         }
     }
 
-    /*public List<Seat> viewSeatsAndPrices(int showId) {
-        try {
-            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
-            return (ArrayList<Seat>) ch.readFromSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    } */
 
     public void viewSeatsAndPrices(int showId) {
-        updateSeatsView = new UpdateSeatsView(this,ch,showId);
+        updateSeatsView = new UpdateSeatsView(this,ch,showId,pcs);
         updateSeatsView.start();
     }
 
-    public List<Seat> getSeatsAndPrices() { return updateSeatsView.getSeatsList(); }
+    public synchronized List<Seat> getSeatsAndPrices() { return updateSeatsView.getSeatsList(); }
 
     public List<Show> consultShows(HashMap<String,String> filters) {
         try {
@@ -110,10 +102,13 @@ public class Client extends Thread {
     }
 
     public void notifyServer() {
+        updateSeatsView.interrupt();
+        /*
         try {
-            ch.writeToSocket(ClientAction.STOPPED_VIEWING_SEATS,null);
+
+            //ch.writeToSocket(ClientAction.STOPPED_VIEWING_SEATS,null);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }

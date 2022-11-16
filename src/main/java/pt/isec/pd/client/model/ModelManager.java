@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.shared_data.Show;
 
@@ -20,8 +21,8 @@ public class ModelManager {
 
 
     public ModelManager(ServerAddress udpConn) {
-        this.context = new Context(udpConn);
         pcs = new PropertyChangeSupport(this);
+        this.context = new Context(udpConn,pcs);
     }
 
     public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
@@ -43,7 +44,9 @@ public class ModelManager {
     public List<Show> consultShows(HashMap<String,String> filters) {
         return context.consultShows(filters);
     }
-
+    public List<Seat> getSeatsAndPrices() {
+        return context.getSeatsAndPrices();
+    }
     public void edit(ClientAction action, String edit) {
         context.edit(action,edit);
     }
@@ -75,6 +78,11 @@ public class ModelManager {
 
     public void showsTransition() {
         context.showsTransition();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public void seatsTransition(Integer idShow) {
+        context.seatsTransition(idShow);
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 }

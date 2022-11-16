@@ -3,9 +3,11 @@ package pt.isec.pd.client.model.fsm;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.shared_data.Show;
 
+import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,8 +15,8 @@ public class Context {
     Client data;
     IState state;
 
-    public Context(ServerAddress udpConn) {
-        data = new Client(udpConn);
+    public Context(ServerAddress udpConn,PropertyChangeSupport pcs) {
+        data = new Client(udpConn,pcs);
         state = State.LOGIN.createState(this,data);
     }
 
@@ -61,5 +63,13 @@ public class Context {
 
     public List<Show> consultShows(HashMap<String,String> filters) {
         return state.consultShows(filters);
+    }
+
+    public List<Seat> getSeatsAndPrices() {
+        return state.getSeatsAndPrices();
+    }
+
+    public void seatsTransition(Integer idShow) {
+        state.seatsTransition(idShow);
     }
 }

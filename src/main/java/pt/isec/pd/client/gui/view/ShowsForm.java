@@ -88,6 +88,7 @@ public class ShowsForm {
 
         procurarButton.setOnAction(actionEvent -> {
             HashMap<String,String> filters = new HashMap<>();
+
             if (descricaoCheck.isSelected() && !descricaoField.getText().isEmpty()) {
                 filters.put("descricao",descricaoField.getText());
             }
@@ -115,6 +116,8 @@ public class ShowsForm {
 
             list.setItems(FXCollections.observableList(model.consultShows(filters)));
         });
+
+        list.setOnMouseClicked(actionEvent -> model.seatsTransition(list.getSelectionModel().getSelectedItem().getId()));
     }
 
 

@@ -2,6 +2,7 @@ package pt.isec.pd.client.model.fsm;
 
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 
 import java.util.HashMap;
@@ -17,8 +18,9 @@ public interface IState {
 
     void showsTransition();
     List<Show> consultShows(HashMap<String,String> filters);
-
+    List<Seat> getSeatsAndPrices();
     void disconnect();
     void swapToRegister();
     State getState();
+    void seatsTransition(Integer idShow);
 }
