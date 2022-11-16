@@ -44,7 +44,7 @@ public class ClientReceiveMessage extends Thread {
 
                 switch(clientData.getAction()) {
                     case REGISTER -> dbHandler.register(clientData,oos,ois);
-                    case LOGIN /*, LOGIN_ADM */ -> dbHandler.login(clientData,oos,ois);
+                    case LOGIN -> dbHandler.login(clientData,oos,ois);
                     case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos,ois);
                     case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos,ois);
                     case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos,ois);
@@ -69,11 +69,13 @@ public class ClientReceiveMessage extends Thread {
                     default -> throw new IllegalArgumentException("Unexpected action value");
                 }
 
-                if (requestAccepted)
+                if (requestAccepted) {
                     clientManagement.notifyClients();
+                    requestAccepted = false;
+                }
             } catch (ClassNotFoundException | SQLException e) {
                 LOG.log("Unable to read client data: " + e);
-            } catch (ParseException | IOException e) {
+            } catch (IOException e) {
                 LOG.log("Client left");
                 synchronized (numConnections){
                     numConnections--;

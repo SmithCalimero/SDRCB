@@ -103,12 +103,10 @@ public class Client extends Thread {
 
     public void notifyServer() {
         updateSeatsView.interrupt();
-        /*
         try {
-
-            //ch.writeToSocket(ClientAction.STOPPED_VIEWING_SEATS,null);
+            ch.writeToSocket(ClientAction.STOPPED_VIEWING_SEATS,null);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }
