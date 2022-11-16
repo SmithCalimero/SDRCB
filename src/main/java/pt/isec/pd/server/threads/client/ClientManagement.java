@@ -24,14 +24,14 @@ public class ClientManagement extends Thread {
     private List<ClientReceiveMessage> clientsThread = new ArrayList<>();
     private ArrayList<ClientReceiveMessage> viewingSeats = new ArrayList<>();
 
-    public ClientManagement(int pingPort, DataBaseHandler dataBaseHandler,HeartBeatList hbList) {
+    public ClientManagement(int pingPort, DataBaseHandler dataBaseHandler, HeartBeatList hbList) {
         try {
             this.serverSocket = new ServerSocket(0);
-            this.pingHandler = new ClientPingHandler(pingPort,hbList);
+            this.pingHandler = new ClientPingHandler(pingPort, hbList);
             this.dbHandler = dataBaseHandler;
             this.clientsThread = new ArrayList<>();
             this.viewingSeats = new ArrayList<>();
-            hbList.add(new HeartBeatEvent(serverSocket.getLocalPort(),true,dbHandler.getCurrentVersion(),0));
+            hbList.add(new HeartBeatEvent(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0));
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
@@ -43,13 +43,11 @@ public class ClientManagement extends Thread {
         try {
             while (isConnected) {
                 Socket clientSocket = serverSocket.accept();
-                synchronized (numConnections){
-                    numConnections++;
-                }
+                incConnection();
                 LOG.log("New connection established: " + numConnections);
 
                 // Creates a thread for that client
-                ClientReceiveMessage clientRM = new ClientReceiveMessage(clientSocket,dbHandler,numConnections,this);
+                ClientReceiveMessage clientRM = new ClientReceiveMessage(clientSocket, dbHandler, this);
                 clientRM.start();
 
                 clientsThread.add(clientRM);
@@ -59,19 +57,27 @@ public class ClientManagement extends Thread {
         }
     }
 
-    public void setConnected() { isConnected = false; }
+    public void setConnected() {
+        isConnected = false;
+    }
 
     public void startPingHandler() {
         pingHandler.start();
     }
 
-    public int getServerPort() { return serverSocket.getLocalPort(); }
+    public int getServerPort() {
+        return serverSocket.getLocalPort();
+    }
 
-    public int getNumConnections() { return numConnections; }
+    public int getNumConnections() {
+        return numConnections;
+    }
 
     // =========================== WORK IN PROGRESS ===========================
     // Only adds the clients with the current action = VIEW_SEATS_PRICES
-    public void addClientViewingSeats(ClientReceiveMessage client) { viewingSeats.add(client); }
+    public void addClientViewingSeats(ClientReceiveMessage client) {
+        viewingSeats.add(client);
+    }
 
     // If the client is already executing another action, he is removed from the list
     public void isViewingSeats(ClientReceiveMessage client) {
@@ -95,9 +101,17 @@ public class ClientManagement extends Thread {
             try {
                 ObjectOutputStream oos = v.getOos();
                 oos.writeObject(true);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 LOG.log("Unable to warn client");
             }
         }
+    }
+
+    public synchronized void incConnection() {
+        numConnections++;
+    }
+
+    public synchronized void subConnection() {
+        numConnections--;
     }
 }

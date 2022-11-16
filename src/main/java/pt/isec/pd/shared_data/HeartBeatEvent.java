@@ -69,7 +69,7 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
 
     @Override
     public int compareTo(HeartBeatEvent o) {
-        return portTcp - o.portTcp;
+        return activeConnections - o.activeConnections;
     }
 
     @Override
@@ -87,6 +87,6 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
 
     @Override
     public String toString() {
-        return  "tcp port: " + portTcp + "\n";
+        return  "tcp port: " + portTcp + " activeConnection: " + activeConnections +  "\n";
     }
 }

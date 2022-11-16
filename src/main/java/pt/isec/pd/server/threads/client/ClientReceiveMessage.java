@@ -16,16 +16,14 @@ public class ClientReceiveMessage extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
     private Socket socket;
     private DataBaseHandler dbHandler;
-    private Integer numConnections;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private boolean requestAccepted = false;
     ClientManagement clientManagement;
 
-    public ClientReceiveMessage(Socket socket, DataBaseHandler dbHandler,Integer numConnections,ClientManagement clientManagement) {
+    public ClientReceiveMessage(Socket socket, DataBaseHandler dbHandler,ClientManagement clientManagement) {
         this.socket = socket;
         this.dbHandler = dbHandler;
-        this.numConnections = numConnections;
         this.clientManagement = clientManagement;
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
@@ -63,12 +61,8 @@ public class ClientReceiveMessage extends Thread {
                     case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                     case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                     case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
-                    case DISCONNECTED -> {
-                        dbHandler.disconnect(clientData,oos,ois);
-                        synchronized (numConnections){
-                            numConnections--;
-                        }
-                    }
+                    case DISCONNECTED -> dbHandler.disconnect(clientData,oos,ois);
+
                     default -> throw new IllegalArgumentException("Unexpected action value");
                 }
 
@@ -80,9 +74,7 @@ public class ClientReceiveMessage extends Thread {
                 LOG.log("Unable to read client data: " + e);
             } catch (IOException e) {
                 LOG.log("Client left");
-                synchronized (numConnections){
-                    numConnections--;
-                }
+                clientManagement.subConnection();
                break;
             }
         }
