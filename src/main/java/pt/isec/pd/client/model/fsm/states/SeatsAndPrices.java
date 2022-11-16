@@ -25,6 +25,12 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
+    public void disconnect() {
+        data.notifyServer();
+        super.disconnect();
+    }
+
+    @Override
     public State getState() {
         return State.SEATS_PRICES;
     }

@@ -21,8 +21,8 @@ public class ClientManagement extends Thread {
     private boolean isConnected = true;             // validate if the user is connected
     private DataBaseHandler dbHandler;
     private Integer numConnections = 0;
-    private List<Thread> clientsThread = new ArrayList<>();
-    private ArrayList<Socket> viewingSeats = new ArrayList<>();
+    private List<ClientReceiveMessage> clientsThread = new ArrayList<>();
+    private ArrayList<ClientReceiveMessage> viewingSeats = new ArrayList<>();
 
     public ClientManagement(int pingPort, DataBaseHandler dataBaseHandler,HeartBeatList hbList) {
         try {
@@ -71,23 +71,29 @@ public class ClientManagement extends Thread {
 
     // =========================== WORK IN PROGRESS ===========================
     // Only adds the clients with the current action = VIEW_SEATS_PRICES
-    public void addClientViewingSeats(Socket socket) { viewingSeats.add(socket); }
+    public void addClientViewingSeats(ClientReceiveMessage client) { viewingSeats.add(client); }
 
     // If the client is already executing another action, he is removed from the list
-    public void isViewingSeats(Socket socket) {
+    public void isViewingSeats(ClientReceiveMessage client) {
         // If a client from the list executes another action, he gets removed from the list and they
         // get notified again
-        if (viewingSeats.contains(socket)) {
-            viewingSeats.remove(socket);
-            notifyClients();
+        viewingSeats.remove(client);
+
+        ObjectOutputStream oos = client.getOos();
+        try {
+            oos.writeObject(false);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+        notifyClients();
     }
 
     // Notifies clients to resend the action, so they can get the new list
     public void notifyClients() {
         for (var v : viewingSeats) {
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(v.getOutputStream());
+                ObjectOutputStream oos = v.getOos();
                 oos.writeObject(true);
             } catch(IOException e) {
                 LOG.log("Unable to warn client");

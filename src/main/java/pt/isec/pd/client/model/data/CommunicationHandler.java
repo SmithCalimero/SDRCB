@@ -87,8 +87,8 @@ public class CommunicationHandler extends Thread {
     public synchronized void writeToSocket(ClientAction action, Object object) throws IOException {
         try {
             clientData.setAction(action);
-
             oos.writeUnshared(clientData);
+            LOG.log("Request sent: " + clientData.getAction());
             if (object != null) {
                 oos.writeObject(object);
             }
@@ -113,5 +113,9 @@ public class CommunicationHandler extends Thread {
 
     public ClientData getClientData() {
         return clientData;
+    }
+
+    public ObjectOutputStream getOos() {
+        return oos;
     }
 }

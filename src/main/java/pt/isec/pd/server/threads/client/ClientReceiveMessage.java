@@ -41,6 +41,7 @@ public class ClientReceiveMessage extends Thread {
             try {
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
+                System.out.println("Action: " + clientData.getAction());
 
                 switch(clientData.getAction()) {
                     case REGISTER -> dbHandler.register(clientData,oos,ois);
@@ -51,10 +52,12 @@ public class ClientReceiveMessage extends Thread {
                     case CONSULT_SHOWS -> dbHandler.consultShows(clientData,oos,ois);
                     case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
                     case VIEW_SEATS_PRICES -> {
-                        clientManagement.addClientViewingSeats(socket);
+                        clientManagement.addClientViewingSeats(this);
                         dbHandler.viewSeatsAndPrices(clientData,oos,ois);
                     }
-                    case STOPPED_VIEWING_SEATS -> clientManagement.isViewingSeats(socket);
+                    case STOPPED_VIEWING_SEATS -> {
+                        clientManagement.isViewingSeats(this);
+                    }
                     case SUBMIT_RESERVATION -> requestAccepted = dbHandler.submitReservation(clientData,oos,ois);
                     case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                     case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
@@ -83,5 +86,13 @@ public class ClientReceiveMessage extends Thread {
                break;
             }
         }
+    }
+
+    public synchronized ObjectOutputStream getOos() {
+        return oos;
+    }
+
+    public synchronized ObjectInputStream getOis() {
+        return ois;
     }
 }

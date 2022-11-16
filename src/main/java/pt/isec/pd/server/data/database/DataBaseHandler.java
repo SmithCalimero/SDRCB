@@ -478,8 +478,6 @@ public class DataBaseHandler {
 
                 // Verify the type of info the user pretends to be searched
                 for (var i : filters.entrySet()) {
-                    System.out.println(i.getKey() + ": " + i.getValue());
-
                     // Get all the shows from DB
                     ResultSet result = statement.executeQuery(
                             "SELECT * FROM espetaculo WHERE " + i.getKey() + " LIKE '%" + i.getValue() + "%'"

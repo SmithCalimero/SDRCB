@@ -4,6 +4,7 @@ import pt.isec.pd.shared_data.Seat;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 // TODO:
@@ -49,6 +50,8 @@ public class UpdateSeatsView extends Thread {
             try {
                 // Server notifies user that an update is needed
                 update = (Boolean) ch.readFromSocket();
+                if (!update)
+                    break;
 
                 // Even if he receives the notification, this next step verifies the current action
                 if (update && ch.getClientAction() == ClientAction.VIEW_SEATS_PRICES) {
@@ -62,7 +65,6 @@ public class UpdateSeatsView extends Thread {
 
                     // Reset update value
                     update = false;
-
                     pcs.firePropertyChange(PROP_DATA,null,seats);
                 }
             } catch(IOException e) {
@@ -70,6 +72,15 @@ public class UpdateSeatsView extends Thread {
             }
         }
     }
-
     public ArrayList<Seat> getSeatsList() { return seats; }
+
+    public void close() {
+        try {
+            ClientData clientData = new ClientData();
+            clientData.setAction(ClientAction.STOPPED_VIEWING_SEATS);
+            ch.getOos().writeObject(clientData);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

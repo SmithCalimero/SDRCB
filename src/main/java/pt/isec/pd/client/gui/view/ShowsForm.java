@@ -8,6 +8,7 @@ import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Show;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class ShowsForm {
     public Button procurarButton;
 
     private ModelManager model;
+    private List<Show> shows = new ArrayList<>();
 
     public void setModel(ModelManager model) {
         this.model = model;
@@ -114,10 +116,15 @@ public class ShowsForm {
                 filters.put("classificacao_etaria",classField.getText());
             }
 
-            list.setItems(FXCollections.observableList(model.consultShows(filters)));
+            shows = model.consultShows(filters);
+            list.setItems(FXCollections.observableList(shows));
         });
 
-        list.setOnMouseClicked(actionEvent -> model.seatsTransition(list.getSelectionModel().getSelectedItem().getId()));
+        list.setOnMouseClicked(actionEvent -> {
+            if (list.getSelectionModel().getSelectedItem() != null) {
+                model.seatsTransition(list.getSelectionModel().getSelectedItem().getId());
+            }
+        });
     }
 
 
