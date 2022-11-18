@@ -1,14 +1,10 @@
 package pt.isec.pd.server.data;
 
 import pt.isec.pd.server.data.database.CreateDataBase;
-import pt.isec.pd.server.data.database.DataBaseHandler;
+import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientManagement;
-import pt.isec.pd.server.threads.DataBase.DataBaseSender;
-import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.sql.SQLException;
 
 public class Server {
@@ -18,7 +14,7 @@ public class Server {
     //private ClientController clientController;
     private final String dbPath;
     private HeartBeatController heartBeatController;
-    private DataBaseHandler dataBaseHandler;
+    private DBHandler dbHandler;
 
     public Server(int pingPort,String dbPath) {
         this.dbPath = dbPath;
@@ -31,15 +27,15 @@ public class Server {
         hbList = new HeartBeatList();
 
         try {
-            dataBaseHandler = new DataBaseHandler(dbPath);
+            dbHandler = new DBHandler(dbPath);
         } catch (SQLException e) {
             LOG.log("DataBase could no be loaded");
-            dataBaseHandler = null;
+            dbHandler = null;
         }
 
-        //clientController = new ClientController(pingPort);
-        clientManagement = new ClientManagement(pingPort,dataBaseHandler,hbList);
         heartBeatController = new HeartBeatController(hbList,this);
+        clientManagement = new ClientManagement(pingPort, dbHandler,hbList,heartBeatController);
+
     }
 
     public void start() {
@@ -57,11 +53,11 @@ public class Server {
     }
 
     public boolean createDataBase() {
-        if (dataBaseHandler == null) {
+        if (dbHandler == null) {
             new CreateDataBase(dbPath);
 
             try {
-                dataBaseHandler = new DataBaseHandler(dbPath);
+                dbHandler = new DBHandler(dbPath);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -77,7 +73,7 @@ public class Server {
 
     public int getDBVersion() {
         try {
-            return dataBaseHandler.getCurrentVersion();
+            return dbHandler.getCurrentVersion();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -87,15 +83,7 @@ public class Server {
         return clientManagement.getNumConnections();
     }
 
-    /*
-    public void transferDataBase() {
-        HeartBeatEvent hbEvent = hbList.getOrderList().get(0);
-        try {
-            Socket socket = new Socket("localhost",hbEvent.getPortTcp());
-            LOG.log("starting database transfer");
-            new DataBaseSender(dbPath,socket);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
+    public synchronized DBHandler getDbHandler() {
+        return dbHandler;
+    }
 }

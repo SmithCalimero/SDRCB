@@ -6,7 +6,7 @@ import pt.isec.pd.shared_data.ServerAddress;
 import java.util.*;
 
 public class HeartBeatList extends LinkedList<HeartBeatEvent>{
-    public void updateList(HeartBeatEvent element) {
+    public synchronized void updateList(HeartBeatEvent element) {
         element.addTimeStamp(new Date());
 
         int index = indexOf(element);

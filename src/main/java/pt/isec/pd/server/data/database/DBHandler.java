@@ -19,11 +19,11 @@ import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.Date;
 
-public class DataBaseHandler {
-    private final Log LOG = Log.getLogger(DataBaseHandler.class);
+public class DBHandler {
+    private final Log LOG = Log.getLogger(DBHandler.class);
     private Connection connection;
 
-    public DataBaseHandler(String path) throws SQLException {
+    public DBHandler(String path) throws SQLException {
         // Test if the path of the database actually exist; (Throws exception)
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + path);
@@ -57,12 +57,13 @@ public class DataBaseHandler {
     }
 
     //======================  ACTIONS ======================
-    public synchronized void register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
         boolean isAdmin = false;
         boolean isAuthenticated = false;
         boolean requestAccepted = true;
         String msg = "";
+        String querry = "";
 
         try {
             // Receives clients register data (format: username, name, password)
@@ -100,16 +101,15 @@ public class DataBaseHandler {
                 if (requestAccepted) {
                     try {
                         // Register user
-                        int rs = statement.executeUpdate(
-                                "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
-                                        + "VALUES("
-                                        + "'" + ++id + "',"
-                                        + "'" + data.getFirst() + "',"
-                                        + "'" + data.getSecond() + "',"
-                                        + "'" + data.getThird() + "',"
-                                        + "'" + isAdmin + "',"
-                                        + "'" + isAuthenticated + "')"
-                        );
+                        querry = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
+                                + "VALUES("
+                                + "'" + ++id + "',"
+                                + "'" + data.getFirst() + "',"
+                                + "'" + data.getSecond() + "',"
+                                + "'" + data.getThird() + "',"
+                                + "'" + isAdmin + "',"
+                                + "'" + isAuthenticated + "')";
+                        int rs = statement.executeUpdate(querry);
                         if (rs == 1) {
                             LOG.log("User[" + data.getFirst() + "] has registered successfully");
                             clientData.setId(id);
@@ -133,14 +133,15 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+        return querry;
     }
 
-    public synchronized void login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean requestAccepted = false;
         boolean isAuthenticated = false;
         boolean isAdmin = false;
         String msg = "";
-
+        String query = "";
         try {
             // Receives clients data (format: username, password)
             Pair<String, String> loginData = (Pair<String, String>) ois.readObject();
@@ -178,9 +179,8 @@ public class DataBaseHandler {
                 // The user was not found
                 if (requestAccepted) {
                     try {
-                        int rs = statement.executeUpdate(
-                                "UPDATE utilizador SET autenticado = 1 WHERE id = '" + clientData.getId() + "'"
-                        );
+                        query = "UPDATE utilizador SET autenticado = 1 WHERE id = '" + clientData.getId() + "'";
+                        int rs = statement.executeUpdate(query);
                         if (rs == 1) {
                             msg = "User[" + loginData.getKey() + "]  logged in successfully";
                             LOG.log(msg);
@@ -194,7 +194,7 @@ public class DataBaseHandler {
                         statement.close();
                         result.close();
                     }
-                    return;
+                    return query;
                 }
 
                 if (!isAuthenticated) {
@@ -218,9 +218,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean requestAccepted = true;
         String msg = "";
 
@@ -351,9 +353,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized String consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
 
@@ -402,9 +406,11 @@ public class DataBaseHandler {
         statement.close();
         result.close();
         if (clientName != null) clientName.close();
+
+        return "";
     }
 
-    public synchronized void consultPayedReservations(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String consultPayedReservations(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
         String msg = "";
@@ -456,9 +462,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         String msg = "";
@@ -519,9 +527,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         ArrayList<Show> availableShows = new ArrayList<>();
         String msg = "";
 
@@ -595,9 +605,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
 
         try {
@@ -668,6 +680,8 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
     public synchronized boolean submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
@@ -746,7 +760,7 @@ public class DataBaseHandler {
         }
     }
 
-    public synchronized void deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
         try {
             // Read the ID of the reserve to be deleted
@@ -797,9 +811,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
 
         try {
@@ -868,9 +884,11 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized boolean insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
 
         try {
@@ -914,22 +932,21 @@ public class DataBaseHandler {
                                         + "'" + id.getInt(0) + "')");
                     }
                 }
-                return true;
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
                 oos.writeObject(msg);
-                return false;
             }
         } catch(IOException | ClassNotFoundException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
             oos.writeObject(msg);
-            return false;
         }
+
+        return "";
     }
 
-    public synchronized void deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized String deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean hasPaidReserve = false;
         String msg = "";
         try {
@@ -1001,10 +1018,14 @@ public class DataBaseHandler {
             LOG.log(msg);
             oos.writeObject(msg);
         }
+
+        return "";
     }
 
-    public synchronized void disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized String disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
         String msg = "";
+        String query = "";
+
         try {
             // Create statement
             Statement statement = connection.createStatement();
@@ -1021,10 +1042,9 @@ public class DataBaseHandler {
                 // User found and its authenticated
                 if (clientData.getId() == id && authenticated) {
                     try {
+                        query = "UPDATE utilizador SET autenticado = 0 WHERE id = '" + id + "'";
                         // Update authenticated value
-                        statement.executeUpdate(
-                                "UPDATE utilizador SET autenticado = 0 WHERE id = '" + id + "'"
-                        );
+                        statement.executeUpdate(query);
                         LOG.log("User[" + username + "] logged out successfully");
                         oos.writeObject(true);
                     } catch (SQLException e) {
@@ -1040,6 +1060,18 @@ public class DataBaseHandler {
             msg = "Unable to get data from the database";
             LOG.log(msg);
             oos.writeObject(msg);
+        }
+
+        return query;
+    }
+
+    public synchronized void updateDataBase(String sqlCommand) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sqlCommand);
+            LOG.log("Database updated");
+        } catch (SQLException e) {
+            LOG.log("Error updating database");
         }
     }
 }

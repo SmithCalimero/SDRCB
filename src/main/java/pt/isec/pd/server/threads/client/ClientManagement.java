@@ -1,8 +1,9 @@
 package pt.isec.pd.server.threads.client;
 
+import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.HeartBeatList;
 import pt.isec.pd.server.data.Server;
-import pt.isec.pd.server.data.database.DataBaseHandler;
+import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Log;
 
@@ -19,13 +20,15 @@ public class ClientManagement extends Thread {
     private ServerSocket serverSocket;
     private ClientPingHandler pingHandler;
     private boolean isConnected = true;             // validate if the user is connected
-    private DataBaseHandler dbHandler;
+    private DBHandler dbHandler;
     private Integer numConnections = 0;
+    private HeartBeatController hbController;
     private List<ClientReceiveMessage> clientsThread = new ArrayList<>();
     private ArrayList<ClientReceiveMessage> viewingSeats = new ArrayList<>();
 
-    public ClientManagement(int pingPort, DataBaseHandler dataBaseHandler, HeartBeatList hbList) {
+    public ClientManagement(int pingPort, DBHandler dataBaseHandler, HeartBeatList hbList, HeartBeatController hbController) {
         try {
+            this.hbController = hbController;
             this.serverSocket = new ServerSocket(0);
             this.pingHandler = new ClientPingHandler(pingPort, hbList);
             this.dbHandler = dataBaseHandler;
@@ -47,7 +50,7 @@ public class ClientManagement extends Thread {
                 LOG.log("New connection established: " + numConnections);
 
                 // Creates a thread for that client
-                ClientReceiveMessage clientRM = new ClientReceiveMessage(clientSocket, dbHandler, this);
+                ClientReceiveMessage clientRM = new ClientReceiveMessage(clientSocket, dbHandler, this,hbController);
                 clientRM.start();
 
                 clientsThread.add(clientRM);
@@ -55,10 +58,6 @@ public class ClientManagement extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setConnected() {
-        isConnected = false;
     }
 
     public void startPingHandler() {
@@ -80,7 +79,7 @@ public class ClientManagement extends Thread {
     }
 
     // If the client is already executing another action, he is removed from the list
-    public void isViewingSeats(ClientReceiveMessage client) {
+    public String isViewingSeats(ClientReceiveMessage client) {
         // If a client from the list executes another action, he gets removed from the list and they
         // get notified again
         viewingSeats.remove(client);
@@ -93,6 +92,8 @@ public class ClientManagement extends Thread {
         }
 
         notifyClients();
+
+        return "";
     }
 
     // Notifies clients to resend the action, so they can get the new list

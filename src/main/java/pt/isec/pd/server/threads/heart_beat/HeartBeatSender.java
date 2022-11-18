@@ -1,7 +1,6 @@
 package pt.isec.pd.server.threads.heart_beat;
 
 import pt.isec.pd.server.data.HeartBeatController;
-import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Utils;
 
@@ -12,11 +11,11 @@ import java.net.MulticastSocket;
 
 public class HeartBeatSender extends Thread {
     private final MulticastSocket ms;
-    private final HeartBeatController hbController;
+    private final HeartBeatController controller;
 
-    public HeartBeatSender(MulticastSocket ms, HeartBeatController hbController) {
-        this.ms = ms;
-        this.hbController = hbController;
+    public HeartBeatSender(HeartBeatController controller) {
+        this.ms = controller.getMs();
+        this.controller = controller;
     }
 
     @Override
@@ -28,7 +27,7 @@ public class HeartBeatSender extends Thread {
         while(true) {
             try {
                 Thread.sleep(10 * Constants.TO_SECONDS);
-                byte[] bytes = Utils.serializeObject(hbController.updateHeartBeat());
+                byte[] bytes = Utils.serializeObject(controller.updateHeartBeat());
 
                 DatagramPacket dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);

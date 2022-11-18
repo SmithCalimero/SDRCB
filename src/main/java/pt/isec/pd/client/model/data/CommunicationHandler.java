@@ -53,7 +53,7 @@ public class CommunicationHandler extends Thread {
             LOG.log("List received from the server");
             establishingTcpConn(serverAddr);
 
-        } catch (IOException | ClassNotFoundException | NoServerFound e) {
+        } catch (IOException | NoServerFound e) {
             // Udp Time-out or no establish connection
             LOG.log("No tcp connection found or the udp connection was not establish: shutting down application : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
             Platform.exit();
