@@ -144,7 +144,7 @@ public class DBHandler {
         String query = "";
         try {
             // Receives clients data (format: username, password)
-            Pair<String, String> loginData = (Pair<String, String>) ois.readObject();
+            Pair<String, String> loginData = (Pair<String, String>) clientData.getData();
 
             try {
                 // Database search
@@ -213,7 +213,7 @@ public class DBHandler {
                 LOG.log(msg);
                 oos.writeObject(msg);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to get the data from user";
             LOG.log(msg);
             oos.writeObject(msg);
@@ -473,7 +473,7 @@ public class DBHandler {
 
         try {
             // Received filters from user
-            HashMap<String, String> filters = (HashMap<String, String>) ois.readObject();
+            HashMap<String, String> filters = (HashMap<String, String>) clientData.getData();
 
             try {
                 // Create statement
@@ -522,7 +522,7 @@ public class DBHandler {
                 LOG.log(msg);
                 oos.writeObject(msg);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to get the data from user";
             LOG.log(msg);
             oos.writeObject(msg);
@@ -615,7 +615,7 @@ public class DBHandler {
         try {
             // At this moment the client has already selected the show, so we search by the show id
             // Receive show id
-            Integer recShowId = (Integer) ois.readObject();
+            Integer recShowId = (Integer) clientData.getData();
 
             // Get unavailable seats ids
             ArrayList<Integer> unavailable = new ArrayList<>();
@@ -675,7 +675,7 @@ public class DBHandler {
                 LOG.log(msg);
                 oos.writeObject(msg);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to read show id from user";
             LOG.log(msg);
             oos.writeObject(msg);

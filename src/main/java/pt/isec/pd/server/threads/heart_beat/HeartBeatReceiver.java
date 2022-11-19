@@ -42,7 +42,7 @@ public class HeartBeatReceiver extends Thread{
                     hbList.updateList(hbEvent);
                 }  else if(!controller.imUpdating() && object instanceof Prepare prepare) {
                     controller.setUpdating(true);
-                    LOG.log("\nPrepare receive; port: " + prepare.getPort());
+                    LOG.log("Prepare receive; port: " + prepare.getPort());
                     this.prepare = prepare;
 
                     // 1. An update is needed
@@ -52,13 +52,12 @@ public class HeartBeatReceiver extends Thread{
                     ds.send(dpSend);
                 } else if(object instanceof Commit) {
                     if (!controller.imUpdating()) {
-                        LOG.log("\nCommit receive\n");
+                        LOG.log("Commit receive");
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getSqlCommand());
                         controller.setUpdating(false);
                     } else {
                         controller.setUpdater(false);
-
                     }
                 }
             }

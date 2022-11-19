@@ -75,8 +75,7 @@ public class HeartBeatController {
                 LOG.log("Update Starting...");
                 setUpdater(true);
                 DatagramSocket ds = new DatagramSocket();
-                ds.setSoTimeout(7000);
-                LOG.log("Datagram socket created port: " + ds.getLocalPort());
+                ds.setSoTimeout(1000);
 
                 // 1. Send the 'prepare' object to the multicast
                 Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand);
