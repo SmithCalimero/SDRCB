@@ -9,6 +9,7 @@ public class ClientData implements Serializable {
 
     private int id;
     private ClientAction action;
+    private Object data;
 
     public ClientData() { }
 
@@ -19,4 +20,12 @@ public class ClientData implements Serializable {
     public void setAction(ClientAction action) { this.action = action; }
 
     public ClientAction getAction() { return action; }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
 }

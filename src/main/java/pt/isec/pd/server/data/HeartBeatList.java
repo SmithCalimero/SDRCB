@@ -1,12 +1,12 @@
 package pt.isec.pd.server.data;
 
-import pt.isec.pd.shared_data.HeartBeatEvent;
+import pt.isec.pd.shared_data.HeartBeat;
 import pt.isec.pd.shared_data.ServerAddress;
 
 import java.util.*;
 
-public class HeartBeatList extends LinkedList<HeartBeatEvent>{
-    public synchronized void updateList(HeartBeatEvent element) {
+public class HeartBeatList extends LinkedList<HeartBeat>{
+    public synchronized void updateList(HeartBeat element) {
         element.addTimeStamp(new Date());
 
         int index = indexOf(element);
@@ -21,10 +21,10 @@ public class HeartBeatList extends LinkedList<HeartBeatEvent>{
 
     public List<ServerAddress> getOrderList() {
         List<ServerAddress> servers = new ArrayList<>();
-        List<HeartBeatEvent> orderList = this;
+        List<HeartBeat> orderList = this;
         Collections.sort(orderList);
 
-        for (HeartBeatEvent event : orderList) {
+        for (HeartBeat event : orderList) {
             servers.add(new ServerAddress("127.0.0.1",event.getPortTcp()));
         }
 

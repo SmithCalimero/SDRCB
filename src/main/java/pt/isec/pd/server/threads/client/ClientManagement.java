@@ -4,7 +4,7 @@ import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.HeartBeatList;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
-import pt.isec.pd.shared_data.HeartBeatEvent;
+import pt.isec.pd.shared_data.HeartBeat;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class ClientManagement extends Thread {
             this.dbHandler = dataBaseHandler;
             this.clientsThread = new ArrayList<>();
             this.viewingSeats = new ArrayList<>();
-            hbList.add(new HeartBeatEvent(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0));
+            hbList.add(new HeartBeat(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0));
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }

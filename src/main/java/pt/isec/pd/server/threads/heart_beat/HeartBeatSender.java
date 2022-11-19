@@ -26,11 +26,12 @@ public class HeartBeatSender extends Thread {
     public void send() {
         while(true) {
             try {
-                Thread.sleep(10 * Constants.TO_SECONDS);
                 byte[] bytes = Utils.serializeObject(controller.updateHeartBeat());
 
                 DatagramPacket dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
+
+                Thread.sleep(Constants.SEND_HEARTBEAT * Constants.TO_SECONDS);
             } catch (InterruptedException | IOException e) {
                 throw new RuntimeException(e);
             }

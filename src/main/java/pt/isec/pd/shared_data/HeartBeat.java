@@ -6,14 +6,14 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
+public class HeartBeat implements Serializable,Comparable<HeartBeat> {
     private int portTcp;
     private boolean status;
     private int dbVersion;
     private int activeConnections;
     private Date timeout;
 
-    public HeartBeatEvent(int portTcp,boolean status,int dbVersion,int activeConnections) {
+    public HeartBeat(int portTcp, boolean status, int dbVersion, int activeConnections) {
         this.portTcp = portTcp;
         this.status = status;
         this.dbVersion = dbVersion;
@@ -68,7 +68,7 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
     }
 
     @Override
-    public int compareTo(HeartBeatEvent o) {
+    public int compareTo(HeartBeat o) {
         return activeConnections - o.activeConnections;
     }
 
@@ -76,7 +76,7 @@ public class HeartBeatEvent implements Serializable,Comparable<HeartBeatEvent> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HeartBeatEvent that = (HeartBeatEvent) o;
+        HeartBeat that = (HeartBeat) o;
         return portTcp == that.portTcp;
     }
 

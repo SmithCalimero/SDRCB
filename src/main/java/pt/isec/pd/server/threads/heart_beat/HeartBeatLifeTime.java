@@ -2,7 +2,6 @@ package pt.isec.pd.server.threads.heart_beat;
 
 import pt.isec.pd.server.data.HeartBeatList;
 import pt.isec.pd.server.data.Server;
-import pt.isec.pd.shared_data.HeartBeatEvent;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 
@@ -23,6 +22,7 @@ public class HeartBeatLifeTime extends Thread{
             synchronized (hbList) {
                 if(hbList.removeIf(n -> (n.getTimeout().compareTo(date) < 0 || !n.isStatus()))) {
                     LOG.log("heartbeats were removed");
+                    LOG.log("Current active servers: " + hbList.size());
                 }
             }
 

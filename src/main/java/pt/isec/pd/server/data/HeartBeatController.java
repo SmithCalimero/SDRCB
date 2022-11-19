@@ -3,7 +3,9 @@ package pt.isec.pd.server.data;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatLifeTime;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatReceiver;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatSender;
-import pt.isec.pd.shared_data.HeartBeatEvent;
+import pt.isec.pd.shared_data.Commit;
+import pt.isec.pd.shared_data.HeartBeat;
+import pt.isec.pd.shared_data.Prepare;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
@@ -15,12 +17,13 @@ public class HeartBeatController {
     private final Log LOG = Log.getLogger(Server.class);
     private final Server server;
 
-    private HeartBeatEvent hbEvent;
+    private HeartBeat hbEvent;
     private final HeartBeatReceiver receiver;
     private final HeartBeatSender sender;
     private final HeartBeatLifeTime lifeTimeChecker;
     private final HeartBeatList hbList;
     private boolean updater = false;
+    private boolean updating = false;
 
     private MulticastSocket ms;
 
@@ -60,48 +63,53 @@ public class HeartBeatController {
         sender.start();
     }
 
-    public HeartBeatEvent updateHeartBeat() {
-        hbEvent = new HeartBeatEvent(server.getServerPort(), true, server.getDBVersion(), server.getActiveConnections());
+    public HeartBeat updateHeartBeat() {
+        hbEvent = new HeartBeat(server.getServerPort(), true, server.getDBVersion(), server.getActiveConnections());
         return hbEvent;
     }
 
     // Only called when a request from client updated the database
     public void updateDataBase(String sqlCommand) {
-        try {
-            LOG.log("Update Starting...");
-            setUpdater(true);
-            DatagramSocket ds = new DatagramSocket();
-            ds.setSoTimeout(1000);
-            LOG.log("Datagram socket created port: " + ds.getLocalPort());
+        if (!isUpdating()) {
+            try {
+                LOG.log("Update Starting...");
+                setUpdater(true);
+                DatagramSocket ds = new DatagramSocket();
+                ds.setSoTimeout(7000);
+                LOG.log("Datagram socket created port: " + ds.getLocalPort());
 
-            // 1. Send the 'prepare' object to the multicast
-            Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand);
-            LOG.log("SqlCommand: " + sqlCommand);
-            byte[] bytes = Utils.serializeObject(prepare);
-            DatagramPacket dp = new DatagramPacket(bytes,bytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
-            ms.send(dp);
+                // 1. Send the 'prepare' object to the multicast
+                Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand);
+                LOG.log("SqlCommand: " + sqlCommand);
+                byte[] bytes = Utils.serializeObject(prepare);
+                DatagramPacket dp = new DatagramPacket(bytes,bytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                ms.send(dp);
 
-            // 2. Wait for the servers to send the signal (timeout 1000 ms)
-            while (true) {
-                try {
-                    DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
-                    ds.receive(dpReceive);
-                    LOG.log("Confirmation");
-                } catch (SocketTimeoutException e) {
-                    LOG.log("End of Confirmation");
-                    break;
+                // 2. Wait for the servers to send the signal (timeout 1000 ms)
+                while (true) {
+                    try {
+                        DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
+                        ds.receive(dpReceive);
+                        LOG.log("Confirmation");
+                    } catch (SocketTimeoutException e) {
+                        LOG.log("End of Confirmation");
+                        break;
+                    }
                 }
-            }
 
-            // 3. Send a 'commit' to start the updating
-            Commit commit = new Commit(prepare.getNextVersion());
-            byte[] commitBytes = Utils.serializeObject(commit);
-            dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
-            ms.send(dp);
-            LOG.log("Commit");
-        } catch (IOException e) {
-            e.printStackTrace();
+                // 3. Send a 'commit' to start the updating
+                Commit commit = new Commit(prepare.getNextVersion());
+                byte[] commitBytes = Utils.serializeObject(commit);
+                dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                ms.send(dp);
+                LOG.log("Commit");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            LOG.log("Theres a updating working at the moment");
         }
+
     }
 
     public synchronized void setUpdater(boolean updater) {
@@ -110,6 +118,14 @@ public class HeartBeatController {
 
     public synchronized boolean imUpdating() {
         return updater;
+    }
+
+    public synchronized boolean isUpdating() {
+        return updating;
+    }
+
+    public synchronized void setUpdating(boolean updating) {
+        this.updating = updating;
     }
 
     public synchronized HeartBeatList getHbList() {

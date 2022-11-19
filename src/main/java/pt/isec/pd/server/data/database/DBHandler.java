@@ -67,7 +67,7 @@ public class DBHandler {
 
         try {
             // Receives clients register data (format: username, name, password)
-            Triple<String, String, String> data = (Triple<String, String, String>) ois.readObject();
+            Triple<String, String, String> data = (Triple<String, String, String>) clientData.getData();
 
             try {
                 // Create a statement
@@ -128,7 +128,7 @@ public class DBHandler {
                 LOG.log(msg);
                 oos.writeObject(msg);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to get the data from user";
             LOG.log(msg);
             oos.writeObject(msg);
