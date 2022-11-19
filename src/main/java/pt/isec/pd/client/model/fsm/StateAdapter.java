@@ -54,7 +54,7 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public void swapToRegister() {
+    public void registerTransition() {
         context.swapToRegister();
     }
 
@@ -81,5 +81,15 @@ public abstract class StateAdapter implements IState {
     @Override
     public void seatsTransition(Integer idSwow) {
         context.seatsTransition(idSwow);
+    }
+
+    @Override
+    public void insertShowsTransition() {
+        context.insertShowsTransition();
+    }
+
+    @Override
+    public Show insertShows(String filePath) {
+        return context.insertShows(filePath);
     }
 }

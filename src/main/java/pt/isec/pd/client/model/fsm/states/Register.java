@@ -26,7 +26,7 @@ public class Register extends StateAdapter {
     }
 
     @Override
-    public void swapToRegister() {
+    public void registerTransition() {
         changeState(State.LOGIN);
     }
 

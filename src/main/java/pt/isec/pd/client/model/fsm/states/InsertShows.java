@@ -10,19 +10,9 @@ import pt.isec.pd.shared_data.Show;
 import java.util.HashMap;
 import java.util.List;
 
-public class Shows extends StateAdapter {
-    public Shows(Context context, Client data) {
+public class InsertShows extends StateAdapter {
+    public InsertShows(Context context, Client data) {
         super(context, data);
-    }
-    @Override
-    public List<Show> consultShows(HashMap<String,String> filters) {
-        return data.consultShows(filters);
-    }
-
-    @Override
-    public void seatsTransition(Integer idShow) {
-        changeState(State.SEATS_PRICES);
-        data.viewSeatsAndPrices(idShow);
     }
 
     @Override
@@ -35,7 +25,17 @@ public class Shows extends StateAdapter {
     }
 
     @Override
+    public void insertShowsTransition() {
+        changeState(State.MENU_ADMIN);
+    }
+
+    @Override
+    public Show insertShows(String filePath) {
+        return data.insertShows(filePath);
+    }
+
+    @Override
     public State getState() {
-        return State.SHOWS;
+        return State.INSERT_SHOWS;
     }
 }

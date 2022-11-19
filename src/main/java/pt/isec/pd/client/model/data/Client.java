@@ -12,6 +12,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class Client extends Thread {
@@ -91,6 +92,16 @@ public class Client extends Thread {
         try {
             ch.writeToSocket(ClientAction.CONSULT_SHOWS,filters);
             return (List<Show>) ch.readFromSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Show insertShows(String filePath) {
+        try {
+            ch.writeToSocket(ClientAction.INSERT_SHOWS,filePath);
+            return (Show) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }

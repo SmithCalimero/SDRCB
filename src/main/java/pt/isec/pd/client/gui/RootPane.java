@@ -27,11 +27,15 @@ public class RootPane extends BorderPane {
         FXMLLoader shows = new FXMLLoader(RootPane.class.getResource("/fxml/shows-form.fxml"));
         FXMLLoader seats_prices = new FXMLLoader(RootPane.class.getResource("/fxml/seats-form.fxml"));
 
+        FXMLLoader menuAdmin = new FXMLLoader(RootPane.class.getResource("/fxml/menu-admin-form.fxml"));
+        FXMLLoader insertShows = new FXMLLoader(RootPane.class.getResource("/fxml/insert-shows-form.fxml"));
+
         StackPane stackPane;
         try {
             stackPane = new StackPane(login.load(),register.load(),
                     edit.load(),menuClient.load(),shows.load(),
-                    seats_prices.load());
+                    seats_prices.load(),menuAdmin.load(),
+                    insertShows.load());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -40,8 +44,10 @@ public class RootPane extends BorderPane {
         register.<RegisterForm>getController().setModel(model);
         edit.<EditForm>getController().setModel(model);
         menuClient.<MenuClientForm>getController().setModel(model);
+        menuAdmin.<MenuAdminForm>getController().setModel(model);
         shows.<ShowsForm>getController().setModel(model);
         seats_prices.<SeatsForm>getController().setModel(model);
+        insertShows.<InserShowsForm>getController().setModel(model);
 
         this.setCenter(stackPane);
     }

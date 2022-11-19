@@ -28,21 +28,6 @@ public class Utils {
         return null;
     }
 
-    private static String processString(String value) {
-        return value.replace("“","").replace("\"","").replace("”","").trim();
-    }
-
-    private static void setsReader(Scanner input, Map<String,List<Seat>> seatsMap) {
-        String row = input.nextLine();
-        String[] seats = row.split(";");
-        row = processString(seats[0]);
-        seatsMap.put(processString(seats[0]),new ArrayList<>());
-        for (int i = 1;i < seats.length; i++) {
-            String[] details = seats[i].split(":");
-            seatsMap.get(processString(seats[0])).add(new Seat(row,details[0],Double.parseDouble(processString(details[1]))));
-        }
-    }
-
     public static Pair<Show,Map<String,List<Seat>>> readFile(String path) {
         Show show = new Show();
         Map<String,List<Seat>> seatsMap = new HashMap<>();
@@ -82,8 +67,25 @@ public class Utils {
                 }
             }
         } catch (FileNotFoundException | ParseException e) {
-            e.printStackTrace();
+            return null;
         }
         return new Pair<>(show,seatsMap);
     }
+
+    private static String processString(String value) {
+        return value.replace(";","").replace("“","").replace("\"","").replace("”","").replace(":","").trim();
+    }
+
+    private static void setsReader(Scanner input, Map<String,List<Seat>> seatsMap) {
+        String row = input.nextLine();
+        String[] seats = row.split(";");
+        row = processString(seats[0]);
+        seatsMap.put(processString(seats[0]),new ArrayList<>());
+        for (int i = 1;i < seats.length; i++) {
+            String[] details = seats[i].split(":");
+            seatsMap.get(processString(seats[0])).add(new Seat(row,processString(details[0]),Double.parseDouble(processString(details[1]))));
+        }
+    }
+
+
 }

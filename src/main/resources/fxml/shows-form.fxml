@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ShowsForm">
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ShowsForm">
    <children>
 
       <ListView fx:id="list" layoutX="311.0" layoutY="25.0" prefHeight="316.0" prefWidth="314.0" />
@@ -24,5 +24,6 @@
       <TextField fx:id="classField" disable="true" layoutX="159.0" layoutY="221.0" prefHeight="25.0" prefWidth="121.0" promptText="Escolha a classficação" />
       <TextField fx:id="paisField" disable="true" layoutX="159.0" layoutY="250.0" prefHeight="25.0" prefWidth="121.0" promptText="Escolha um país" />
       <Button fx:id="procurarButton" layoutX="125.0" layoutY="299.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Procurar" textFill="WHITE" />
+      <Button fx:id="retrocederButton" layoutX="16.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="retroceder" textAlignment="CENTER" underline="true" />
    </children>
 </AnchorPane>

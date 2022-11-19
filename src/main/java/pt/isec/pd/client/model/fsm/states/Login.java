@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.fsm.states;
 
 import javafx.util.Pair;
+import pt.isec.pd.client.model.data.Type;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
@@ -13,7 +14,12 @@ public class Login extends StateAdapter {
 
     @Override
     public void next() {
-        changeState(State.MENU_CLIENT);
+        System.out.println(data.getType());
+        if (data.getType() == Type.NORMAl_MODE) {
+            changeState(State.MENU_CLIENT);
+        } else {
+            changeState(State.MENU_ADMIN);
+        }
     }
 
     @Override
@@ -27,7 +33,7 @@ public class Login extends StateAdapter {
     }
 
     @Override
-    public void swapToRegister() {
+    public void registerTransition() {
         changeState(State.REGISTER);
     }
 }

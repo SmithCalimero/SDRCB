@@ -32,6 +32,7 @@ public class ShowsForm {
     public TextField classField;
     public TextField paisField;
     public Button procurarButton;
+    public Button retrocederButton;
 
     private ModelManager model;
     private List<Show> shows = new ArrayList<>();
@@ -45,6 +46,10 @@ public class ShowsForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+        });
+
+        retrocederButton.setOnAction(actionEvent -> {
+            model.showsTransition();
         });
 
         descricaoCheck.setOnAction(actionEvent -> {

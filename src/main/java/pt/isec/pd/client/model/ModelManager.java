@@ -85,4 +85,13 @@ public class ModelManager {
         context.seatsTransition(idShow);
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
+
+    public void insertShowsTransition() {
+        context.insertShowsTransition();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public Show insertShows(String filePath) {
+        return context.insertShows(filePath);
+    }
 }

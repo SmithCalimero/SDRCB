@@ -59,7 +59,7 @@ public class DBHandler {
     //======================  ACTIONS ======================
     public synchronized String register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
-        boolean isAdmin = false;
+        int isAdmin = 0;
         boolean isAuthenticated = false;
         boolean requestAccepted = true;
         String msg = "";
@@ -81,7 +81,7 @@ public class DBHandler {
                 // Verify if admin is registered
                 if (data.getFirst().equalsIgnoreCase("admin") &&
                         data.getSecond().equalsIgnoreCase("admin"))
-                    isAdmin = true;
+                    isAdmin = 1;
 
                 // If table has registered users, verify if username and name are unique
                 while (result.next()) {
@@ -160,7 +160,6 @@ public class DBHandler {
                     String password = result.getString("password");
                     isAdmin = result.getBoolean("administrador");
                     boolean authenticated = result.getBoolean("autenticado");
-
                     // Validate login data and authentication
                     if (username.equals(loginData.getKey()) && password.equals(loginData.getValue()) && authenticated) {
                         isAuthenticated = true;
@@ -893,9 +892,11 @@ public class DBHandler {
 
         try {
             // Receive the new value from client
-            String filePath = (String) ois.readObject();
+            String filePath = (String) clientData.getData();
             Pair<Show, Map<String, List<Seat>>> mapShows = Utils.readFile(filePath);
-
+            if (mapShows == null) {
+                return "";
+            }
             try {
                 // Create connection
                 Statement statement = connection.createStatement();
@@ -913,34 +914,37 @@ public class DBHandler {
                                 + "'" + mapShows.getKey().getCountry() + "',"
                                 + "'" + mapShows.getKey().getAgeClassification() + "')"
                 );
-
                 //Get id of show
                 ResultSet id = statement.executeQuery(
-                        "SELECT id FROM espetaculo WHERE descricao = '" + clientData.getId() + "'"
+                        "SELECT id FROM espetaculo WHERE descricao = '" + mapShows.getKey().getDescription() + "'"
                 );
-
+                int idShow = id.getInt(1);
                 Map<String, List<Seat>> seats = mapShows.getValue();
                 //Go through all the rows
                 for (String key : seats.keySet()) {
                     //Go through all the seats
-                    for (Seat seat : seats.get(key)) {
+                    List<Seat> seatsList = seats.get(key);
+                    for (Seat seat : seatsList) {
                         statement.executeUpdate(
                                 "INSERT INTO lugar(fila,assento,preco,espetaculo_id) "
                                         + "VALUES ("
                                         + "'" + seat.getRow() + "',"
+                                        + "'" + seat.getNumber() + "',"
                                         + "'" + seat.getPrice() + "',"
-                                        + "'" + id.getInt(0) + "')");
+                                        + "'" + idShow + "')");
                     }
+
                 }
+                oos.writeObject(mapShows.getKey());
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
-                oos.writeObject(msg);
+                oos.writeObject(null);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
-            oos.writeObject(msg);
+            oos.writeObject(null);
         }
 
         return "";

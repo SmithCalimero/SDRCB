@@ -51,7 +51,7 @@ public class Context {
         data.disconnect();
     }
 
-    public void swapToRegister() {state.swapToRegister();}
+    public void swapToRegister() {state.registerTransition();}
 
     public void editTransition() {
         state.editTransition();
@@ -71,5 +71,13 @@ public class Context {
 
     public void seatsTransition(Integer idShow) {
         state.seatsTransition(idShow);
+    }
+
+    public void insertShowsTransition() {
+        state.insertShowsTransition();
+    }
+
+    public Show insertShows(String filePath) {
+        return state.insertShows(filePath);
     }
 }

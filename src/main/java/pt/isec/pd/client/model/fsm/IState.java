@@ -20,7 +20,9 @@ public interface IState {
     List<Show> consultShows(HashMap<String,String> filters);
     List<Seat> getSeatsAndPrices();
     void disconnect();
-    void swapToRegister();
+    void registerTransition();
     State getState();
     void seatsTransition(Integer idShow);
+    void insertShowsTransition();
+    Show insertShows(String filePath);
 }
