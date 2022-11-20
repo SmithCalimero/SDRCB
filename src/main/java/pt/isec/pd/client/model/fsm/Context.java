@@ -47,6 +47,7 @@ public class Context {
     public void previous() {
         state.previous();
     }
+
     public void disconnect() {
         data.disconnect();
     }
@@ -77,7 +78,15 @@ public class Context {
         state.insertShowsTransition();
     }
 
-    public Show insertShows(String filePath) {
+    public String insertShows(String filePath) {
         return state.insertShows(filePath);
+    }
+
+    public Pair<Boolean,String> deleteShow(int idShow) {
+        return state.deleteShow(idShow);
+    }
+
+    public String showVisible(int idShow) {
+        return state.showVisible(idShow);
     }
 }

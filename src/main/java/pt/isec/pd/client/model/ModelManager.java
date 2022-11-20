@@ -91,7 +91,15 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public Show insertShows(String filePath) {
+    public String insertShows(String filePath) {
         return context.insertShows(filePath);
+    }
+
+    public Pair<Boolean,String> deleteShow(int idShow) {
+        return context.deleteShow(idShow);
+    }
+
+    public String showVisible(int idShow) {
+        return context.showVisible(idShow);
     }
 }

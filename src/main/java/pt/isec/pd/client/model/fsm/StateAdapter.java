@@ -3,7 +3,6 @@ package pt.isec.pd.client.model.fsm;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
-import pt.isec.pd.client.model.fsm.states.Shows;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 
@@ -45,7 +44,7 @@ public abstract class StateAdapter implements IState {
 
     @Override
     public void previous() {
-        context.previous();
+
     }
 
     @Override
@@ -55,41 +54,51 @@ public abstract class StateAdapter implements IState {
 
     @Override
     public void registerTransition() {
-        context.swapToRegister();
+
     }
 
     @Override
     public void editTransition() {
-        context.editTransition();
+
     }
 
     @Override
     public void showsTransition() {
-        context.showsTransition();
+
     }
 
     @Override
     public List<Show> consultShows(HashMap<String, String> filters) {
-        return context.consultShows(filters);
+        return null;
     }
 
     @Override
     public List<Seat> getSeatsAndPrices() {
-        return context.getSeatsAndPrices();
+        return null;
     }
 
     @Override
     public void seatsTransition(Integer idSwow) {
-        context.seatsTransition(idSwow);
+
     }
 
     @Override
     public void insertShowsTransition() {
-        context.insertShowsTransition();
+
     }
 
     @Override
-    public Show insertShows(String filePath) {
-        return context.insertShows(filePath);
+    public String insertShows(String filePath) {
+        return null;
+    }
+
+    @Override
+    public Pair<Boolean, String> deleteShow(int idShow) {
+        return null;
+    }
+
+    @Override
+    public String showVisible(int idShow) {
+        return null;
     }
 }

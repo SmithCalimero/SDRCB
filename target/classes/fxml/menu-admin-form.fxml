@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.MenuAdminForm">
+   <children>
+      <Button fx:id="editButton" layoutX="296.0" layoutY="132.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Editar" textFill="WHITE" />
+      <Button fx:id="showsButton" layoutX="280.0" layoutY="169.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Espetáculos" textFill="WHITE" />
+      <Button fx:id="insertShowsButton" layoutX="277.0" layoutY="203.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Inserir Shows" textFill="WHITE" />
+   </children>
+</AnchorPane>

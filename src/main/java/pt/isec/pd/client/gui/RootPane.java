@@ -4,7 +4,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.*;
 import pt.isec.pd.client.gui.view.*;
 import pt.isec.pd.client.model.ModelManager;
-import pt.isec.pd.client.model.fsm.states.SeatsAndPrices;
 
 import java.io.IOException;
 
@@ -28,7 +27,7 @@ public class RootPane extends BorderPane {
         FXMLLoader seats_prices = new FXMLLoader(RootPane.class.getResource("/fxml/seats-form.fxml"));
 
         FXMLLoader menuAdmin = new FXMLLoader(RootPane.class.getResource("/fxml/menu-admin-form.fxml"));
-        FXMLLoader insertShows = new FXMLLoader(RootPane.class.getResource("/fxml/insert-shows-form.fxml"));
+        FXMLLoader insertShows = new FXMLLoader(RootPane.class.getResource("/fxml/manage-shows-form.fxml"));
 
         StackPane stackPane;
         try {
@@ -47,7 +46,7 @@ public class RootPane extends BorderPane {
         menuAdmin.<MenuAdminForm>getController().setModel(model);
         shows.<ShowsForm>getController().setModel(model);
         seats_prices.<SeatsForm>getController().setModel(model);
-        insertShows.<InserShowsForm>getController().setModel(model);
+        insertShows.<ManageShowsForm>getController().setModel(model);
 
         this.setCenter(stackPane);
     }

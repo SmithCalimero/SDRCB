@@ -24,5 +24,7 @@ public interface IState {
     State getState();
     void seatsTransition(Integer idShow);
     void insertShowsTransition();
-    Show insertShows(String filePath);
+    String insertShows(String filePath);
+    Pair<Boolean,String> deleteShow(int idShow);
+    String showVisible(int idShow);
 }

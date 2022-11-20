@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.EditForm">
+   <children>
+       <ChoiceBox fx:id="choiceBox" layoutX="229.0" layoutY="130.0" prefWidth="150.0">
+           <items>
+               <FXCollections fx:factory="observableArrayList">
+                   <String fx:value="Username" />
+                   <String fx:value="Name" />
+                   <String fx:value="Password" />
+               </FXCollections>
+           </items>
+       </ChoiceBox>
+      <TextField fx:id="editField" layoutX="226.0" layoutY="173.0" />
+      <Button fx:id="editButton" layoutX="275.0" layoutY="222.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Change" textFill="WHITE" />
+      <Button fx:id="cancelButton" layoutX="252.0" layoutY="273.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="Não quer editar?" underline="true" />
+      <Label layoutX="242.0" layoutY="61.0" text="Editar">
+         <font>
+            <Font name="Consolas Bold" size="38.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

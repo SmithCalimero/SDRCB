@@ -508,6 +508,9 @@ public class DBHandler {
                     }
                 }
 
+                shows.removeIf(item -> !item.isVisible());
+
+
                 if (shows.isEmpty())
                     LOG.log("Shows not found based on the received filters");
 
@@ -516,6 +519,60 @@ public class DBHandler {
 
                 statement.close();
                 clientName.close();
+            } catch (SQLException e) {
+                msg = "Unable to get data from the database";
+                LOG.log(msg);
+                oos.writeObject(msg);
+            }
+        } catch(IOException e) {
+            msg = "Unable to get the data from user";
+            LOG.log(msg);
+            oos.writeObject(msg);
+        }
+
+        return "";
+    }
+
+    public synchronized String consultShowsAdmin(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+        // stores reserves to be sent to the user
+        ArrayList<Show> shows = new ArrayList<>();
+        String msg = "";
+
+        try {
+            // Received filters from user
+            HashMap<String, String> filters = (HashMap<String, String>) clientData.getData();
+
+            try {
+                // Create statement
+                Statement statement = connection.createStatement();
+
+
+                ResultSet result = statement.executeQuery("SELECT * FROM espetaculo");
+
+                // Add objects to array
+                while (result.next()) {
+                    shows.add(new Show(
+                            result.getInt("id"),
+                            result.getString("descricao"),
+                            result.getString("tipo"),
+                            result.getString("data_hora"),
+                            result.getInt("duracao"),
+                            result.getString("local"),
+                            result.getString("localidade"),
+                            result.getString("pais"),
+                            result.getString("classificacao_etaria"),
+                            result.getBoolean("visivel"))
+                    );
+                    result.close();
+                }
+
+                if (shows.isEmpty())
+                    LOG.log("Shows not found based on the received filters");
+
+                // Send list to client
+                oos.writeObject(shows);
+
+                statement.close();
             } catch (SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
@@ -887,6 +944,39 @@ public class DBHandler {
         return "";
     }
 
+    public synchronized String showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+        Integer showId = (Integer) clientData.getData();
+        String query;
+        String msg;
+
+        try {
+            Statement statement = connection.createStatement();
+
+            ResultSet visivel = statement.executeQuery(
+                    "SELECT visivel FROM espetaculo WHERE id = '" + showId + "'");
+
+            if(visivel.getBoolean(1)) {
+                msg = "This show is already visible";
+                LOG.log(msg);
+                oos.writeObject(msg);
+                return "";
+            }
+
+            query = "UPDATE espetaculo SET visivel = 1 WHERE id = '" + showId + "'";
+            statement.executeUpdate(query);
+
+            msg = "The show is now visible";
+            LOG.log(msg);
+            oos.writeObject(msg);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+
     public synchronized String insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
 
@@ -894,12 +984,24 @@ public class DBHandler {
             // Receive the new value from client
             String filePath = (String) clientData.getData();
             Pair<Show, Map<String, List<Seat>>> mapShows = Utils.readFile(filePath);
+
             if (mapShows == null) {
+                oos.writeObject("There was a problem reading from the file");
                 return "";
             }
             try {
                 // Create connection
                 Statement statement = connection.createStatement();
+
+                //Check if the show exists
+                ResultSet idExist = statement.executeQuery(
+                        "SELECT id FROM espetaculo WHERE descricao = '" + mapShows.getKey().getDescription() + "'"
+                );
+
+                if (idExist.next()) {
+                    oos.writeObject("This show already exists in the database");
+                    return "";
+                }
 
                 // Add Show
                 statement.executeUpdate(
@@ -935,16 +1037,17 @@ public class DBHandler {
                     }
 
                 }
-                oos.writeObject(mapShows.getKey());
+
+                oos.writeObject("The show was successfully added");
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
-                oos.writeObject(null);
+                oos.writeObject(msg);
             }
         } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
-            oos.writeObject(null);
+            oos.writeObject(msg);
         }
 
         return "";
@@ -965,62 +1068,62 @@ public class DBHandler {
             // Verify if the client has admin privilege
             if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                     isAdmin.getString("nome").equalsIgnoreCase("admin")) {
-                try {
                     // Receive from client the ID of the show to be deleted
-                    Integer deleteShowId = (Integer) ois.readObject();
+                    Integer deleteShowId = (Integer) clientData.getData();
 
                     // Search reservations
                     ResultSet reservations = statement.executeQuery(
-                            "SELECT * from reserva WHERE id_espetaculo = '" + deleteShowId + "'"
-                    );
+                            "SELECT * from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
 
                     // If there are no reservations associated
                     if (!reservations.next())
                         hasPaidReserve = false;
+
                     else {
                         // Search reservations and verify if a paid reservation exists
                         while (reservations.next()) {
                             // If a paid reserve exists, the show can't be deleted
                             if (reservations.getBoolean("pago")) {
-                                LOG.log("Show[" + deleteShowId + "] already has a paid reservation...");
-                                oos.writeObject(false);
+                                msg = "Show[" + deleteShowId + "] already has a paid reservation...";
+                                LOG.log(msg);
+                                oos.writeObject(new Pair<>(false,msg));
                                 hasPaidReserve = true;
                             }
                         }
-
+                    }
                         // If there are no paid reservations associated, the show can be deleted
                         if (!hasPaidReserve) {
                             try {
-                                statement.executeQuery(
+
+                                statement.executeUpdate(
                                         "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'"
                                 );
-                                LOG.log("Show[" + deleteShowId + "] was deleted successfully...");
-                                oos.writeObject(true);
+                                msg = "Show[" + deleteShowId + "] was deleted successfully...";
+                                LOG.log(msg);
+                                oos.writeObject(new Pair<>(true,msg));
+
                             } catch (SQLException e) {
-                                LOG.log("Unable to delete show[" + deleteShowId + "]");
-                                oos.writeObject(false);
+                                msg = "Unable to delete show[" + deleteShowId + "]";
+                                LOG.log(msg);
+                                oos.writeObject(new Pair<>(false,msg));
                             } finally {
                                 statement.close();
                                 reservations.close();
                                 isAdmin.close();
                             }
                         }
-                    }
-                } catch (ClassNotFoundException e) {
-                    msg = "Unable to read data from user";
-                    LOG.log(msg);
-                    oos.writeObject(msg);
-                }
+
             } else {
-                LOG.log("Unable to delete show. Only the admin can execute this function");
-                oos.writeObject(false);
+                msg = "Unable to delete show. Only the admin can execute this function";
+                LOG.log(msg);
+                oos.writeObject(new Pair<>(false,msg));
                 statement.close();
                 isAdmin.close();
             }
         } catch(SQLException e) {
             msg = "Unable to get data from the database";
             LOG.log(msg);
-            oos.writeObject(msg);
+            oos.writeObject(new Pair<>(false,msg));
         }
 
         return "";

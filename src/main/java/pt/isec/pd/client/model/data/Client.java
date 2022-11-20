@@ -6,13 +6,10 @@ import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.shared_data.Show;
 import pt.isec.pd.shared_data.Triple;
 
-import javax.swing.text.Style;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class Client extends Thread {
@@ -88,9 +85,9 @@ public class Client extends Thread {
 
     public synchronized List<Seat> getSeatsAndPrices() { return updateSeatsView.getSeatsList(); }
 
-    public List<Show> consultShows(HashMap<String,String> filters) {
+    public List<Show> consultShows(ClientAction action,HashMap<String,String> filters) {
         try {
-            ch.writeToSocket(ClientAction.CONSULT_SHOWS,filters);
+            ch.writeToSocket(action,filters);
             return (List<Show>) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,10 +95,20 @@ public class Client extends Thread {
         return null;
     }
 
-    public Show insertShows(String filePath) {
+    public String insertShows(String filePath) {
         try {
             ch.writeToSocket(ClientAction.INSERT_SHOWS,filePath);
-            return (Show) ch.readFromSocket();
+            return (String) ch.readFromSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Pair<Boolean,String> deleteShow(int idShow) {
+        try {
+            ch.writeToSocket(ClientAction.DELETE_SHOW,idShow);
+            return (Pair<Boolean,String>) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,5 +121,15 @@ public class Client extends Thread {
 
     public void notifyServer() {
          updateSeatsView.close();
+    }
+
+    public String showVisible(int idShow) {
+        try {
+            ch.writeToSocket(ClientAction.VISIBLE_SHOW,idShow);
+            return (String) ch.readFromSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

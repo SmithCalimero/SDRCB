@@ -27,7 +27,7 @@ public class MenuAdmin extends StateAdapter {
 
     @Override
     public void insertShowsTransition() {
-        changeState(State.INSERT_SHOWS);
+        changeState(State.MANAGE_SHOWS);
     }
 
     @Override

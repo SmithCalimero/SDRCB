@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.fsm.states;
 
 import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.Type;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
@@ -16,7 +17,7 @@ public class Shows extends StateAdapter {
     }
     @Override
     public List<Show> consultShows(HashMap<String,String> filters) {
-        return data.consultShows(filters);
+        return data.consultShows(ClientAction.CONSULT_SHOWS_VISIBLE,filters);
     }
 
     @Override

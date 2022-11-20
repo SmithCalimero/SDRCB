@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class ClientReceiveMessage extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
@@ -73,14 +72,15 @@ public class ClientReceiveMessage extends Thread {
                 case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos,ois);
                 case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos,ois);
                 case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos,ois);
-                case CONSULT_SHOWS -> dbHandler.consultShows(clientData,oos,ois);
+                case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos,ois);
+                case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(clientData,oos,ois);
                 case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
                 case VIEW_SEATS_PRICES -> {
                     clientManagement.addClientViewingSeats(this);
                     yield dbHandler.viewSeatsAndPrices(clientData,oos,ois);
                 }
                 case STOPPED_VIEWING_SEATS -> clientManagement.isViewingSeats(this);
-
+                case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
                 // case SUBMIT_RESERVATION -> {//requestAccepted = dbHandler.submitReservation(clientData,oos,ois);}
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                 case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);

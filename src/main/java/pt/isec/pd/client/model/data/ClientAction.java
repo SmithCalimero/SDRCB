@@ -9,7 +9,8 @@ public enum ClientAction {
     EDIT_PASSWORD,                  // done
     CONSULT_PAYMENTS_AWAITING,      // done
     CONSULT_PAYED_RESERVATIONS,     // done
-    CONSULT_SHOWS,                  // done
+    CONSULT_SHOWS_VISIBLE,                  // done
+    CONSULT_SHOWS_ALL,
     SELECT_SHOWS,                   // done
     VIEW_SEATS_PRICES,              // done
     SUBMIT_RESERVATION,             // done
@@ -18,5 +19,6 @@ public enum ClientAction {
     INSERT_SHOWS,
     DELETE_SHOW,                    // done
     DISCONNECTED,                   // done
-    STOPPED_VIEWING_SEATS
+    STOPPED_VIEWING_SEATS,
+    VISIBLE_SHOW,
 }
