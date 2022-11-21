@@ -106,4 +106,9 @@ public abstract class StateAdapter implements IState {
     public void selectShowsTransition() {
 
     }
+
+    @Override
+    public boolean submitReservation(List<Seat> seats) {
+        return false;
+    }
 }

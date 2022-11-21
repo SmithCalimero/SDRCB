@@ -1,11 +1,13 @@
 package pt.isec.pd.client.model.data;
 
+import javafx.application.Platform;
 import pt.isec.pd.shared_data.Seat;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 // TODO:
 //  When a client enters SELECTING_SEATS fase:
@@ -19,7 +21,7 @@ public class UpdateSeatsView extends Thread {
     Client client;
     CommunicationHandler ch;
     int showId;
-    ArrayList<Seat> seats;
+    List<Seat> seats;
     boolean update = false;
     PropertyChangeSupport pcs;
 
@@ -36,43 +38,46 @@ public class UpdateSeatsView extends Thread {
         // Send the request and receive the list for the first time
         try {
             ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
-            synchronized (seats) {
-                seats = (ArrayList<Seat>) ch.readFromSocket();
-                pcs.firePropertyChange(PROP_DATA,null,seats);
-            }
-
+            setSeat((List<Seat>) ch.readFromSocket());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Then the client waits for an update while he is on VIEW_SEATS_PRICES state
-        while(ch.getClientAction() == ClientAction.VIEW_SEATS_PRICES) {
+        while(true) {
             try {
                 // Server notifies user that an update is needed
                 update = (Boolean) ch.readFromSocket();
                 if (!update)
                     break;
 
-                // Even if he receives the notification, this next step verifies the current action
-                if (update && ch.getClientAction() == ClientAction.VIEW_SEATS_PRICES) {
-                    // Request the new list
-                    ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
+                // Request the new list
+                ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
+                // Receive the updated list
+                setSeat((List<Seat>) ch.readFromSocket());
 
-                    // Receive the updated list
-                    synchronized (seats) {
-                        seats = (ArrayList<Seat>) ch.readFromSocket();
-                    }
-
-                    // Reset update value
-                    update = false;
-                    pcs.firePropertyChange(PROP_DATA,null,seats);
-                }
+                // Reset update value
+                update = false;
             } catch(IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    public ArrayList<Seat> getSeatsList() { return seats; }
+
+    public synchronized void setSeat(List<Seat> newSeats){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                seats = newSeats;
+                pcs.firePropertyChange(PROP_DATA,null,seats);
+            }
+        });
+
+    }
+
+    public List<Seat> getSeatsList() {
+        return seats;
+    }
 
     public void close() {
         try {

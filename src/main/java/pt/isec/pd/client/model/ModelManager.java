@@ -106,4 +106,8 @@ public class ModelManager {
         context.selectShowsTransition();
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
+
+    public boolean submitReservation(List<Seat> seats) {
+        return context.submitReservation(seats);
+    }
 }

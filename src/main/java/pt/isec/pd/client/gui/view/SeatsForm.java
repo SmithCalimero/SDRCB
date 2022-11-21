@@ -8,10 +8,13 @@ import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Seat;
 
+import java.util.List;
+
 public class SeatsForm {
     public AnchorPane pane;
     public ListView<Seat> list;
     public Button cancelButton;
+    public Button reservarButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -26,10 +29,21 @@ public class SeatsForm {
             update();
         });
 
-        model.addPropertyChangeListener(ModelManager.PROP_DATA, evt -> list.setItems(FXCollections.observableList(model.getSeatsAndPrices())));
+        model.addPropertyChangeListener(ModelManager.PROP_DATA, evt -> {
+            List<Seat> newSeats = model.getSeatsAndPrices();
+            list.getItems().clear();
+            list.setItems(FXCollections.observableList(newSeats));
+        });
 
         cancelButton.setOnAction(actionEvent -> {
             model.seatsTransition(null);
+        });
+
+        reservarButton.setOnAction(actionEvent -> {
+            List<Seat> seats = list.getSelectionModel().getSelectedItems().stream().toList();
+            if (!seats.isEmpty()) {
+                model.submitReservation(seats);
+            }
         });
     }
 

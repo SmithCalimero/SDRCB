@@ -12,6 +12,7 @@ import pt.isec.pd.utils.Utils;
 
 import java.io.*;
 import java.sql.*;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -744,14 +745,13 @@ public class DBHandler {
     }
 
     public synchronized boolean submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        int id = 0;
         Date currentTime = new Date();  // Get current time of the server to set in reserve object
-        boolean isPaid = false;
+        int isPaid = 0;
         String msg = "";
 
         try {
             // Receive reserve from client  (format: showId, List<Seat>
-            Pair<Integer, ArrayList<Seat>> reserve = (Pair<Integer, ArrayList<Seat>>) ois.readObject();
+            Pair<Integer, List<Seat>> reserve = (Pair<Integer, List<Seat>>) clientData.getData();
 
             try {
                 // Create statement
@@ -763,33 +763,46 @@ public class DBHandler {
                 );
 
                 // Execute a query to get the clients name
-                ResultSet username = statement.executeQuery(
+                ResultSet usernameResult = statement.executeQuery(
                         "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
                 );
 
-                // Verify if reserves table is empty
-                if (reserves.next())
-                    while (reserves.next())
-                        id = reserves.getInt("id");
+                String username = usernameResult.getString(1);
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String dateString = dateFormat.format(currentTime);
 
                 try {
                     // Insert reserve
-                    statement.executeQuery(
-                            "INSERT INTO reserva(id,data_hora,pago,id_utilizador,id_espetaculo)" +
+                    statement.executeUpdate(
+                            "INSERT INTO reserva(data_hora,pago,id_utilizador,id_espetaculo)" +
                                     "VALUES('"
-                                    + ++id + "','"
-                                    + currentTime + "','"
+                                    + dateString + "','"
                                     + isPaid + "','"
                                     + clientData.getId() + "','"
                                     + reserve.getKey() + "')"
                     );
 
+                    ResultSet resultSet  = statement.executeQuery(
+                            "SELECT id FROM reserva" +
+                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() + "';");
+
+                    int id = resultSet.getInt(1);
+
                     // Insert seats
                     for (var s : reserve.getValue()) {
-                        statement.executeQuery(
-                                "INSERT INTO reserva_lugar(id_reserva,id_lugar)" +
-                                        "VALUES('" + reserve.getKey() + "','" + s.getId() + "')"
+                        System.out.println(s.getId());
+                        statement.executeUpdate(
+                                "INSERT INTO reserva_lugar (\n" +
+                                        "                              id_reserva,\n" +
+                                        "                              id_lugar\n" +
+                                        "                          )\n" +
+                                        "                          VALUES (\n" +
+                                      + id +  "                              ,\n" +
+                                      + s.getId() +  "                            \n" +
+                                        "                          );"
                         );
+                        System.out.println("here");
                     }
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
@@ -802,7 +815,7 @@ public class DBHandler {
                 } finally {
                     statement.close();
                     reserves.close();
-                    username.close();
+                    usernameResult.close();
                     return false;
                 }
             } catch(SQLException e) {
@@ -811,7 +824,7 @@ public class DBHandler {
                 oos.writeObject(msg);
                 return false;
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
             oos.writeObject(msg);

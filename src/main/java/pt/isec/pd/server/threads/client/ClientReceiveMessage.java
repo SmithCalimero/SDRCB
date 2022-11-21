@@ -81,7 +81,10 @@ public class ClientReceiveMessage extends Thread {
                 }
                 case STOPPED_VIEWING_SEATS -> clientManagement.isViewingSeats(this);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
-                // case SUBMIT_RESERVATION -> {//requestAccepted = dbHandler.submitReservation(clientData,oos,ois);}
+                case SUBMIT_RESERVATION -> {
+                    requestAccepted = dbHandler.submitReservation(clientData,oos,ois);
+                    yield "";
+                }
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                 case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);

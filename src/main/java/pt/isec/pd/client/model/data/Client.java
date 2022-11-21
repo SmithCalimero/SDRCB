@@ -132,4 +132,14 @@ public class Client extends Thread {
         }
         return null;
     }
+
+    public boolean submitReservation(List<Seat> seats) {
+        try {
+            ch.writeToSocket(ClientAction.SUBMIT_RESERVATION,new Pair<>(seats.get(0).getShowId(),seats));
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

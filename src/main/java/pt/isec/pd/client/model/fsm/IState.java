@@ -28,4 +28,5 @@ public interface IState {
     Pair<Boolean,String> deleteShow(int idShow);
     String showVisible(int idShow);
     void selectShowsTransition();
+    boolean submitReservation(List<Seat> seats);
 }

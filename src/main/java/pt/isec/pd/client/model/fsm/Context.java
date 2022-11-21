@@ -93,4 +93,8 @@ public class Context {
     public void selectShowsTransition() {
         state.selectShowsTransition();
     }
+
+    public boolean submitReservation(List<Seat> seats) {
+        return state.submitReservation(seats);
+    }
 }
