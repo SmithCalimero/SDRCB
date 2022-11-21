@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.SelectShows">
+   <Button fx:id="refreshButton" layoutX="244.0" layoutY="25.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="refresh" textFill="WHITE" />
+   <ListView fx:id="list" layoutX="311.0" layoutY="25.0" prefHeight="316.0" prefWidth="314.0" />
+</AnchorPane>

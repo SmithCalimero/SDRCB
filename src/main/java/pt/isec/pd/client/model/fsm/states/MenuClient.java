@@ -26,6 +26,11 @@ public class MenuClient extends StateAdapter {
     }
 
     @Override
+    public void selectShowsTransition() {
+        changeState(State.SELECT_SHOWS);
+    }
+
+    @Override
     public State getState() {
         return State.MENU_CLIENT;
     }

@@ -27,4 +27,5 @@ public interface IState {
     String insertShows(String filePath);
     Pair<Boolean,String> deleteShow(int idShow);
     String showVisible(int idShow);
+    void selectShowsTransition();
 }

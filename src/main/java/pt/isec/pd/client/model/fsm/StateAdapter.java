@@ -101,4 +101,9 @@ public abstract class StateAdapter implements IState {
     public String showVisible(int idShow) {
         return null;
     }
+
+    @Override
+    public void selectShowsTransition() {
+
+    }
 }

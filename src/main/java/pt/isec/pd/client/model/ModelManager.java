@@ -40,7 +40,6 @@ public class ModelManager {
     public String register(String userName,String name,String password){
         return context.register(userName,name,password);
     }
-
     public List<Show> consultShows(HashMap<String,String> filters) {
         return context.consultShows(filters);
     }
@@ -101,5 +100,10 @@ public class ModelManager {
 
     public String showVisible(int idShow) {
         return context.showVisible(idShow);
+    }
+
+    public void selectShowsTransition() {
+        context.selectShowsTransition();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 }

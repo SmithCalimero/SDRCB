@@ -14,7 +14,6 @@ public class Login extends StateAdapter {
 
     @Override
     public void next() {
-        System.out.println(data.getType());
         if (data.getType() == Type.NORMAl_MODE) {
             changeState(State.MENU_CLIENT);
         } else {

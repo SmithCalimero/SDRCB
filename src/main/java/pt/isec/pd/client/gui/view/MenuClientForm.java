@@ -14,6 +14,7 @@ public class MenuClientForm {
     public AnchorPane pane;
     public Button editButton;
     public Button showsButton;
+    public Button selectShowsButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -30,9 +31,12 @@ public class MenuClientForm {
         editButton.setOnAction(actionEvent -> {
             model.editTransition();
         });
+
         showsButton.setOnAction(actionEvent -> {
             model.showsTransition();
         });
+
+        selectShowsButton.setOnAction(actionEvent -> model.selectShowsTransition());
     }
     private void update() {
         pane.setVisible(model != null && model.getState() == State.MENU_CLIENT);

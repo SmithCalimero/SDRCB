@@ -19,13 +19,6 @@ public class Shows extends StateAdapter {
     public List<Show> consultShows(HashMap<String,String> filters) {
         return data.consultShows(ClientAction.CONSULT_SHOWS_VISIBLE,filters);
     }
-
-    @Override
-    public void seatsTransition(Integer idShow) {
-        changeState(State.SEATS_PRICES);
-        data.viewSeatsAndPrices(idShow);
-    }
-
     @Override
     public void showsTransition() {
         if (data.getType() == Type.ADMIN) {

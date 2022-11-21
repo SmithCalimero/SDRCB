@@ -89,4 +89,8 @@ public class Context {
     public String showVisible(int idShow) {
         return state.showVisible(idShow);
     }
+
+    public void selectShowsTransition() {
+        state.selectShowsTransition();
+    }
 }

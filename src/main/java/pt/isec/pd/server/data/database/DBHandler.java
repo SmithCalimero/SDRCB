@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class DBHandler {
     private final Log LOG = Log.getLogger(DBHandler.class);
@@ -616,17 +617,19 @@ public class DBHandler {
                 if (visible) {
                     try {
                         // Get the show date (assuming its formatted: "dd/MM/yyyy HH:mm:ss")
-                        Date showDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(date);
+                        Date showDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
 
                         // Get the current day
                         Date currentDate = new Date();
 
                         // Verify if remain at least 24 hours before the show
-                        Duration difference = Duration.between((Temporal) showDate, (Temporal) currentDate);
-                        String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
+                        long  diffInMillies = Math.abs(showDate.getTime() - currentDate.getTime()) ;
+                        long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
+                        //Duration difference = Duration.between(showDate,currentDate);
+                        //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
 
                         // If at least 24 hours before the show, it can be selected
-                        if (difference.toHours() < 24) {
+                        if (diff <= 24) {
                             availableShows.add(new Show(
                                     id,
                                     description,

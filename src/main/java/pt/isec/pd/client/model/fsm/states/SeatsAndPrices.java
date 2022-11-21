@@ -21,7 +21,7 @@ public class SeatsAndPrices extends StateAdapter {
     @Override
     public void seatsTransition(Integer idSwow) {
         data.notifyServer();
-        changeState(State.SHOWS);
+        changeState(State.SELECT_SHOWS);
     }
 
     @Override
