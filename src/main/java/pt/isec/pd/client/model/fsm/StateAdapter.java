@@ -3,6 +3,7 @@ package pt.isec.pd.client.model.fsm;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 
@@ -110,5 +111,14 @@ public abstract class StateAdapter implements IState {
     @Override
     public boolean submitReservation(List<Seat> seats) {
         return false;
+    }
+
+    @Override
+    public void consultsPaymentsAwaitingTransition() {
+
+    }
+    @Override
+    public List<Reserve> consultsPaymentsAwaiting() {
+        return null;
     }
 }

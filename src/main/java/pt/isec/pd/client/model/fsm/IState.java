@@ -2,6 +2,7 @@ package pt.isec.pd.client.model.fsm;
 
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 
@@ -29,4 +30,6 @@ public interface IState {
     String showVisible(int idShow);
     void selectShowsTransition();
     boolean submitReservation(List<Seat> seats);
+    void consultsPaymentsAwaitingTransition();
+    List<Reserve> consultsPaymentsAwaiting();
 }

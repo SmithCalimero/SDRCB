@@ -15,6 +15,7 @@ public class MenuClientForm {
     public Button editButton;
     public Button showsButton;
     public Button selectShowsButton;
+    public Button reversasNaoPagasButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -34,6 +35,10 @@ public class MenuClientForm {
 
         showsButton.setOnAction(actionEvent -> {
             model.showsTransition();
+        });
+
+        reversasNaoPagasButton.setOnAction(actionEvent -> {
+            model.consultsPaymentsAwaitingTransition();
         });
 
         selectShowsButton.setOnAction(actionEvent -> model.selectShowsTransition());

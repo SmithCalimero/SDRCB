@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.shared_data.Show;
@@ -109,5 +110,14 @@ public class ModelManager {
 
     public boolean submitReservation(List<Seat> seats) {
         return context.submitReservation(seats);
+    }
+
+    public void consultsPaymentsAwaitingTransition() {
+        context.consultsPaymentsAwaitingTransition();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public List<Reserve> consultsPaymentsAwaiting() {
+        return context.consultsPaymentsAwaiting();
     }
 }

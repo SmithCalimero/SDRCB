@@ -365,14 +365,16 @@ public class DBHandler {
         // Create statement
         Statement statement = connection.createStatement();
 
-        // Execute query to search reserves
-        ResultSet result = statement.executeQuery(
-                "SELECT * FROM reserva"
+        // Execute query to get the clients name
+        ResultSet clientResult = statement.executeQuery(
+                "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
         );
 
-        // Execute query to get the clients name
-        ResultSet clientName = statement.executeQuery(
-                "SELECT username FROM utilizadores WHERE id = '" + clientData.getId() + "'"
+        String clientName = clientResult.getString(1);
+
+        // Execute query to search reserves
+        ResultSet result = statement.executeQuery(
+                "SELECT * FROM reserva;"
         );
 
         while(result.next()) {
@@ -388,7 +390,7 @@ public class DBHandler {
                     reserves.add(new Reserve(
                             id,
                             date,
-                            paid,
+                            false,
                             userId,
                             showId
                     ));
@@ -406,7 +408,7 @@ public class DBHandler {
 
         statement.close();
         result.close();
-        if (clientName != null) clientName.close();
+        clientResult.close();
 
         return "";
     }
@@ -785,7 +787,8 @@ public class DBHandler {
 
                     ResultSet resultSet  = statement.executeQuery(
                             "SELECT id FROM reserva" +
-                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() + "';");
+                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() +
+                                    "' and data_hora=' " + dateString +"';");
 
                     int id = resultSet.getInt(1);
 
@@ -794,13 +797,12 @@ public class DBHandler {
                         System.out.println(s.getId());
                         statement.executeUpdate(
                                 "INSERT INTO reserva_lugar (\n" +
-                                        "                              id_reserva,\n" +
-                                        "                              id_lugar\n" +
-                                        "                          )\n" +
-                                        "                          VALUES (\n" +
-                                      + id +  "                              ,\n" +
-                                      + s.getId() +  "                            \n" +
-                                        "                          );"
+                                        " id_reserva,\n" +
+                                        " id_lugar\n" +
+                                        " )\n" +
+                                        " VALUES (\n" +
+                                        id +  " ,\n" +
+                                        s.getId() + ");"
                         );
                         System.out.println("here");
                     }

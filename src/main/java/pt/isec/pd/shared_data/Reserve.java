@@ -30,4 +30,12 @@ public class Reserve implements Serializable {
     public int getUserId() { return userId; }
 
     public int getShowId() { return showId; }
+
+    @Override
+    public String toString() {
+        return "id: " + id + "\n" +
+                "date: " + dateHour + "\n" +
+                "userId: " + userId + "\n" +
+                "showId: " + showId;
+    }
 }

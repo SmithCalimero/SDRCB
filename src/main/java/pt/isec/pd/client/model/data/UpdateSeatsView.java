@@ -53,10 +53,8 @@ public class UpdateSeatsView extends Thread {
 
                 // Request the new list
                 ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
-                // Receive the updated list
                 setSeat((List<Seat>) ch.readFromSocket());
 
-                // Reset update value
                 update = false;
             } catch(IOException e) {
                 e.printStackTrace();
@@ -65,12 +63,9 @@ public class UpdateSeatsView extends Thread {
     }
 
     public synchronized void setSeat(List<Seat> newSeats){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                seats = newSeats;
-                pcs.firePropertyChange(PROP_DATA,null,seats);
-            }
+        Platform.runLater(() -> {
+            seats = newSeats;
+            pcs.firePropertyChange(PROP_DATA,null,seats);
         });
 
     }

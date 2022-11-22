@@ -1,10 +1,7 @@
 package pt.isec.pd.client.model.data;
 
 import javafx.util.Pair;
-import pt.isec.pd.shared_data.Seat;
-import pt.isec.pd.shared_data.ServerAddress;
-import pt.isec.pd.shared_data.Show;
-import pt.isec.pd.shared_data.Triple;
+import pt.isec.pd.shared_data.*;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -141,5 +138,15 @@ public class Client extends Thread {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<Reserve> consultsPaymentsAwaiting() {
+        try {
+            ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
+            return (List<Reserve>) ch.readFromSocket();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

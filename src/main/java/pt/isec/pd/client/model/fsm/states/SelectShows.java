@@ -26,6 +26,10 @@ public class SelectShows extends StateAdapter {
         data.viewSeatsAndPrices(idShow);
     }
 
+    @Override
+    public void selectShowsTransition() {
+        changeState(State.MENU_CLIENT);
+    }
 
     @Override
     public State getState() {
