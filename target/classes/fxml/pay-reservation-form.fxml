@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.PayReservationForm">
+   <Button fx:id="cancelButton" layoutX="23.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="Voltar aos lugares" underline="true" />
+   <Button fx:id="pagarButton" layoutX="276.0" layoutY="168.0" mnemonicParsing="false" text="Pagar reserva" />
+</AnchorPane>
