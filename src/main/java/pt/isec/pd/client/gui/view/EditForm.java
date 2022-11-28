@@ -7,6 +7,7 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.EditResponse;
 
 public class EditForm {
     public AnchorPane pane;
@@ -14,6 +15,7 @@ public class EditForm {
     public Button editButton;
     public TextField editField;
     public Button cancelButton;
+    public Label msg;
 
     private ModelManager model;
 
@@ -29,6 +31,12 @@ public class EditForm {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
         });
+
+        model.addPropertyChangeListener(ClientAction.EDIT_DATA.toString(), evt -> {
+           EditResponse editResponse = (EditResponse) model.getResponse();
+           msg.setText(editResponse.getMsg());
+        });
+
 
         editButton.setOnAction(actionEvent -> {
             switch ((String) choiceBox.getSelectionModel().getSelectedItem()) {

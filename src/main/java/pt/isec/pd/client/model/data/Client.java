@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.data;
 
 import javafx.util.Pair;
+import pt.isec.pd.client.model.data.threads.CommunicationHandler;
 import pt.isec.pd.shared_data.*;
 
 import java.beans.PropertyChangeSupport;
@@ -17,45 +18,24 @@ public class Client extends Thread {
 
     public Client(ServerAddress pingAddr, PropertyChangeSupport pcs) {
         this.pcs = pcs;
-
-        ch = new CommunicationHandler(pingAddr);
+        ch = new CommunicationHandler(pingAddr,pcs);
         ch.start();
     }
 
-    public Pair<Boolean,String> login(String userName,String password) {
+    public void login(String userName,String password) {
         try {
             ch.writeToSocket(ClientAction.LOGIN,new Pair<>(userName,password));
-
-            Integer id = (Integer) ch.readFromSocket();
-
-            //<isLogin,isAdmin?,ErrorMessage?>
-            Triple<Boolean,Boolean,String> response = (Triple<Boolean,Boolean,String>) ch.readFromSocket();
-
-            //Assign the mode;
-            if (response.getFirst()) {
-                synchronized (ch.getClientData()) {
-                    ch.getClientData().setId(id);
-                }
-                type = response.getSecond() ? Type.ADMIN : Type.NORMAl_MODE;
-            }
-
-            //<isLogin,ErrorMessage?>
-            return new Pair<>(response.getFirst(),response.getThird());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return null;
     }
 
-    public String register(String userName,String name,String password) {
+    public void register(String userName,String name,String password) {
         try {
             ch.writeToSocket(ClientAction.REGISTER,new Triple<>(userName,name,password));
-            return (String) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     public void edit(ClientAction action,String edit) {
@@ -113,7 +93,7 @@ public class Client extends Thread {
     }
 
     public Type getType() {
-        return type;
+        return ch.getClientData().isAdmin() ? Type.ADMIN : Type.NORMAl_MODE;
     }
 
     public void notifyServer() {
@@ -130,14 +110,12 @@ public class Client extends Thread {
         return null;
     }
 
-    public boolean submitReservation(List<Seat> seats) {
+    public void submitReservation(List<Seat> seats) {
         try {
             ch.writeToSocket(ClientAction.SUBMIT_RESERVATION,new Pair<>(seats.get(0).getShowId(),seats));
-            return false;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     public List<Reserve> consultsPaymentsAwaiting() {
@@ -148,5 +126,9 @@ public class Client extends Thread {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Object getResponse() {
+        return ch.getResponse();
     }
 }

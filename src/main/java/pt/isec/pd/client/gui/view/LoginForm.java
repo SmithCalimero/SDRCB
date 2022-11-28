@@ -8,20 +8,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.LoginResponse;
 
 public class LoginForm {
-    @FXML
     public TextField usernameField;
-    @FXML
     public PasswordField passwordField;
-    @FXML
     public Label errorMessage;
-    @FXML
     public AnchorPane pane;
-    @FXML
     public Button loginButton;
-    @FXML
     public Button registerButton;
     public Label registerLabel;
 
@@ -37,15 +33,22 @@ public class LoginForm {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
         });
-        loginButton.setOnAction(actionEvent -> {
+
+        model.addPropertyChangeListener(ClientAction.LOGIN.toString(), evt -> {
+            LoginResponse loginResponse = (LoginResponse) model.getResponse();
+
             errorMessage.setText("");
-            Pair<Boolean,String> response = model.login(usernameField.getText(),passwordField.getText());
-            if (response.getKey()) {
+            if (loginResponse.isSuccess()) {
                 model.next();
             } else {
-                errorMessage.setText(response.getValue());
+                errorMessage.setText(loginResponse.getMsg());
             }
         });
+
+        loginButton.setOnAction(actionEvent -> {
+            model.login(usernameField.getText(),passwordField.getText());
+        });
+
         registerButton.setOnAction(actionEvent -> {
             model.swapToRegister();
         });

@@ -34,12 +34,12 @@ public class ModelManager {
         return context.getState();
     }
 
-    public Pair<Boolean,String> login(String userName, String password) {
-        return context.login(userName,password);
+    public void login(String userName, String password) {
+        context.login(userName,password);
     }
 
-    public String register(String userName,String name,String password){
-        return context.register(userName,name,password);
+    public void register(String userName,String name,String password){
+        context.register(userName,name,password);
     }
     public List<Show> consultShows(HashMap<String,String> filters) {
         return context.consultShows(filters);
@@ -108,8 +108,8 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public boolean submitReservation(List<Seat> seats) {
-        return context.submitReservation(seats);
+    public void submitReservation(List<Seat> seats) {
+        context.submitReservation(seats);
     }
 
     public void consultsPaymentsAwaitingTransition() {
@@ -119,5 +119,14 @@ public class ModelManager {
 
     public List<Reserve> consultsPaymentsAwaiting() {
         return context.consultsPaymentsAwaiting();
+    }
+
+    public void payReservationTransition(int resId) {
+        context.payReservationTransition(resId);
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public Object getResponse() {
+        return context.getResponse();
     }
 }

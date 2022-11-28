@@ -12,8 +12,8 @@ import java.util.List;
 public interface IState {
     void next();
     void previous();
-    Pair<Boolean,String> login(String userName, String password);
-    String register(String userName,String name,String password);
+    void login(String userName, String password);
+    void register(String userName, String name, String password);
     void edit(ClientAction action, String edit);
     void editTransition();
 
@@ -29,7 +29,9 @@ public interface IState {
     Pair<Boolean,String> deleteShow(int idShow);
     String showVisible(int idShow);
     void selectShowsTransition();
-    boolean submitReservation(List<Seat> seats);
+    void submitReservation(List<Seat> seats);
     void consultsPaymentsAwaitingTransition();
     List<Reserve> consultsPaymentsAwaiting();
+    void payReservationTransition(int resId);
+    Object getResponse();
 }

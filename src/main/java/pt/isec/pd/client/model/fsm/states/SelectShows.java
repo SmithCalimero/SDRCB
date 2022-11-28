@@ -27,6 +27,11 @@ public class SelectShows extends StateAdapter {
     }
 
     @Override
+    public void payReservationTransition(int resId) {
+        context.changeState(new PayReservation(context,data,resId));
+    }
+
+    @Override
     public void selectShowsTransition() {
         changeState(State.MENU_CLIENT);
     }

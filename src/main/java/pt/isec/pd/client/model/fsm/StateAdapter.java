@@ -29,13 +29,13 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public Pair<Boolean,String> login(String userName, String password) {
-        return context.login(userName,password);
+    public void login(String userName, String password) {
+         context.login(userName,password);
     }
 
     @Override
-    public String register(String userName,String name,String password) {
-        return context.register(userName,name,password);
+    public void register(String userName, String name, String password) {
+        context.register(userName,name,password);
     }
 
     @Override
@@ -109,8 +109,7 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public boolean submitReservation(List<Seat> seats) {
-        return false;
+    public void submitReservation(List<Seat> seats) {
     }
 
     @Override
@@ -120,5 +119,13 @@ public abstract class StateAdapter implements IState {
     @Override
     public List<Reserve> consultsPaymentsAwaiting() {
         return null;
+    }
+    @Override
+    public void payReservationTransition(int resId) {
+    }
+
+    @Override
+    public Object getResponse() {
+        return data.getResponse();
     }
 }

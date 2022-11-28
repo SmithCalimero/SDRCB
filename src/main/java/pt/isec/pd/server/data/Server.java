@@ -3,9 +3,13 @@ package pt.isec.pd.server.data;
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientManagement;
+import pt.isec.pd.shared_data.CompareDbVersionHeartBeat;
+import pt.isec.pd.shared_data.HeartBeat;
 import pt.isec.pd.utils.Log;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
@@ -13,7 +17,7 @@ public class Server {
     private ClientManagement clientManagement;
     //private ClientController clientController;
     private final String dbPath;
-    private HeartBeatController heartBeatController;
+    private HeartBeatController hbController;
     private DBHandler dbHandler;
 
     public Server(int pingPort,String dbPath) {
@@ -33,21 +37,28 @@ public class Server {
             dbHandler = null;
         }
 
-        heartBeatController = new HeartBeatController(hbList,this);
-        clientManagement = new ClientManagement(pingPort, dbHandler,hbList,heartBeatController);
+        hbController = new HeartBeatController(hbList,this);
+        clientManagement = new ClientManagement(pingPort, dbHandler,hbList, hbController);
 
     }
 
     public void start() {
-        heartBeatController.start();
+        hbController.start();
 
-       /* if (hbList.size() == 0) {
-            createDataBase();
+        /*List<HeartBeat> hbDbVersion = new ArrayList<>(List.copyOf(hbList));
+        hbDbVersion.sort(new CompareDbVersionHeartBeat());
+
+        System.out.println(hbDbVersion);
+
+       if (hbController.getHbEvent().getDbVersion() < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
+
+           System.out.println("update needed");
+           //createDataBase();
         } else {
-            transferDataBase();
+           System.out.println("no need");
+            //transferDataBase();
         }*/
 
-        //clientController.start();
         clientManagement.startPingHandler();
         clientManagement.start();
     }
@@ -55,7 +66,6 @@ public class Server {
     public boolean createDataBase() {
         if (dbHandler == null) {
             new CreateDataBase(dbPath);
-
             try {
                 dbHandler = new DBHandler(dbPath);
             } catch (SQLException e) {

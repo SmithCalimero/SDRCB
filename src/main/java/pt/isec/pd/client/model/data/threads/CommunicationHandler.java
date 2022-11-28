@@ -1,12 +1,16 @@
-package pt.isec.pd.client.model.data;
+package pt.isec.pd.client.model.data.threads;
 
 import javafx.application.Platform;
+import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.data.ClientAction;
+import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.shared_data.ServerAddress;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,8 +25,12 @@ public class CommunicationHandler extends Thread {
     private ObjectInputStream ois;
     private final DatagramSocket ds;
     private ClientData clientData;
+    private ResponseHandler responseHandler;
+    private PropertyChangeSupport pcs;
 
-    public CommunicationHandler(ServerAddress pingAddr) {
+    public CommunicationHandler(ServerAddress pingAddr, PropertyChangeSupport pcs) {
+        this.pcs = pcs;
+
         try {
             ds = new DatagramSocket();
             ds.setSoTimeout(Constants.TIMEOUT);
@@ -36,6 +44,10 @@ public class CommunicationHandler extends Thread {
     @Override
     public void run() {
         sendPing();
+    }
+
+    public Object getResponse() {
+        return responseHandler.getResponse();
     }
 
     public void sendPing() {
@@ -78,6 +90,8 @@ public class CommunicationHandler extends Thread {
             socket = new Socket(address.getIp(), address.getPort());
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
+            responseHandler = new ResponseHandler(ois,pcs,clientData);
+            responseHandler.start();
             return true;
         } catch(IOException e) {
             return false;
@@ -96,7 +110,7 @@ public class CommunicationHandler extends Thread {
         }
     }
 
-    public synchronized Object readFromSocket() throws IOException {
+    public Object readFromSocket() throws IOException {
         try {
             return ois.readObject();
         } catch (SocketException e) {

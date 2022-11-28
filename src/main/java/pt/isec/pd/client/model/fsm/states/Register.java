@@ -21,8 +21,8 @@ public class Register extends StateAdapter {
     }
 
     @Override
-    public String register(String userName,String name,String password) {
-        return data.register(userName,name,password);
+    public void register(String userName, String name, String password) {
+        data.register(userName,name,password);
     }
 
     @Override

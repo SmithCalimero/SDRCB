@@ -22,8 +22,8 @@ public class Login extends StateAdapter {
     }
 
     @Override
-    public Pair<Boolean,String> login(String userName, String password) {
-        return data.login(userName,password);
+    public void login(String userName, String password) {
+        data.login(userName,password);
     }
 
     @Override

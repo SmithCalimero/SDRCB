@@ -21,7 +21,7 @@ public class Context {
         state = State.LOGIN.createState(this,data);
     }
 
-    void changeState(IState state) {
+    public void changeState(IState state) {
         this.state = state;
     }
 
@@ -33,12 +33,12 @@ public class Context {
         state.next();
     }
 
-    public Pair<Boolean,String> login(String userName, String password) {
-        return state.login(userName,password);
+    public void login(String userName, String password) {
+        state.login(userName,password);
     }
 
-    public String register(String userName,String name,String password) {
-        return state.register(userName,name,password);
+    public void register(String userName,String name,String password) {
+        state.register(userName,name,password);
     }
 
     public void edit(ClientAction action, String edit) {
@@ -95,8 +95,8 @@ public class Context {
         state.selectShowsTransition();
     }
 
-    public boolean submitReservation(List<Seat> seats) {
-        return state.submitReservation(seats);
+    public void submitReservation(List<Seat> seats) {
+        state.submitReservation(seats);
     }
 
     public void consultsPaymentsAwaitingTransition() {
@@ -105,5 +105,13 @@ public class Context {
 
     public List<Reserve> consultsPaymentsAwaiting() {
         return state.consultsPaymentsAwaiting();
+    }
+
+    public void payReservationTransition(int resId) {
+        state.payReservationTransition(resId);
+    }
+
+    public Object getResponse() {
+        return state.getResponse();
     }
 }

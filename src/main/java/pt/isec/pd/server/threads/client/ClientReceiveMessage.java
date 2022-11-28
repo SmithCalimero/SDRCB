@@ -30,6 +30,7 @@ public class ClientReceiveMessage extends Thread {
         this.dbHandler = dbHandler;
         this.clientManagement = clientManagement;
         queueUpdate = new QueueUpdate(controller,queue,this);
+
         try {
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
@@ -101,6 +102,7 @@ public class ClientReceiveMessage extends Thread {
 
             //If db was updated, init the process of updating other servers db
             if (!sqlCommand.isEmpty()) {
+                dbHandler.updateVersion();
                 controller.updateDataBase(sqlCommand);
             }
         }  catch (ClassNotFoundException | SQLException | IOException e) {

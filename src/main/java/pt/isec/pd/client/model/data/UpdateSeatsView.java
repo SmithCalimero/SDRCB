@@ -1,11 +1,11 @@
 package pt.isec.pd.client.model.data;
 
 import javafx.application.Platform;
+import pt.isec.pd.client.model.data.threads.CommunicationHandler;
 import pt.isec.pd.shared_data.Seat;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 

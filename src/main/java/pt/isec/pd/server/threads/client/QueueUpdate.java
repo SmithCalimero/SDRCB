@@ -24,7 +24,7 @@ public class QueueUpdate extends Thread {
                     ClientData clientData = queue.remove(0);
                     client.handleClientRequest(clientData);
                 }
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e ) {
                 e.printStackTrace();
             }

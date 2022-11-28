@@ -25,6 +25,8 @@ public class HeartBeatController {
     private boolean updater = false;
     private boolean updating = false;
 
+    private boolean available = true;
+
     private MulticastSocket ms;
 
     public HeartBeatController(HeartBeatList hbList, Server server) {
@@ -63,8 +65,20 @@ public class HeartBeatController {
         sender.start();
     }
 
+    public synchronized boolean isAvailable() {
+        return available;
+    }
+
+    public synchronized void setAvailable(boolean available) {
+        this.available = available;
+    }
+
     public HeartBeat updateHeartBeat() {
-        hbEvent = new HeartBeat(server.getServerPort(), true, server.getDBVersion(), server.getActiveConnections());
+        hbEvent = new HeartBeat(server.getServerPort(),isAvailable(), server.getDBVersion(), server.getActiveConnections());
+        return hbEvent;
+    }
+
+    public HeartBeat getHbEvent() {
         return hbEvent;
     }
 

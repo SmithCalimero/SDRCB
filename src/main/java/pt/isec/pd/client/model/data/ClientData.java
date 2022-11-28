@@ -8,6 +8,7 @@ public class ClientData implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private int id;
+    private boolean isAdmin;
     private ClientAction action;
     private Object data;
 
@@ -27,5 +28,13 @@ public class ClientData implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

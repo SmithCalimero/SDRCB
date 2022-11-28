@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.EditForm">
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.EditForm">
    <children>
        <ChoiceBox fx:id="choiceBox" layoutX="229.0" layoutY="130.0" prefWidth="150.0">
            <items>
@@ -25,5 +25,6 @@
             <Font name="Consolas Bold" size="38.0" />
          </font>
       </Label>
+      <Label fx:id="msg" alignment="CENTER" contentDisplay="CENTER" layoutX="6.0" layoutY="113.0" prefHeight="17.0" prefWidth="631.0" textAlignment="CENTER" />
    </children>
 </AnchorPane>

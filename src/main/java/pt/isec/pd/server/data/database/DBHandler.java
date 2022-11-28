@@ -3,6 +3,9 @@ package pt.isec.pd.server.data.database;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.shared_data.Reserve;
+import pt.isec.pd.shared_data.Responses.EditResponse;
+import pt.isec.pd.shared_data.Responses.LoginResponse;
+import pt.isec.pd.shared_data.Responses.RegisterResponse;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 import pt.isec.pd.shared_data.Triple;
@@ -26,12 +29,8 @@ public class DBHandler {
     private Connection connection;
 
     public DBHandler(String path) throws SQLException {
-        // Test if the path of the database actually exist; (Throws exception)
-        try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + path);
-        } catch(SQLException e) {
-            LOG.log("Error connecting to database: " + e);
-        }
+        connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+        System.out.println(getCurrentVersion());
     }
 
     public int getCurrentVersion() throws SQLException {
@@ -53,8 +52,6 @@ public class DBHandler {
         String sqlQuery = "PRAGMA user_version = " + (getCurrentVersion() + 1);
         statement.execute(sqlQuery);
 
-        System.out.println(getCurrentVersion());
-
         statement.close();
     }
 
@@ -66,75 +63,76 @@ public class DBHandler {
         boolean requestAccepted = true;
         String msg = "";
         String querry = "";
+        RegisterResponse registerResponse = new RegisterResponse();
+
+        // Receives clients register data (format: username, name, password)
+        Triple<String, String, String> data = (Triple<String, String, String>) clientData.getData();
 
         try {
-            // Receives clients register data (format: username, name, password)
-            Triple<String, String, String> data = (Triple<String, String, String>) clientData.getData();
+            // Create a statement
+            Statement statement = connection.createStatement();
 
-            try {
-                // Create a statement
-                Statement statement = connection.createStatement();
+            // Execute a query
+            ResultSet result = statement.executeQuery(
+                    "SELECT * FROM utilizador"
+            );
 
-                // Execute a query
-                ResultSet result = statement.executeQuery(
-                        "SELECT * FROM utilizador"
-                );
+            // Verify if admin is registered
+            if (data.getFirst().equalsIgnoreCase("admin") &&
+                    data.getSecond().equalsIgnoreCase("admin"))
+                isAdmin = 1;
 
-                // Verify if admin is registered
-                if (data.getFirst().equalsIgnoreCase("admin") &&
-                        data.getSecond().equalsIgnoreCase("admin"))
-                    isAdmin = 1;
+            // If table has registered users, verify if username and name are unique
+            while (result.next()) {
+                id = result.getInt("id");
+                String username = result.getString("username");
+                String name = result.getString("nome");
 
-                // If table has registered users, verify if username and name are unique
-                while (result.next()) {
-                    id = result.getInt("id");
-                    String username = result.getString("username");
-                    String name = result.getString("nome");
-
-                    // Validate client username & name
-                    if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
-                        msg = "User[" + data.getFirst() + "] already exists";
-                        LOG.log(msg);
-                        requestAccepted = false;
-                        break;
-                    }
+                // Validate client username & name
+                if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
+                    msg = "User[" + data.getFirst() + "] already exists";
+                    LOG.log(msg);
+                    requestAccepted = false;
+                    break;
                 }
-
-                if (requestAccepted) {
-                    try {
-                        // Register user
-                        querry = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
-                                + "VALUES("
-                                + "'" + ++id + "',"
-                                + "'" + data.getFirst() + "',"
-                                + "'" + data.getSecond() + "',"
-                                + "'" + data.getThird() + "',"
-                                + "'" + isAdmin + "',"
-                                + "'" + isAuthenticated + "')";
-                        int rs = statement.executeUpdate(querry);
-                        if (rs == 1) {
-                            LOG.log("User[" + data.getFirst() + "] has registered successfully");
-                            clientData.setId(id);
-                        }
-                    } catch (SQLException e) {
-                        msg = "Unable to register user[" + data.getFirst() + "]";
-                        LOG.log(msg);
-                    } finally {
-                        statement.close();
-                        result.close();
-                    }
-                }
-                oos.writeObject(msg);
-            } catch (SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
             }
-        } catch(IOException e) {
-            msg = "Unable to get the data from user";
+
+            if (requestAccepted) {
+                try {
+                    // Register user
+                    querry = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
+                            + "VALUES("
+                            + "'" + ++id + "',"
+                            + "'" + data.getFirst() + "',"
+                            + "'" + data.getSecond() + "',"
+                            + "'" + data.getThird() + "',"
+                            + "'" + isAdmin + "',"
+                            + "'" + isAuthenticated + "')";
+
+                    int rs = statement.executeUpdate(querry);
+                    if (rs == 1) {
+                        LOG.log("User[" + data.getFirst() + "] has registered successfully");
+                        clientData.setId(id);
+                        registerResponse.setSuccess(true);
+                    }
+                } catch (SQLException e) {
+                    msg = "Unable to register user[" + data.getFirst() + "]";
+                    registerResponse.setSuccess(false);
+                    LOG.log(msg);
+                } finally {
+                    statement.close();
+                    result.close();
+                }
+            }
+        } catch (SQLException e) {
+            msg = "Unable to get data from the database";
+            registerResponse.setSuccess(false);
             LOG.log(msg);
-            oos.writeObject(msg);
         }
+
+        registerResponse.setMsg(msg);
+        oos.writeObject(registerResponse);
+
         return querry;
     }
 
@@ -144,6 +142,8 @@ public class DBHandler {
         boolean isAdmin = false;
         String msg = "";
         String query = "";
+        LoginResponse loginResponse = new LoginResponse();
+
         try {
             // Receives clients data (format: username, password)
             Pair<String, String> loginData = (Pair<String, String>) clientData.getData();
@@ -175,7 +175,7 @@ public class DBHandler {
                     }
                 }
 
-                oos.writeObject(clientData.getId());
+                loginResponse.setId(clientData.getId());
 
                 // The user was not found
                 if (requestAccepted) {
@@ -185,12 +185,18 @@ public class DBHandler {
                         if (rs == 1) {
                             msg = "User[" + loginData.getKey() + "]  logged in successfully";
                             LOG.log(msg);
-                            oos.writeObject(new Triple<>(true, isAdmin, msg));
+                            loginResponse.setMsg(msg);
+                            loginResponse.setSuccess(true);
+                            loginResponse.setAdmin(isAdmin);
+                            oos.writeObject(loginResponse);
                         }
                     } catch (SQLException e) {
                         msg = "Unable to login user[" + loginData.getKey() + "]";
                         LOG.log(msg);
-                        oos.writeObject(new Triple<>(false, isAdmin, msg));
+                        loginResponse.setMsg(msg);
+                        loginResponse.setSuccess(false);
+                        loginResponse.setAdmin(isAdmin);
+                        oos.writeObject(loginResponse);
                     } finally {
                         statement.close();
                         result.close();
@@ -206,18 +212,24 @@ public class DBHandler {
                     LOG.log(msg);
                 }
 
-                oos.writeObject(new Triple<>(false, null, msg));
+                loginResponse.setMsg(msg);
+                loginResponse.setSuccess(false);
+                oos.writeObject(loginResponse);
                 statement.close();
                 result.close();
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
-                oos.writeObject(msg);
+                loginResponse.setMsg(msg);
+                loginResponse.setSuccess(false);
+                oos.writeObject(loginResponse);
             }
         } catch(IOException e) {
             msg = "Unable to get the data from user";
             LOG.log(msg);
-            oos.writeObject(msg);
+            loginResponse.setMsg(msg);
+            loginResponse.setSuccess(false);
+            oos.writeObject(loginResponse);
         }
 
         return "";
@@ -226,10 +238,13 @@ public class DBHandler {
     public synchronized String editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean requestAccepted = true;
         String msg = "";
+        String query = "";
+
+        EditResponse editResponse = new EditResponse();
 
         try {
             // Receive the new value from client
-            String newValue = (String) ois.readObject();
+            String newValue = ( String) clientData.getData();
 
             try {
                 // Create statement
@@ -246,26 +261,31 @@ public class DBHandler {
                             if (newValue.equals(result.getString("nome"))) {
                                 msg = "This name[" + newValue + "] already exists...";
                                 LOG.log(msg);
+                                editResponse.setMsg(msg);
+                                editResponse.setSuccess(false);
+                                oos.writeObject(editResponse);
                                 requestAccepted = false;
-                                oos.writeObject(msg);
                             }
                         }
 
                         // if unique=true, update value
                         if (requestAccepted) {
                             try {
-                                int rs = statement.executeUpdate(
-                                        "UPDATE utilizador SET nome = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                                );
+                                query = "UPDATE utilizador SET nome = '" + newValue + "' WHERE id = '" + clientData.getId() + "'";
+                                int rs = statement.executeUpdate(query);
                                 if (rs == 1) {
                                     msg = "Name updated successfully";
                                     LOG.log(msg);
-                                    oos.writeObject(msg);
+                                    editResponse.setMsg(msg);
+                                    editResponse.setSuccess(true);
+                                    oos.writeObject(editResponse);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update name[" + newValue + "]";
                                 LOG.log(msg);
-                                oos.writeObject(msg);
+                                editResponse.setMsg(msg);
+                                editResponse.setSuccess(false);
+                                oos.writeObject(editResponse);
                             } finally {
                                 result.close();
                             }
@@ -281,7 +301,9 @@ public class DBHandler {
                             if (newValue.equals(result.getString("username"))) {
                                 msg = "This username[" + newValue + "] already exists...";
                                 LOG.log(msg);
-                                oos.writeObject(msg);
+                                editResponse.setMsg(msg);
+                                editResponse.setSuccess(false);
+                                oos.writeObject(editResponse);
                                 requestAccepted = false;
                             }
                         }
@@ -289,18 +311,21 @@ public class DBHandler {
                         // if unique=true, update value
                         if (requestAccepted) {
                             try {
-                                int rs = statement.executeUpdate(
-                                        "UPDATE utilizador SET username = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                                );
+                                query = "UPDATE utilizador SET username = '" + newValue + "' WHERE id = '" + clientData.getId() + "'";
+                                int rs = statement.executeUpdate(query);
                                 if (rs == 1) {
                                     msg = "Username updated successfully";
                                     LOG.log(msg);
-                                    oos.writeObject(msg);
+                                    editResponse.setMsg(msg);
+                                    editResponse.setSuccess(true);
+                                    oos.writeObject(editResponse);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update username[" + newValue + "]";
                                 LOG.log(msg);
-                                oos.writeObject(msg);
+                                editResponse.setMsg(msg);
+                                editResponse.setSuccess(false);
+                                oos.writeObject(editResponse);;
                             } finally {
                                 result.close();
                             }
@@ -317,25 +342,30 @@ public class DBHandler {
                         if (newValue.equals(result.getString("password"))) {
                             msg = "The password cant be the same";
                             LOG.log(msg);
-                            oos.writeObject(msg);
+                            editResponse.setMsg(msg);
+                            editResponse.setSuccess(false);
+                            oos.writeObject(editResponse);
                             requestAccepted = false;
                         }
 
                         // Update password
                         if (requestAccepted) {
                             try {
-                                int rs = statement.executeUpdate(
-                                        "UPDATE utilizador SET password = '" + newValue + "' WHERE id = '" + clientData.getId() + "'"
-                                );
+                                query = "UPDATE utilizador SET password = '" + newValue + "' WHERE id = '" + clientData.getId() + "'";
+                                int rs = statement.executeUpdate(query);
                                 if (rs == 1) {
                                     msg = "Password updated successfully";
                                     LOG.log(msg);
-                                    oos.writeObject(msg);
+                                    editResponse.setMsg(msg);
+                                    editResponse.setSuccess(true);
+                                    oos.writeObject(editResponse);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update password";
                                 LOG.log(msg);
-                                oos.writeObject(msg);
+                                editResponse.setMsg(msg);
+                                editResponse.setSuccess(false);
+                                oos.writeObject(editResponse);
                             } finally {
                                 result.close();
                             }
@@ -347,15 +377,19 @@ public class DBHandler {
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
-                oos.writeObject(msg);
+                editResponse.setMsg(msg);
+                editResponse.setSuccess(false);
+                oos.writeObject(editResponse);
             }
-        } catch(IOException | ClassNotFoundException e) {
+        } catch(IOException e) {
             msg = "Unable to get the data from user";
             LOG.log(msg);
-            oos.writeObject(msg);
+            editResponse.setMsg(msg);
+            editResponse.setSuccess(false);
+            oos.writeObject(editResponse);
         }
 
-        return "";
+        return query;
     }
 
     public synchronized String consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
@@ -804,7 +838,6 @@ public class DBHandler {
                                         id +  " ,\n" +
                                         s.getId() + ");"
                         );
-                        System.out.println("here");
                     }
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
@@ -964,7 +997,7 @@ public class DBHandler {
 
     public synchronized String showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         Integer showId = (Integer) clientData.getData();
-        String query;
+        String query = "";
         String msg;
 
         try {
@@ -991,7 +1024,7 @@ public class DBHandler {
             e.printStackTrace();
         }
 
-        return "";
+        return query;
     }
 
 
@@ -1194,6 +1227,7 @@ public class DBHandler {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(sqlCommand);
+            updateVersion();
             LOG.log("Database updated");
         } catch (SQLException e) {
             LOG.log("Error updating database");

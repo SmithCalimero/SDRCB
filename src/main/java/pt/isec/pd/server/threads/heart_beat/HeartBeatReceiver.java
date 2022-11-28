@@ -40,6 +40,7 @@ public class HeartBeatReceiver extends Thread{
                 if (object instanceof HeartBeat hbEvent) {
                     //LOG.log("\nHeartBeat\n" + hbEvent);
                     hbList.updateList(hbEvent);
+
                 }  else if(!controller.imUpdating() && object instanceof Prepare prepare) {
                     controller.setUpdating(true);
                     LOG.log("Prepare receive; port: " + prepare.getPort());
@@ -50,6 +51,7 @@ public class HeartBeatReceiver extends Thread{
                     byte[] databaseVersion = Utils.serializeObject(prepare.getNextVersion());
                     DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(Constants.IP_LOCALHOST),prepare.getPort());
                     ds.send(dpSend);
+
                 } else if(object instanceof Commit) {
                     if (!controller.imUpdating()) {
                         LOG.log("Commit receive");

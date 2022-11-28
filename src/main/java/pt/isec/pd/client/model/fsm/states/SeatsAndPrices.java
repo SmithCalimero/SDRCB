@@ -31,8 +31,8 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
-    public boolean submitReservation(List<Seat> seats) {
-        return data.submitReservation(seats);
+    public void submitReservation(List<Seat> seats) {
+         data.submitReservation(seats);
     }
 
     @Override
