@@ -98,7 +98,7 @@ public class HeartBeatController {
 
                 // 1. Send the 'prepare' object to the multicast
                 Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand,clientData);
-                LOG.log("Action: " + clientData.getAction() + " SqlCommand: " + sqlCommand);
+                LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.size());
                 byte[] prepareBytes = Utils.serializeObject(prepare);
 
                 dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);

@@ -45,11 +45,21 @@ public class DBHandler {
         return version;
     }
 
-    public void updateVersion() throws SQLException {
+    public void updateVersion(List<String> listQuery) throws SQLException {
         Statement statement = connection.createStatement();
 
-        String sqlQuery = "PRAGMA user_version = " + (getCurrentVersion() + 1);
+        int currentVersion = getCurrentVersion();
+
+        String sqlQuery = "PRAGMA user_version = " + (currentVersion + 1);
         statement.execute(sqlQuery);
+
+        for (String query : listQuery) {
+            statement.executeUpdate("INSERT INTO versao (id,[query]) " +
+                    " VALUES ('"+  (currentVersion + 1) + "'," +
+                    "\""+ query + "\"\n" +
+                    ");");
+        }
+
 
         statement.close();
     }
@@ -667,7 +677,7 @@ public class DBHandler {
                 String country = result.getString("pais");
                 String ageClassification = result.getString("classificacao_etaria");
                 boolean visible = result.getBoolean("visivel");
-
+                System.out.println(visible);
                 // If the show is visible
                 if (visible) {
                     try {
@@ -781,9 +791,9 @@ public class DBHandler {
                 seatsResponse.setSeats(available);
                 oos.writeObject(seatsResponse);
 
-                ResultSet username = statement.executeQuery(
+                /*ResultSet username = statement.executeQuery(
                         "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
-                );
+                );*/
 
                 statement.close();
                 availableSeats.close();
@@ -1039,9 +1049,14 @@ public class DBHandler {
                     "SELECT visivel FROM espetaculo WHERE id = '" + showId + "'");
 
             if(visivel.getBoolean(1)) {
-                msg = "This show is already visible";
+                msg = "This show is visible";
+
+                query = "UPDATE espetaculo SET visivel = 0 WHERE id = '" + showId + "'";
+                statement.executeUpdate(query);
+                listQuery.add(query);
+
                 LOG.log(msg);
-                handleVisibleShowResponse.setSuccess(false);
+                handleVisibleShowResponse.setSuccess(true);
                 handleVisibleShowResponse.setMsg(msg);
                 oos.writeObject(handleVisibleShowResponse);
                 return listQuery;
@@ -1049,11 +1064,11 @@ public class DBHandler {
 
             query = "UPDATE espetaculo SET visivel = 1 WHERE id = '" + showId + "'";
             statement.executeUpdate(query);
+            listQuery.add(query);
 
             msg = "The show is now visible";
             LOG.log(msg);
             handleVisibleShowResponse.setSuccess(true);
-            listQuery.add(query);
             handleVisibleShowResponse.setMsg("The show is now visible");
             oos.writeObject(handleVisibleShowResponse);
         } catch (SQLException e) {
@@ -1206,10 +1221,13 @@ public class DBHandler {
                         if (!hasPaidReserve) {
                             try {
                                 query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
+                                statement.executeUpdate(query);
+                                listQuery.add(query);
 
-                                statement.executeUpdate(
-                                        "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'"
-                                );
+                                query = "DELETE from lugar WHERE espetaculo_id = "+ deleteShowId + ";";
+                                statement.executeUpdate(query);
+                                listQuery.add(query);
+
 
                                 msg = "Show[" + deleteShowId + "] was deleted successfully...";
                                 LOG.log(msg);
@@ -1303,7 +1321,7 @@ public class DBHandler {
             for (String command : sqlCommand) {
                 statement.executeUpdate(command);
             }
-            updateVersion();
+            updateVersion(sqlCommand);
             LOG.log("Database updated");
         } catch (SQLException e) {
             LOG.log("Error updating database");

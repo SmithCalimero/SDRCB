@@ -24,12 +24,10 @@ public class ClientReceiveMessage extends Thread {
     private final ClientManagement clientManagement;
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
-    private final Socket socket;
 
     public ClientReceiveMessage(Socket socket, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.hbController = controller;
         this.dbHandler = dbHandler;
-        this.socket = socket;
         this.clientManagement = clientManagement;
         queueUpdate = new QueueUpdate(controller,queue,this);
 
@@ -62,6 +60,7 @@ public class ClientReceiveMessage extends Thread {
             } catch (IOException e) {
                 LOG.log("Client left");
                 clientManagement.subConnection();
+                clientManagement.getClientsThread().remove(this);
                break;
             }
         }
@@ -93,20 +92,37 @@ public class ClientReceiveMessage extends Thread {
 
             //If db was updated, init the process of updating other servers db
             if (!sqlCommands.isEmpty()) {
-                dbHandler.updateVersion();
+                dbHandler.updateVersion(sqlCommands);
                 hbController.updateDataBase(sqlCommands,clientData);
 
                 //Broadcast the message
-                if (ClientAction.SUBMIT_RESERVATION == clientData.getAction()) {
+                broadcastObserver(clientData);
+            }
+        }  catch (ClassNotFoundException | SQLException | IOException e) {
+            LOG.log("Unable to read client data: " + e);
+        }
+    }
+
+    private void broadcastObserver(ClientData clientData) {
+        try {
+            switch (clientData.getAction()) {
+                case SUBMIT_RESERVATION -> {
                     for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
                         if (client != this) {
                             dbHandler.viewSeatsAndPrices(clientData,client.getOos(),null);
                         }
                     }
                 }
+                case VISIBLE_SHOW,INSERT_SHOWS,DELETE_SHOW -> {
+                    for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
+                        if (client != this) {
+                            dbHandler.selectShows(clientData,client.getOos(),null);
+                        }
+                    }
+                }
             }
-        }  catch (ClassNotFoundException | SQLException | IOException e) {
-            LOG.log("Unable to read client data: " + e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

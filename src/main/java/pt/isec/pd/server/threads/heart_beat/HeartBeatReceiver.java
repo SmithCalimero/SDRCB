@@ -56,16 +56,22 @@ public class HeartBeatReceiver extends Thread{
 
                 } else if(object instanceof Commit) {
                     if (!controller.imUpdating()) {
-                        LOG.log("Commit receive");
+                        LOG.log("Commit receive: " + prepare.getData().getAction());
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getSqlCommand());
 
-                        if (prepare.getData().getAction() == ClientAction.SUBMIT_RESERVATION) {
-                            for (ClientReceiveMessage client : controller.getClients()) {
-                                dbHandler.viewSeatsAndPrices(prepare.getData(),client.getOos(),null);
+                        switch (prepare.getData().getAction()) {
+                            case SUBMIT_RESERVATION -> {
+                                for (ClientReceiveMessage client : controller.getClients()) {
+                                    dbHandler.viewSeatsAndPrices(prepare.getData(),client.getOos(),null);
+                                }
+                            }
+                            case INSERT_SHOWS,DELETE_SHOW,VISIBLE_SHOW ->  {
+                                for (ClientReceiveMessage client : controller.getClients()) {
+                                    dbHandler.selectShows(prepare.getData(),client.getOos(),null);
+                                }
                             }
                         }
-
                     }
                     controller.setUpdating(false);
                     controller.setUpdater(false);

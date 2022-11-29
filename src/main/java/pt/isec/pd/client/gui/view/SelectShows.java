@@ -15,7 +15,6 @@ import java.util.List;
 public class SelectShows {
     public AnchorPane pane;
     public ListView<Show> list;
-    public Button refreshButton;
     public Button cancelButton;
     private ModelManager model;
 
