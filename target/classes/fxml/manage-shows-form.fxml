@@ -3,9 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ManageShowsForm">
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ManageShowsForm">
    <Button fx:id="insertShowsButton" layoutX="100.0" layoutY="123.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Inserir " textFill="WHITE" />
-   <Button fx:id="refreshButton" layoutX="320.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="refresh" textFill="WHITE" />
    <Button fx:id="removeButton" layoutX="99.0" layoutY="193.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Remover" textFill="WHITE" />
    <TextField fx:id="filePath" layoutX="52.0" layoutY="155.0" />
    <Label fx:id="result" alignment="CENTER" layoutY="328.0" prefHeight="25.0" prefWidth="640.0" textAlignment="CENTER" />

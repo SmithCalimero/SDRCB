@@ -1,11 +1,10 @@
 package pt.isec.pd.server.data.database;
 
 import javafx.util.Pair;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.shared_data.Reserve;
-import pt.isec.pd.shared_data.Responses.EditResponse;
-import pt.isec.pd.shared_data.Responses.LoginResponse;
-import pt.isec.pd.shared_data.Responses.RegisterResponse;
+import pt.isec.pd.shared_data.Responses.*;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 import pt.isec.pd.shared_data.Triple;
@@ -575,6 +574,7 @@ public class DBHandler {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         String msg = "";
+        ShowsResponse showsResponse = new ShowsResponse();
 
         try {
             // Received filters from user
@@ -601,15 +601,17 @@ public class DBHandler {
                             result.getString("classificacao_etaria"),
                             result.getBoolean("visivel"))
                     );
-                    result.close();
                 }
 
                 if (shows.isEmpty())
                     LOG.log("Shows not found based on the received filters");
 
                 // Send list to client
-                oos.writeObject(shows);
+                showsResponse.setAction(ClientAction.CONSULT_SHOWS_ALL);
+                showsResponse.setShows(shows);
+                oos.writeObject(showsResponse);
 
+                result.close();
                 statement.close();
             } catch (SQLException e) {
                 msg = "Unable to get data from the database";
@@ -628,6 +630,8 @@ public class DBHandler {
     public synchronized String selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         ArrayList<Show> availableShows = new ArrayList<>();
         String msg = "";
+
+        ShowsResponse showsResponse = new ShowsResponse();
 
         try {
             // Create statement
@@ -664,7 +668,7 @@ public class DBHandler {
                         long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
                         //Duration difference = Duration.between(showDate,currentDate);
                         //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
-
+                        System.out.println(diff);
                         // If at least 24 hours before the show, it can be selected
                         if (diff <= 24) {
                             availableShows.add(new Show(
@@ -689,8 +693,9 @@ public class DBHandler {
             }
 
             // Send available shows to user
-            oos.writeObject(availableShows);
-
+            showsResponse.setAction(ClientAction.SELECT_SHOWS);
+            showsResponse.setShows(availableShows);
+            oos.writeObject(showsResponse);
             if (availableShows.isEmpty())
                 LOG.log("No shows available at the moment");
 
@@ -784,6 +789,7 @@ public class DBHandler {
         Date currentTime = new Date();  // Get current time of the server to set in reserve object
         int isPaid = 0;
         String msg = "";
+        SubmitReservationResponse submitReservationResponse = new SubmitReservationResponse();
 
         try {
             // Receive reserve from client  (format: showId, List<Seat>
@@ -841,11 +847,13 @@ public class DBHandler {
                     }
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
-                    oos.writeObject(true);
+                    submitReservationResponse.setSuccess(true);
+                    oos.writeObject(submitReservationResponse);
                     return true;
                 } catch (SQLException e) {
                     LOG.log("Unable to submit reservation from user[" + username + "]");
-                    oos.writeObject(false);
+                    submitReservationResponse.setSuccess(false);
+                    oos.writeObject(submitReservationResponse);;
                     return false;
                 } finally {
                     statement.close();
@@ -1000,6 +1008,8 @@ public class DBHandler {
         String query = "";
         String msg;
 
+        HandleVisibleShowResponse handleVisibleShowResponse = new HandleVisibleShowResponse();
+
         try {
             Statement statement = connection.createStatement();
 
@@ -1009,7 +1019,9 @@ public class DBHandler {
             if(visivel.getBoolean(1)) {
                 msg = "This show is already visible";
                 LOG.log(msg);
-                oos.writeObject(msg);
+                handleVisibleShowResponse.setSuccess(false);
+                handleVisibleShowResponse.setMsg(msg);
+                oos.writeObject(handleVisibleShowResponse);
                 return "";
             }
 
@@ -1018,8 +1030,9 @@ public class DBHandler {
 
             msg = "The show is now visible";
             LOG.log(msg);
-            oos.writeObject(msg);
-
+            handleVisibleShowResponse.setSuccess(true);
+            handleVisibleShowResponse.setMsg("The show is now visible");
+            oos.writeObject(handleVisibleShowResponse);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -1030,6 +1043,7 @@ public class DBHandler {
 
     public synchronized String insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
+        InsertShowResponse insertShowResponse = new InsertShowResponse();
 
         try {
             // Receive the new value from client
@@ -1037,7 +1051,9 @@ public class DBHandler {
             Pair<Show, Map<String, List<Seat>>> mapShows = Utils.readFile(filePath);
 
             if (mapShows == null) {
-                oos.writeObject("There was a problem reading from the file");
+                insertShowResponse.setSuccess(false);
+                insertShowResponse.setMsg("There was a problem reading from the file");
+                oos.writeObject(insertShowResponse);
                 return "";
             }
             try {
@@ -1050,7 +1066,9 @@ public class DBHandler {
                 );
 
                 if (idExist.next()) {
-                    oos.writeObject("This show already exists in the database");
+                    insertShowResponse.setSuccess(false);
+                    insertShowResponse.setMsg("This show already exists in the database");
+                    oos.writeObject(insertShowResponse);
                     return "";
                 }
 
@@ -1089,16 +1107,24 @@ public class DBHandler {
 
                 }
 
-                oos.writeObject("The show was successfully added");
+                insertShowResponse.setSuccess(true);
+                insertShowResponse.setMsg("The show was successfully added");
+                oos.writeObject(insertShowResponse);
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
-                oos.writeObject(msg);
+
+                insertShowResponse.setSuccess(true);
+                insertShowResponse.setMsg(msg);
+                oos.writeObject(insertShowResponse);
             }
         } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
-            oos.writeObject(msg);
+
+            insertShowResponse.setSuccess(true);
+            insertShowResponse.setMsg(msg);
+            oos.writeObject(insertShowResponse);
         }
 
         return "";
@@ -1107,6 +1133,8 @@ public class DBHandler {
     public synchronized String deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean hasPaidReserve = false;
         String msg = "";
+        DeleteResponse deleteResponse = new DeleteResponse();
+
         try {
             // Create statement
             Statement statement = connection.createStatement();
@@ -1137,7 +1165,9 @@ public class DBHandler {
                             if (reservations.getBoolean("pago")) {
                                 msg = "Show[" + deleteShowId + "] already has a paid reservation...";
                                 LOG.log(msg);
-                                oos.writeObject(new Pair<>(false,msg));
+                                deleteResponse.setSuccess(false);
+                                deleteResponse.setMsg(msg);
+                                oos.writeObject(deleteResponse);
                                 hasPaidReserve = true;
                             }
                         }
@@ -1145,18 +1175,20 @@ public class DBHandler {
                         // If there are no paid reservations associated, the show can be deleted
                         if (!hasPaidReserve) {
                             try {
-
                                 statement.executeUpdate(
                                         "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'"
                                 );
                                 msg = "Show[" + deleteShowId + "] was deleted successfully...";
                                 LOG.log(msg);
-                                oos.writeObject(new Pair<>(true,msg));
-
+                                deleteResponse.setSuccess(true);
+                                deleteResponse.setMsg(msg);
+                                oos.writeObject(deleteResponse);
                             } catch (SQLException e) {
                                 msg = "Unable to delete show[" + deleteShowId + "]";
                                 LOG.log(msg);
-                                oos.writeObject(new Pair<>(false,msg));
+                                deleteResponse.setSuccess(false);
+                                deleteResponse.setMsg(msg);
+                                oos.writeObject(deleteResponse);
                             } finally {
                                 statement.close();
                                 reservations.close();
@@ -1167,14 +1199,18 @@ public class DBHandler {
             } else {
                 msg = "Unable to delete show. Only the admin can execute this function";
                 LOG.log(msg);
-                oos.writeObject(new Pair<>(false,msg));
+                deleteResponse.setSuccess(false);
+                deleteResponse.setMsg(msg);
+                oos.writeObject(deleteResponse);
                 statement.close();
                 isAdmin.close();
             }
         } catch(SQLException e) {
             msg = "Unable to get data from the database";
             LOG.log(msg);
-            oos.writeObject(new Pair<>(false,msg));
+            deleteResponse.setSuccess(false);
+            deleteResponse.setMsg(msg);
+            oos.writeObject(deleteResponse);
         }
 
         return "";

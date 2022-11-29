@@ -121,7 +121,7 @@ public class ShowsForm {
                 filters.put("classificacao_etaria",classField.getText());
             }
 
-            shows = model.consultShows(filters);
+            //shows = model.consultShows(filters);
             list.setItems(FXCollections.observableList(shows));
         });
 

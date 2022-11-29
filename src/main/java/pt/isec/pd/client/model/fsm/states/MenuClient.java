@@ -1,6 +1,7 @@
 package pt.isec.pd.client.model.fsm.states;
 
 import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.Type;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
@@ -28,6 +29,7 @@ public class MenuClient extends StateAdapter {
     @Override
     public void selectShowsTransition() {
         changeState(State.SELECT_SHOWS);
+        data.consultShows(ClientAction.SELECT_SHOWS,null);
     }
 
     @Override

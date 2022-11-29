@@ -5,7 +5,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.ShowsResponse;
 import pt.isec.pd.shared_data.Show;
 
 import java.util.List;
@@ -28,9 +30,9 @@ public class SelectShows {
             update();
         });
 
-        refreshButton.setOnAction(actionEvent -> {
-            List<Show> listShows = model.consultShows(null);
-            list.setItems(FXCollections.observableList(listShows));
+        model.addPropertyChangeListener(ClientAction.SELECT_SHOWS.toString(), evt -> {
+            ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
+            list.setItems(FXCollections.observableList(showsResponse.getShows()));
         });
 
         list.setOnMouseClicked(actionEvent -> {

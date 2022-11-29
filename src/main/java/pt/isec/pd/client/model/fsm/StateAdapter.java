@@ -1,11 +1,9 @@
 package pt.isec.pd.client.model.fsm;
 
-import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
-import pt.isec.pd.shared_data.Show;
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,9 +67,7 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public List<Show> consultShows(HashMap<String, String> filters) {
-        return null;
-    }
+    public void consultShows(HashMap<String, String> filters) {}
 
     @Override
     public List<Seat> getSeatsAndPrices() {
@@ -80,27 +76,22 @@ public abstract class StateAdapter implements IState {
 
     @Override
     public void seatsTransition(Integer idSwow) {
-
     }
 
     @Override
     public void insertShowsTransition() {
-
     }
 
     @Override
-    public String insertShows(String filePath) {
-        return null;
+    public void insertShows(String filePath) {
     }
 
     @Override
-    public Pair<Boolean, String> deleteShow(int idShow) {
-        return null;
+    public void deleteShow(int idShow) {
     }
 
     @Override
-    public String showVisible(int idShow) {
-        return null;
+    public void showVisible(int idShow) {
     }
 
     @Override

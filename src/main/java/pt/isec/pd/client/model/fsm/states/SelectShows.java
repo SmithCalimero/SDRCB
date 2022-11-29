@@ -5,10 +5,8 @@ import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
-import pt.isec.pd.shared_data.Show;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class SelectShows extends StateAdapter {
     public SelectShows(Context context, Client data) {
@@ -16,8 +14,8 @@ public class SelectShows extends StateAdapter {
     }
 
     @Override
-    public List<Show> consultShows(HashMap<String, String> filters) {
-        return data.consultShows(ClientAction.SELECT_SHOWS,null);
+    public void consultShows(HashMap<String, String> filters) {
+        data.consultShows(ClientAction.SELECT_SHOWS,null);
     }
 
     @Override

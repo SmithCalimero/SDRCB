@@ -6,18 +6,16 @@ import pt.isec.pd.client.model.data.Type;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
-import pt.isec.pd.shared_data.Show;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class Shows extends StateAdapter {
     public Shows(Context context, Client data) {
         super(context, data);
     }
     @Override
-    public List<Show> consultShows(HashMap<String,String> filters) {
-        return data.consultShows(ClientAction.CONSULT_SHOWS_VISIBLE,filters);
+    public void consultShows(HashMap<String,String> filters) {
+        data.consultShows(ClientAction.CONSULT_SHOWS_VISIBLE,filters);
     }
     @Override
     public void showsTransition() {

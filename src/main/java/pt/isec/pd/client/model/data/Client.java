@@ -56,40 +56,40 @@ public class Client extends Thread {
 
 
     public void viewSeatsAndPrices(int showId) {
-        updateSeatsView = new UpdateSeatsView(this,ch,showId,pcs);
-        updateSeatsView.start();
+        try {
+            ch.getClientData().setShowId(showId);
+            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,showId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //updateSeatsView = new UpdateSeatsView(this,ch,showId,pcs);
+        //updateSeatsView.start();
     }
 
     public synchronized List<Seat> getSeatsAndPrices() { return updateSeatsView.getSeatsList(); }
 
-    public List<Show> consultShows(ClientAction action,HashMap<String,String> filters) {
+    public void consultShows(ClientAction action,HashMap<String,String> filters) {
         try {
             ch.writeToSocket(action,filters);
-            return (List<Show>) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    public String insertShows(String filePath) {
+    public void insertShows(String filePath) {
         try {
             ch.writeToSocket(ClientAction.INSERT_SHOWS,filePath);
-            return (String) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    public Pair<Boolean,String> deleteShow(int idShow) {
+    public void deleteShow(int idShow) {
         try {
             ch.writeToSocket(ClientAction.DELETE_SHOW,idShow);
-            return (Pair<Boolean,String>) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     public Type getType() {
@@ -100,14 +100,12 @@ public class Client extends Thread {
          updateSeatsView.close();
     }
 
-    public String showVisible(int idShow) {
+    public void showVisible(int idShow) {
         try {
             ch.writeToSocket(ClientAction.VISIBLE_SHOW,idShow);
-            return (String) ch.readFromSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     public void submitReservation(List<Seat> seats) {

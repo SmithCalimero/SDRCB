@@ -5,7 +5,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.Client;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.SeatsResponse;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.List;
@@ -29,10 +32,12 @@ public class SeatsForm {
             update();
         });
 
-        model.addPropertyChangeListener(ModelManager.PROP_DATA, evt -> {
-            List<Seat> newSeats = model.getSeatsAndPrices();
-            list.getItems().clear();
-            list.setItems(FXCollections.observableList(newSeats));
+        model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
+            if (model.getState() == State.SEATS_PRICES) {
+                SeatsResponse seatsResponse = (SeatsResponse) model.getResponse();
+                list.getItems().clear();
+                list.setItems(FXCollections.observableList(seatsResponse.getSeats()));
+            }
         });
 
         cancelButton.setOnAction(actionEvent -> {

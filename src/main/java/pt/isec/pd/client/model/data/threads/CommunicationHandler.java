@@ -90,7 +90,7 @@ public class CommunicationHandler extends Thread {
             socket = new Socket(address.getIp(), address.getPort());
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
-            responseHandler = new ResponseHandler(ois,pcs,clientData);
+            responseHandler = new ResponseHandler(this,pcs,clientData);
             responseHandler.start();
             return true;
         } catch(IOException e) {
@@ -127,7 +127,10 @@ public class CommunicationHandler extends Thread {
         return clientData;
     }
 
-    public ObjectOutputStream getOos() {
+    public synchronized ObjectOutputStream getOos() {
         return oos;
+    }
+    public synchronized ObjectInputStream getOis() {
+        return ois;
     }
 }

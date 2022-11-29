@@ -2,10 +2,8 @@ package pt.isec.pd.shared_data.Responses;
 
 import java.io.Serializable;
 
-public class LoginResponse implements Serializable {
+public class LoginResponse extends Response {
     private int id;
-    private boolean success;
-    private String msg;
     private boolean isAdmin;
 
 
@@ -15,22 +13,6 @@ public class LoginResponse implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
     }
 
     public boolean isAdmin() {

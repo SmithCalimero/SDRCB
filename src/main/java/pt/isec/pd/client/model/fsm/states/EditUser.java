@@ -32,6 +32,8 @@ public class EditUser extends StateAdapter {
     public void editTransition() {
         if (data.getType() == Type.NORMAl_MODE) {
             changeState(State.MENU_CLIENT);
+        } else {
+            changeState(State.MENU_ADMIN);
         }
     }
 

@@ -63,8 +63,8 @@ public class Context {
         state.showsTransition();
     }
 
-    public List<Show> consultShows(HashMap<String,String> filters) {
-        return state.consultShows(filters);
+    public void consultShows(HashMap<String,String> filters) {
+        state.consultShows(filters);
     }
 
     public List<Seat> getSeatsAndPrices() {
@@ -79,16 +79,16 @@ public class Context {
         state.insertShowsTransition();
     }
 
-    public String insertShows(String filePath) {
-        return state.insertShows(filePath);
+    public void insertShows(String filePath) {
+        state.insertShows(filePath);
     }
 
-    public Pair<Boolean,String> deleteShow(int idShow) {
-        return state.deleteShow(idShow);
+    public void deleteShow(int idShow) {
+        state.deleteShow(idShow);
     }
 
-    public String showVisible(int idShow) {
-        return state.showVisible(idShow);
+    public void showVisible(int idShow) {
+         state.showVisible(idShow);
     }
 
     public void selectShowsTransition() {

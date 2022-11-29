@@ -8,7 +8,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.HandleVisibleShowResponse;
+import pt.isec.pd.shared_data.Responses.InsertShowResponse;
+import pt.isec.pd.shared_data.Responses.ShowsResponse;
 import pt.isec.pd.shared_data.Show;
 
 import java.util.List;
@@ -20,7 +24,6 @@ public class ManageShowsForm {
     public AnchorPane pane;
     public Button retrocederButton;
     public Label result;
-    public Button refreshButton;
     public Button removeButton;
     public Button handleVisibilityButton;
     private ModelManager model;
@@ -36,6 +39,26 @@ public class ManageShowsForm {
             update();
         });
 
+        model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_ALL.toString(), evt -> {
+            ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
+            list.setItems(FXCollections.observableList(showsResponse.getShows()));
+        });
+
+        model.addPropertyChangeListener(ClientAction.INSERT_SHOWS.toString(), evt -> {
+            InsertShowResponse showsResponse = (InsertShowResponse) model.getResponse();
+            result.setText(showsResponse.getMsg());
+        });
+
+        model.addPropertyChangeListener(ClientAction.DELETE_SHOW.toString(), evt -> {
+            InsertShowResponse insertShowResponse = (InsertShowResponse) model.getResponse();
+            result.setText(insertShowResponse.getMsg());
+        });
+
+        model.addPropertyChangeListener(ClientAction.VISIBLE_SHOW.toString(), evt -> {
+            HandleVisibleShowResponse handleVisibleShowResponse = (HandleVisibleShowResponse) model.getResponse();
+            result.setText(handleVisibleShowResponse.getMsg());
+        });
+
         retrocederButton.setOnAction(actionEvent ->{
             model.insertShowsTransition();
         });
@@ -43,16 +66,7 @@ public class ManageShowsForm {
         insertShowsButton.setOnAction(actionEvent -> {
             if (filePath.getText().isEmpty())
                 return;
-            String msg = model.insertShows(filePath.getText());
-            result.setText(msg);
-
-            List<Show> shows = model.consultShows(null);
-            list.setItems(FXCollections.observableList(shows));
-        });
-
-        refreshButton.setOnAction(actionEvent -> {
-            List<Show> shows = model.consultShows(null);
-            list.setItems(FXCollections.observableList(shows));
+            model.insertShows(filePath.getText());
         });
 
         removeButton.setOnAction(actionEvent -> {
@@ -60,12 +74,8 @@ public class ManageShowsForm {
                 result.setText("Selecione o espetaculo que pretende remover");
                 return;
             }
-            Pair<Boolean, String> r = model.deleteShow(list.getSelectionModel().getSelectedItem().getId());
-            if (r.getKey()) {
-                List<Show> shows = model.consultShows(null);
-                list.setItems(FXCollections.observableList(shows));
-            }
-            result.setText(r.getValue());
+
+            model.deleteShow(list.getSelectionModel().getSelectedItem().getId());
         });
 
         handleVisibilityButton.setOnAction(actionEvent -> {
@@ -73,8 +83,8 @@ public class ManageShowsForm {
                 result.setText("Selecione o espetaculo que pretende tornar visivel");
                 return;
             }
-            String r = model.showVisible(list.getSelectionModel().getSelectedItem().getId());
-            result.setText(r);
+
+            model.showVisible(list.getSelectionModel().getSelectedItem().getId());
         });
     }
     private void update() {

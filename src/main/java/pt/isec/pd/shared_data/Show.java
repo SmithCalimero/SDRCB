@@ -122,6 +122,5 @@ public class Show implements Serializable {
 
     @Override
     public String toString() {
-        return "descrição: " + description  + "\n" + "duração: " + duration  + "\n" + "data: " + dateHour;
-    }
+        return "descrição: " + description  + "\n" + "duração: " + duration  + "\n" + "data: " + dateHour + "\n" + visible;}
 }

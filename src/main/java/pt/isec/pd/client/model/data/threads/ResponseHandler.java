@@ -3,23 +3,20 @@ package pt.isec.pd.client.model.data.threads;
 import javafx.application.Platform;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
-import pt.isec.pd.shared_data.Responses.EditResponse;
-import pt.isec.pd.shared_data.Responses.LoginResponse;
-import pt.isec.pd.shared_data.Responses.RegisterResponse;
+import pt.isec.pd.shared_data.Responses.*;
 
-import javax.swing.text.Style;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public class ResponseHandler extends Thread {
-    private ObjectInputStream ois;
+    private CommunicationHandler ch;
     private PropertyChangeSupport pcs;
     private Object data;
     private ClientData clientData;
-    public ResponseHandler(ObjectInputStream ois, PropertyChangeSupport pcs, ClientData clientData) {
+    public ResponseHandler(CommunicationHandler ch, PropertyChangeSupport pcs, ClientData clientData) {
         this.pcs = pcs;
-        this.ois = ois;
+        this.ch = ch;
         this.clientData = clientData;
     }
 
@@ -27,14 +24,15 @@ public class ResponseHandler extends Thread {
     public void run() {
         while (true) {
             try {
-                Object object = ois.readObject();
+                Object object = ch.getOis().readObject();
                 data = object;
 
                 if(object instanceof RegisterResponse) {
                     Platform.runLater(() -> {
                         pcs.firePropertyChange(ClientAction.REGISTER.toString(),null,null);
                     });
-                } else if (object instanceof LoginResponse loginResponse) {
+                }
+                else if (object instanceof LoginResponse loginResponse) {
                     Platform.runLater(() -> {
                         //Sets the id and admin parameters
                         synchronized (clientData) {
@@ -43,10 +41,83 @@ public class ResponseHandler extends Thread {
                         }
                         pcs.firePropertyChange(ClientAction.LOGIN.toString(),null,null);
                     });
-                } else if (object instanceof EditResponse) {
+                }
+                else if (object instanceof EditResponse) {
                     Platform.runLater(() -> {
                         pcs.firePropertyChange(ClientAction.EDIT_DATA.toString(),null,null);
                     });
+                }
+                else if (object instanceof ShowsResponse showsResponse) {
+                    if (showsResponse.getAction() == ClientAction.SELECT_SHOWS) {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.SELECT_SHOWS.toString(),null,null);
+                        });
+                    } else if (showsResponse.getAction() == ClientAction.CONSULT_SHOWS_ALL) {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.CONSULT_SHOWS_ALL.toString(),null,null);
+                        });
+                    }
+                }
+                else if (object instanceof SeatsResponse seatsResponse) {
+                    Platform.runLater(() -> {
+                        pcs.firePropertyChange(ClientAction.VIEW_SEATS_PRICES.toString(),null,null);
+                    });
+                }
+                else if (object instanceof InsertShowResponse insertShowResponse) {
+                    if (insertShowResponse.isSuccess()) {
+                        Platform.runLater(() -> {
+                            try {
+                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.INSERT_SHOWS.toString(),null,null);
+                        });
+                    }
+                }
+                else if (object instanceof DeleteResponse deleteResponse) {
+                    if (deleteResponse.isSuccess()) {
+                        Platform.runLater(() -> {
+                            try {
+                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.DELETE_SHOW.toString(),null,null);
+                        });
+                    }
+                }
+                else if (object instanceof HandleVisibleShowResponse handleVisibleShowResponse) {
+                    if (handleVisibleShowResponse.isSuccess()) {
+                        Platform.runLater(() -> {
+                            try {
+                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.VISIBLE_SHOW.toString(),null,null);
+                        });
+                    }
+                }
+                else if (object instanceof SubmitReservationResponse submitReservationResponse) {
+                    if (submitReservationResponse.isSuccess()) {
+                        Platform.runLater(() -> {
+                            try {
+                                ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

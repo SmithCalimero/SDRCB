@@ -41,8 +41,8 @@ public class ModelManager {
     public void register(String userName,String name,String password){
         context.register(userName,name,password);
     }
-    public List<Show> consultShows(HashMap<String,String> filters) {
-        return context.consultShows(filters);
+    public void consultShows(HashMap<String,String> filters) {
+        context.consultShows(filters);
     }
     public List<Seat> getSeatsAndPrices() {
         return context.getSeatsAndPrices();
@@ -91,16 +91,16 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public String insertShows(String filePath) {
-        return context.insertShows(filePath);
+    public void insertShows(String filePath) {
+        context.insertShows(filePath);
     }
 
-    public Pair<Boolean,String> deleteShow(int idShow) {
-        return context.deleteShow(idShow);
+    public void deleteShow(int idShow) {
+        context.deleteShow(idShow);
     }
 
-    public String showVisible(int idShow) {
-        return context.showVisible(idShow);
+    public void showVisible(int idShow) {
+        context.showVisible(idShow);
     }
 
     public void selectShowsTransition() {

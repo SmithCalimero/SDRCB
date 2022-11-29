@@ -6,8 +6,8 @@ import java.io.Serializable;
 public class ClientData implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
     private int id;
+    private int showId;
     private boolean isAdmin;
     private ClientAction action;
     private Object data;
@@ -36,5 +36,13 @@ public class ClientData implements Serializable {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public int getShowId() {
+        return showId;
+    }
+
+    public void setShowId(int showId) {
+        this.showId = showId;
     }
 }
