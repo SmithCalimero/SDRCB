@@ -103,8 +103,8 @@ public class Context {
         state.consultsPaymentsAwaitingTransition();
     }
 
-    public List<Reserve> consultsPaymentsAwaiting() {
-        return state.consultsPaymentsAwaiting();
+    public void consultsPaymentsAwaiting() {
+        state.consultsPaymentsAwaiting();
     }
 
     public void payReservationTransition(int resId) {

@@ -1,5 +1,6 @@
 package pt.isec.pd.server.threads.client;
 
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
@@ -16,18 +17,19 @@ import java.util.List;
 
 public class ClientReceiveMessage extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
-    private final HeartBeatController controller;
+    private final HeartBeatController hbController;
     private final DBHandler dbHandler;
     private final ObjectOutputStream oos;
     private final ObjectInputStream ois;
-    private boolean requestAccepted = false;
     private final ClientManagement clientManagement;
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
+    private final Socket socket;
 
     public ClientReceiveMessage(Socket socket, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
-        this.controller = controller;
+        this.hbController = controller;
         this.dbHandler = dbHandler;
+        this.socket = socket;
         this.clientManagement = clientManagement;
         queueUpdate = new QueueUpdate(controller,queue,this);
 
@@ -47,7 +49,8 @@ public class ClientReceiveMessage extends Thread {
             try {
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
-                if (!controller.isUpdating() && queue.isEmpty()) {
+                System.out.println(clientData.getAction());
+                if (!hbController.isUpdating() && queue.isEmpty()) {
                     handleClientRequest(clientData);
                 } else {
                     queue.add(clientData);
@@ -67,7 +70,7 @@ public class ClientReceiveMessage extends Thread {
     public void handleClientRequest(ClientData clientData) {
         LOG.log("Execution " + clientData.getAction());
         try {
-            String sqlCommand = switch(clientData.getAction()) {
+            List<String> sqlCommands = switch(clientData.getAction()) {
                 case REGISTER -> dbHandler.register(clientData,oos,ois);
                 case LOGIN -> dbHandler.login(clientData,oos,ois);
                 case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos,ois);
@@ -76,16 +79,9 @@ public class ClientReceiveMessage extends Thread {
                 case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos,ois);
                 case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(clientData,oos,ois);
                 case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
-                case VIEW_SEATS_PRICES -> {
-                    clientManagement.addClientViewingSeats(this);
-                    yield dbHandler.viewSeatsAndPrices(clientData,oos,ois);
-                }
-                case STOPPED_VIEWING_SEATS -> clientManagement.isViewingSeats(this);
+                case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos,ois);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
-                case SUBMIT_RESERVATION -> {
-                    requestAccepted = dbHandler.submitReservation(clientData,oos,ois);
-                    yield "";
-                }
+                case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData,oos,ois);
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                 case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
@@ -95,26 +91,30 @@ public class ClientReceiveMessage extends Thread {
                 default -> throw new IllegalArgumentException("Unexpected action value");
             };
 
-            if (requestAccepted) {
-                clientManagement.notifyClients();
-                requestAccepted = false;
-            }
-
             //If db was updated, init the process of updating other servers db
-            if (!sqlCommand.isEmpty()) {
+            if (!sqlCommands.isEmpty()) {
                 dbHandler.updateVersion();
-                controller.updateDataBase(sqlCommand);
+                hbController.updateDataBase(sqlCommands,clientData);
+
+                //Broadcast the message
+                if (ClientAction.SUBMIT_RESERVATION == clientData.getAction()) {
+                    for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
+                        if (client != this) {
+                            dbHandler.viewSeatsAndPrices(clientData,client.getOos(),null);
+                        }
+                    }
+                }
             }
         }  catch (ClassNotFoundException | SQLException | IOException e) {
             LOG.log("Unable to read client data: " + e);
         }
     }
 
-    public synchronized ObjectOutputStream getOos() {
+    public ObjectOutputStream getOos() {
         return oos;
     }
 
-    public synchronized ObjectInputStream getOis() {
+    public ObjectInputStream getOis() {
         return ois;
     }
 }

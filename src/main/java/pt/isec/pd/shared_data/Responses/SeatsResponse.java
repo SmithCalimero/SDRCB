@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class SeatsResponse implements Serializable {
+    int showId;
     List<Seat> seats;
 
     public List<Seat> getSeats() {
@@ -14,5 +15,13 @@ public class SeatsResponse implements Serializable {
 
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
+    }
+
+    public int getShowId() {
+        return showId;
+    }
+
+    public void setShowId(int showId) {
+        this.showId = showId;
     }
 }

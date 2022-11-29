@@ -1,17 +1,22 @@
 package pt.isec.pd.shared_data;
 
+import pt.isec.pd.client.model.data.ClientData;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 public class Prepare implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private int port;
-    private String sqlCommand;
+    private List<String> sqlCommand;
+    private ClientData data;
     private int nextVersion;
 
-    public Prepare(int port,int serverPort, String sqlCommand) {
+    public Prepare(int port, int serverPort, List<String> sqlCommand, ClientData data) {
         this.port = port;
+        this.data = data;
         this.sqlCommand = sqlCommand;
     }
 
@@ -23,11 +28,11 @@ public class Prepare implements Serializable {
         this.port = port;
     }
 
-    public String getSqlCommand() {
+    public List<String> getSqlCommand() {
         return sqlCommand;
     }
 
-    public void setSqlCommand(String sqlCommand) {
+    public void setSqlCommand(List<String> sqlCommand) {
         this.sqlCommand = sqlCommand;
     }
 
@@ -39,5 +44,13 @@ public class Prepare implements Serializable {
     public String toString() {
         return "port: " + port +
                 ", sqlCommand: " + sqlCommand;
+    }
+
+    public ClientData getData() {
+        return data;
+    }
+
+    public void setData(ClientData data) {
+        this.data = data;
     }
 }

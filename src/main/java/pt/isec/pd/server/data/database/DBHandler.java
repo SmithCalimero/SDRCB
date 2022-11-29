@@ -55,13 +55,16 @@ public class DBHandler {
     }
 
     //======================  ACTIONS ======================
-    public synchronized String register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
         int isAdmin = 0;
         boolean isAuthenticated = false;
         boolean requestAccepted = true;
         String msg = "";
-        String querry = "";
+        String query = "";
+
+        List<String> listQuery = new ArrayList<>();
+
         RegisterResponse registerResponse = new RegisterResponse();
 
         // Receives clients register data (format: username, name, password)
@@ -99,7 +102,7 @@ public class DBHandler {
             if (requestAccepted) {
                 try {
                     // Register user
-                    querry = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
+                    query = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
                             + "VALUES("
                             + "'" + ++id + "',"
                             + "'" + data.getFirst() + "',"
@@ -108,11 +111,12 @@ public class DBHandler {
                             + "'" + isAdmin + "',"
                             + "'" + isAuthenticated + "')";
 
-                    int rs = statement.executeUpdate(querry);
+                    int rs = statement.executeUpdate(query);
                     if (rs == 1) {
                         LOG.log("User[" + data.getFirst() + "] has registered successfully");
                         clientData.setId(id);
                         registerResponse.setSuccess(true);
+                        listQuery.add(query);
                     }
                 } catch (SQLException e) {
                     msg = "Unable to register user[" + data.getFirst() + "]";
@@ -132,15 +136,17 @@ public class DBHandler {
         registerResponse.setMsg(msg);
         oos.writeObject(registerResponse);
 
-        return querry;
+        return listQuery;
     }
 
-    public synchronized String login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean requestAccepted = false;
         boolean isAuthenticated = false;
         boolean isAdmin = false;
         String msg = "";
         String query = "";
+        List<String> listQuery = new ArrayList<>();
+
         LoginResponse loginResponse = new LoginResponse();
 
         try {
@@ -184,6 +190,7 @@ public class DBHandler {
                         if (rs == 1) {
                             msg = "User[" + loginData.getKey() + "]  logged in successfully";
                             LOG.log(msg);
+                            listQuery.add(query);
                             loginResponse.setMsg(msg);
                             loginResponse.setSuccess(true);
                             loginResponse.setAdmin(isAdmin);
@@ -200,7 +207,7 @@ public class DBHandler {
                         statement.close();
                         result.close();
                     }
-                    return query;
+                    return listQuery;
                 }
 
                 if (!isAuthenticated) {
@@ -231,13 +238,15 @@ public class DBHandler {
             oos.writeObject(loginResponse);
         }
 
-        return "";
+        return listQuery;
     }
 
-    public synchronized String editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean requestAccepted = true;
         String msg = "";
         String query = "";
+
+        List<String> listQuery = new ArrayList<>();
 
         EditResponse editResponse = new EditResponse();
 
@@ -278,6 +287,7 @@ public class DBHandler {
                                     editResponse.setMsg(msg);
                                     editResponse.setSuccess(true);
                                     oos.writeObject(editResponse);
+                                    listQuery.add(query);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update name[" + newValue + "]";
@@ -318,13 +328,15 @@ public class DBHandler {
                                     editResponse.setMsg(msg);
                                     editResponse.setSuccess(true);
                                     oos.writeObject(editResponse);
+
+                                    listQuery.add(query);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update username[" + newValue + "]";
                                 LOG.log(msg);
                                 editResponse.setMsg(msg);
                                 editResponse.setSuccess(false);
-                                oos.writeObject(editResponse);;
+                                oos.writeObject(editResponse);
                             } finally {
                                 result.close();
                             }
@@ -358,6 +370,8 @@ public class DBHandler {
                                     editResponse.setMsg(msg);
                                     editResponse.setSuccess(true);
                                     oos.writeObject(editResponse);
+
+                                    listQuery.add(query);
                                 }
                             } catch (SQLException e) {
                                 msg = "Unable to update password";
@@ -388,10 +402,10 @@ public class DBHandler {
             oos.writeObject(editResponse);
         }
 
-        return query;
+        return listQuery;
     }
 
-    public synchronized String consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized List<String> consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
 
@@ -443,10 +457,10 @@ public class DBHandler {
         result.close();
         clientResult.close();
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String consultPayedReservations(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultPayedReservations(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
         String msg = "";
@@ -499,10 +513,10 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         String msg = "";
@@ -567,10 +581,10 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String consultShowsAdmin(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultShowsAdmin(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         String msg = "";
@@ -624,10 +638,10 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         ArrayList<Show> availableShows = new ArrayList<>();
         String msg = "";
 
@@ -707,17 +721,19 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
+        SeatsResponse seatsResponse = new SeatsResponse();
 
         try {
             // At this moment the client has already selected the show, so we search by the show id
             // Receive show id
-            Integer recShowId = (Integer) clientData.getData();
-
+            Integer recShowId = clientData.getShowId();
+            seatsResponse.setShowId(recShowId);
+            
             // Get unavailable seats ids
             ArrayList<Integer> unavailable = new ArrayList<>();
 
@@ -762,7 +778,8 @@ public class DBHandler {
                 }
 
                 // Send available seats list to client
-                oos.writeObject(available);
+                seatsResponse.setSeats(available);
+                oos.writeObject(seatsResponse);
 
                 ResultSet username = statement.executeQuery(
                         "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
@@ -782,13 +799,16 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized boolean submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         Date currentTime = new Date();  // Get current time of the server to set in reserve object
         int isPaid = 0;
         String msg = "";
+        String query = "";
+        List<String> listQuery = new ArrayList<>();
+
         SubmitReservationResponse submitReservationResponse = new SubmitReservationResponse();
 
         try {
@@ -816,14 +836,15 @@ public class DBHandler {
 
                 try {
                     // Insert reserve
-                    statement.executeUpdate(
-                            "INSERT INTO reserva(data_hora,pago,id_utilizador,id_espetaculo)" +
-                                    "VALUES('"
-                                    + dateString + "','"
-                                    + isPaid + "','"
-                                    + clientData.getId() + "','"
-                                    + reserve.getKey() + "')"
-                    );
+                    query = "INSERT INTO reserva(data_hora,pago,id_utilizador,id_espetaculo)" +
+                            "VALUES('"
+                            + dateString + "','"
+                            + isPaid + "','"
+                            + clientData.getId() + "','"
+                            + reserve.getKey() + "')";
+
+                    statement.executeUpdate(query);
+                    listQuery.add(query);
 
                     ResultSet resultSet  = statement.executeQuery(
                             "SELECT id FROM reserva" +
@@ -835,47 +856,46 @@ public class DBHandler {
                     // Insert seats
                     for (var s : reserve.getValue()) {
                         System.out.println(s.getId());
-                        statement.executeUpdate(
-                                "INSERT INTO reserva_lugar (\n" +
-                                        " id_reserva,\n" +
-                                        " id_lugar\n" +
-                                        " )\n" +
-                                        " VALUES (\n" +
-                                        id +  " ,\n" +
-                                        s.getId() + ");"
-                        );
+                        query = "INSERT INTO reserva_lugar (\n" +
+                                " id_reserva,\n" +
+                                " id_lugar\n" +
+                                " )\n" +
+                                " VALUES (\n" +
+                                id +  " ,\n" +
+                                s.getId() + ");";
+                        statement.executeUpdate(query);
+                        listQuery.add(query);
                     }
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
                     submitReservationResponse.setSuccess(true);
                     oos.writeObject(submitReservationResponse);
-                    return true;
+                    return listQuery;
                 } catch (SQLException e) {
                     LOG.log("Unable to submit reservation from user[" + username + "]");
                     submitReservationResponse.setSuccess(false);
                     oos.writeObject(submitReservationResponse);;
-                    return false;
+                    return listQuery;
                 } finally {
                     statement.close();
                     reserves.close();
                     usernameResult.close();
-                    return false;
                 }
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
                 oos.writeObject(msg);
-                return false;
+                return listQuery;
             }
         } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
             oos.writeObject(msg);
-            return false;
+            return listQuery;
         }
     }
 
-    public synchronized String deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
         try {
             // Read the ID of the reserve to be deleted
@@ -927,10 +947,10 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
 
         try {
@@ -1000,13 +1020,15 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return "";
+        return new ArrayList<>();
     }
 
-    public synchronized String showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         Integer showId = (Integer) clientData.getData();
         String query = "";
         String msg;
+
+        List<String> listQuery = new ArrayList<>();
 
         HandleVisibleShowResponse handleVisibleShowResponse = new HandleVisibleShowResponse();
 
@@ -1022,7 +1044,7 @@ public class DBHandler {
                 handleVisibleShowResponse.setSuccess(false);
                 handleVisibleShowResponse.setMsg(msg);
                 oos.writeObject(handleVisibleShowResponse);
-                return "";
+                return listQuery;
             }
 
             query = "UPDATE espetaculo SET visivel = 1 WHERE id = '" + showId + "'";
@@ -1031,19 +1053,23 @@ public class DBHandler {
             msg = "The show is now visible";
             LOG.log(msg);
             handleVisibleShowResponse.setSuccess(true);
+            listQuery.add(query);
             handleVisibleShowResponse.setMsg("The show is now visible");
             oos.writeObject(handleVisibleShowResponse);
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return query;
+        return listQuery;
     }
 
 
-    public synchronized String insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
         InsertShowResponse insertShowResponse = new InsertShowResponse();
+
+        List<String> listQuery = new ArrayList<>();
+        String query;
 
         try {
             // Receive the new value from client
@@ -1054,7 +1080,7 @@ public class DBHandler {
                 insertShowResponse.setSuccess(false);
                 insertShowResponse.setMsg("There was a problem reading from the file");
                 oos.writeObject(insertShowResponse);
-                return "";
+                return listQuery;
             }
             try {
                 // Create connection
@@ -1069,22 +1095,24 @@ public class DBHandler {
                     insertShowResponse.setSuccess(false);
                     insertShowResponse.setMsg("This show already exists in the database");
                     oos.writeObject(insertShowResponse);
-                    return "";
+                    return listQuery;
                 }
 
                 // Add Show
-                statement.executeUpdate(
-                        "INSERT INTO espetaculo(descricao,tipo,data_hora,duracao,local,localidade,pais,classificacao_etaria) "
-                                + "VALUES("
-                                + "'" + mapShows.getKey().getDescription() + "',"
-                                + "'" + mapShows.getKey().getType() + "',"
-                                + "'" + mapShows.getKey().getDateHour() + "',"
-                                + "'" + mapShows.getKey().getDuration() + "',"
-                                + "'" + mapShows.getKey().getLocation() + "',"
-                                + "'" + mapShows.getKey().getLocality() + "',"
-                                + "'" + mapShows.getKey().getCountry() + "',"
-                                + "'" + mapShows.getKey().getAgeClassification() + "')"
-                );
+                query = "INSERT INTO espetaculo(descricao,tipo,data_hora,duracao,local,localidade,pais,classificacao_etaria) "
+                        + "VALUES("
+                        + "'" + mapShows.getKey().getDescription() + "',"
+                        + "'" + mapShows.getKey().getType() + "',"
+                        + "'" + mapShows.getKey().getDateHour() + "',"
+                        + "'" + mapShows.getKey().getDuration() + "',"
+                        + "'" + mapShows.getKey().getLocation() + "',"
+                        + "'" + mapShows.getKey().getLocality() + "',"
+                        + "'" + mapShows.getKey().getCountry() + "',"
+                        + "'" + mapShows.getKey().getAgeClassification() + "')";
+
+                statement.executeUpdate(query);
+                listQuery.add(query);
+
                 //Get id of show
                 ResultSet id = statement.executeQuery(
                         "SELECT id FROM espetaculo WHERE descricao = '" + mapShows.getKey().getDescription() + "'"
@@ -1096,15 +1124,15 @@ public class DBHandler {
                     //Go through all the seats
                     List<Seat> seatsList = seats.get(key);
                     for (Seat seat : seatsList) {
-                        statement.executeUpdate(
-                                "INSERT INTO lugar(fila,assento,preco,espetaculo_id) "
-                                        + "VALUES ("
-                                        + "'" + seat.getRow() + "',"
-                                        + "'" + seat.getNumber() + "',"
-                                        + "'" + seat.getPrice() + "',"
-                                        + "'" + idShow + "')");
+                        query = "INSERT INTO lugar(fila,assento,preco,espetaculo_id) "
+                                + "VALUES ("
+                                + "'" + seat.getRow() + "',"
+                                + "'" + seat.getNumber() + "',"
+                                + "'" + seat.getPrice() + "',"
+                                + "'" + idShow + "')";
+                        statement.executeUpdate(query);
+                        listQuery.add(query);
                     }
-
                 }
 
                 insertShowResponse.setSuccess(true);
@@ -1127,12 +1155,14 @@ public class DBHandler {
             oos.writeObject(insertShowResponse);
         }
 
-        return "";
+        return listQuery;
     }
 
-    public synchronized String deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean hasPaidReserve = false;
         String msg = "";
+        List<String> listQuery = new ArrayList<>();
+        String query = "";
         DeleteResponse deleteResponse = new DeleteResponse();
 
         try {
@@ -1175,11 +1205,16 @@ public class DBHandler {
                         // If there are no paid reservations associated, the show can be deleted
                         if (!hasPaidReserve) {
                             try {
+                                query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
+
                                 statement.executeUpdate(
                                         "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'"
                                 );
+
                                 msg = "Show[" + deleteShowId + "] was deleted successfully...";
                                 LOG.log(msg);
+
+                                listQuery.add(query);
                                 deleteResponse.setSuccess(true);
                                 deleteResponse.setMsg(msg);
                                 oos.writeObject(deleteResponse);
@@ -1213,12 +1248,14 @@ public class DBHandler {
             oos.writeObject(deleteResponse);
         }
 
-        return "";
+        return listQuery;
     }
 
-    public synchronized String disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized List<String> disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
         String msg = "";
         String query = "";
+        List<String> listQuery = new ArrayList<>();
+        DisconnectResponse disconnectResponse = new DisconnectResponse();
 
         try {
             // Create statement
@@ -1239,11 +1276,12 @@ public class DBHandler {
                         query = "UPDATE utilizador SET autenticado = 0 WHERE id = '" + id + "'";
                         // Update authenticated value
                         statement.executeUpdate(query);
+                        listQuery.add(query);
+
                         LOG.log("User[" + username + "] logged out successfully");
-                        oos.writeObject(true);
+                        oos.writeObject(disconnectResponse);
                     } catch (SQLException e) {
                         LOG.log("Unable to logout user[" + username + "]");
-                        oos.writeObject(false);
                     } finally {
                         statement.close();
                         result.close();
@@ -1256,13 +1294,15 @@ public class DBHandler {
             oos.writeObject(msg);
         }
 
-        return query;
+        return listQuery;
     }
 
-    public synchronized void updateDataBase(String sqlCommand) {
+    public synchronized void updateDataBase(List<String> sqlCommand) {
         try {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(sqlCommand);
+            for (String command : sqlCommand) {
+                statement.executeUpdate(command);
+            }
             updateVersion();
             LOG.log("Database updated");
         } catch (SQLException e) {

@@ -10,6 +10,6 @@ public final class Constants {
     public final static String IP_LOCALHOST = "127.0.0.1";
     public final static int PORT_MULTICAST = 4004;
     public static final int STARTUP = 5;
-    public static final int MAX_BYTES = 254;
+    public static final int MAX_BYTES = 1024;
     public static final int TIME_TO_PAY = 10;
 }

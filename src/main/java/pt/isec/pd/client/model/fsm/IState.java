@@ -1,7 +1,6 @@
 package pt.isec.pd.client.model.fsm;
 
 import pt.isec.pd.client.model.data.ClientAction;
-import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.HashMap;
@@ -28,7 +27,7 @@ public interface IState {
     void selectShowsTransition();
     void submitReservation(List<Seat> seats);
     void consultsPaymentsAwaitingTransition();
-    List<Reserve> consultsPaymentsAwaiting();
+    void consultsPaymentsAwaiting();
     void payReservationTransition(int resId);
     Object getResponse();
 }

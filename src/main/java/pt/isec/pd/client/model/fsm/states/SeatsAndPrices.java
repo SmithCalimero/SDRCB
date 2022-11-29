@@ -14,19 +14,13 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
-    public List<Seat> getSeatsAndPrices() {
-        return data.getSeatsAndPrices();
-    }
-
-    @Override
     public void seatsTransition(Integer idSwow) {
-        data.notifyServer();
         changeState(State.SELECT_SHOWS);
+        data.resetShow();
     }
 
     @Override
     public void disconnect() {
-        data.notifyServer();
         super.disconnect();
     }
 

@@ -1,5 +1,7 @@
 package pt.isec.pd.server.data;
 
+import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatLifeTime;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatReceiver;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatSender;
@@ -12,6 +14,7 @@ import pt.isec.pd.utils.Utils;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.List;
 
 public class HeartBeatController {
     private final Log LOG = Log.getLogger(Server.class);
@@ -83,20 +86,24 @@ public class HeartBeatController {
     }
 
     // Only called when a request from client updated the database
-    public void updateDataBase(String sqlCommand) {
+    public void updateDataBase(List<String> sqlCommand, ClientData clientData) {
         if (!isUpdating()) {
             try {
+                DatagramPacket dp;
                 LOG.log("Update Starting...");
                 setUpdater(true);
+
                 DatagramSocket ds = new DatagramSocket();
                 ds.setSoTimeout(1000);
 
                 // 1. Send the 'prepare' object to the multicast
-                Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand);
-                LOG.log("SqlCommand: " + sqlCommand);
-                byte[] bytes = Utils.serializeObject(prepare);
-                DatagramPacket dp = new DatagramPacket(bytes,bytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand,clientData);
+                LOG.log("Action: " + clientData.getAction() + " SqlCommand: " + sqlCommand);
+                byte[] prepareBytes = Utils.serializeObject(prepare);
+
+                dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
+                LOG.log("Prepare");
 
                 // 2. Wait for the servers to send the signal (timeout 1000 ms)
                 while (true) {
@@ -116,14 +123,15 @@ public class HeartBeatController {
                 dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
                 LOG.log("Commit");
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             LOG.log("Theres a updating working at the moment");
         }
-
     }
+
 
     public synchronized void setUpdater(boolean updater) {
         this.updater = updater;
@@ -147,5 +155,9 @@ public class HeartBeatController {
 
     public synchronized MulticastSocket getMs() {
         return ms;
+    }
+
+    public List<ClientReceiveMessage> getClients() {
+        return server.getClients();
     }
 }

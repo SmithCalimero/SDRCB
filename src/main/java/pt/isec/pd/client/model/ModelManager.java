@@ -117,8 +117,8 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public List<Reserve> consultsPaymentsAwaiting() {
-        return context.consultsPaymentsAwaiting();
+    public void consultsPaymentsAwaiting() {
+        context.consultsPaymentsAwaiting();
     }
 
     public void payReservationTransition(int resId) {

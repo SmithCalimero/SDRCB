@@ -1,7 +1,9 @@
 package pt.isec.pd.server.threads.heart_beat;
 
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.server.data.*;
 import pt.isec.pd.server.data.database.DBHandler;
+import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.shared_data.Commit;
 import pt.isec.pd.shared_data.Prepare;
 import pt.isec.pd.utils.Constants;
@@ -37,8 +39,8 @@ public class HeartBeatReceiver extends Thread{
                 DatagramPacket dp = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                 ms.receive(dp);
                 Object object = Utils.deserializeObject(dp.getData());
+
                 if (object instanceof HeartBeat hbEvent) {
-                    //LOG.log("\nHeartBeat\n" + hbEvent);
                     hbList.updateList(hbEvent);
 
                 }  else if(!controller.imUpdating() && object instanceof Prepare prepare) {
@@ -57,10 +59,16 @@ public class HeartBeatReceiver extends Thread{
                         LOG.log("Commit receive");
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getSqlCommand());
-                        controller.setUpdating(false);
-                    } else {
-                        controller.setUpdater(false);
+
+                        if (prepare.getData().getAction() == ClientAction.SUBMIT_RESERVATION) {
+                            for (ClientReceiveMessage client : controller.getClients()) {
+                                dbHandler.viewSeatsAndPrices(prepare.getData(),client.getOos(),null);
+                            }
+                        }
+
                     }
+                    controller.setUpdating(false);
+                    controller.setUpdater(false);
                 }
             }
         } catch (IOException e) {

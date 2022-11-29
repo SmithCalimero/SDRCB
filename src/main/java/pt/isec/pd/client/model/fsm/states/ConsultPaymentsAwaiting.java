@@ -4,9 +4,6 @@ import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
-import pt.isec.pd.shared_data.Reserve;
-
-import java.util.List;
 
 public class ConsultPaymentsAwaiting extends StateAdapter {
     public ConsultPaymentsAwaiting(Context context, Client data) {
@@ -19,8 +16,8 @@ public class ConsultPaymentsAwaiting extends StateAdapter {
     }
 
     @Override
-    public List<Reserve> consultsPaymentsAwaiting() {
-        return data.consultsPaymentsAwaiting();
+    public void consultsPaymentsAwaiting() {
+         data.consultsPaymentsAwaiting();
     }
 
     @Override

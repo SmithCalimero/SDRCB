@@ -71,43 +71,9 @@ public class ClientManagement extends Thread {
     public int getNumConnections() {
         return numConnections;
     }
-
-    // =========================== WORK IN PROGRESS ===========================
-    // Only adds the clients with the current action = VIEW_SEATS_PRICES
-    public void addClientViewingSeats(ClientReceiveMessage client) {
-        viewingSeats.add(client);
+    public synchronized List<ClientReceiveMessage> getClientsThread() {
+        return clientsThread;
     }
-
-    // If the client is already executing another action, he is removed from the list
-    public String isViewingSeats(ClientReceiveMessage client) {
-        // If a client from the list executes another action, he gets removed from the list and they
-        // get notified again
-        viewingSeats.remove(client);
-
-        ObjectOutputStream oos = client.getOos();
-        try {
-            oos.writeObject(false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        notifyClients();
-
-        return "";
-    }
-
-    // Notifies clients to resend the action, so they can get the new list
-    public void notifyClients() {
-        for (var v : viewingSeats) {
-            try {
-                ObjectOutputStream oos = v.getOos();
-                oos.writeObject(true);
-            } catch (IOException e) {
-                LOG.log("Unable to warn client");
-            }
-        }
-    }
-
     public synchronized void incConnection() {
         numConnections++;
     }

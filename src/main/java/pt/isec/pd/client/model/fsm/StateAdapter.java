@@ -2,7 +2,6 @@ package pt.isec.pd.client.model.fsm;
 
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
-import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public abstract class StateAdapter implements IState {
 
     @Override
     public void disconnect() {
-        context.disconnect();
+        data.disconnect();
     }
 
     @Override
@@ -108,8 +107,7 @@ public abstract class StateAdapter implements IState {
 
     }
     @Override
-    public List<Reserve> consultsPaymentsAwaiting() {
-        return null;
+    public void consultsPaymentsAwaiting() {
     }
     @Override
     public void payReservationTransition(int resId) {

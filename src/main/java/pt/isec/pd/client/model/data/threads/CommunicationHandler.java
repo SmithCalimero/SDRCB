@@ -98,13 +98,13 @@ public class CommunicationHandler extends Thread {
         }
     }
 
-    public  void writeToSocket(ClientAction action, Object object) throws IOException {
+    public  void writeToSocket(ClientAction action, Object object) {
         try {
             clientData.setAction(action);
             clientData.setData(object);
             oos.writeUnshared(clientData);
             LOG.log("Request sent: " + clientData.getAction());
-        } catch (SocketException e) {
+        } catch (IOException e) {
             sendPing();
             writeToSocket(action,object);
         }
@@ -122,15 +122,17 @@ public class CommunicationHandler extends Thread {
     }
 
     public ClientAction getClientAction() { return clientData.getAction(); }
-
     public ClientData getClientData() {
         return clientData;
     }
-
     public synchronized ObjectOutputStream getOos() {
         return oos;
     }
     public synchronized ObjectInputStream getOis() {
         return ois;
+    }
+
+    public ResponseHandler getResponseHandler() {
+        return responseHandler;
     }
 }

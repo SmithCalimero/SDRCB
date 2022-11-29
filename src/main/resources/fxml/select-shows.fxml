@@ -4,7 +4,6 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.SelectShows">
-   <Button fx:id="refreshButton" layoutX="244.0" layoutY="25.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="refresh" textFill="WHITE" />
-   <ListView fx:id="list" layoutX="311.0" layoutY="25.0" prefHeight="316.0" prefWidth="314.0" />
+   <ListView fx:id="list" layoutX="22.0" layoutY="43.0" prefHeight="298.0" prefWidth="603.0" />
    <Button fx:id="cancelButton" layoutX="16.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="retroceder" textAlignment="CENTER" underline="true" />
 </AnchorPane>

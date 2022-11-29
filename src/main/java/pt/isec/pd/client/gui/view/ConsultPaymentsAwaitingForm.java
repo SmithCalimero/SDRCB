@@ -28,7 +28,7 @@ public class ConsultPaymentsAwaitingForm {
         });
 
         refreshButton.setOnAction(actionEvent -> {
-            list.setItems(FXCollections.observableList(model.consultsPaymentsAwaiting()));
+            //list.setItems(FXCollections.observableList(model.consultsPaymentsAwaiting()));
         });
 
         cancelButton.setOnAction(actionEvent -> {

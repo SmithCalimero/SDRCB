@@ -3,18 +3,16 @@ package pt.isec.pd.server.data;
 import pt.isec.pd.server.data.database.CreateDataBase;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientManagement;
-import pt.isec.pd.shared_data.CompareDbVersionHeartBeat;
-import pt.isec.pd.shared_data.HeartBeat;
+import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.utils.Log;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
     private HeartBeatList hbList;
-    private ClientManagement clientManagement;
+    private ClientManagement cm;
     //private ClientController clientController;
     private final String dbPath;
     private HeartBeatController hbController;
@@ -38,7 +36,7 @@ public class Server {
         }
 
         hbController = new HeartBeatController(hbList,this);
-        clientManagement = new ClientManagement(pingPort, dbHandler,hbList, hbController);
+        cm = new ClientManagement(pingPort, dbHandler,hbList, hbController);
 
     }
 
@@ -59,8 +57,8 @@ public class Server {
             //transferDataBase();
         }*/
 
-        clientManagement.startPingHandler();
-        clientManagement.start();
+        cm.startPingHandler();
+        cm.start();
     }
 
     public boolean createDataBase() {
@@ -78,7 +76,7 @@ public class Server {
     }
 
     public int getServerPort() {
-        return clientManagement.getServerPort();
+        return cm.getServerPort();
     }
 
     public int getDBVersion() {
@@ -90,10 +88,14 @@ public class Server {
     }
 
     public synchronized int getActiveConnections() {
-        return clientManagement.getNumConnections();
+        return cm.getNumConnections();
     }
 
     public synchronized DBHandler getDbHandler() {
         return dbHandler;
+    }
+
+    public synchronized List<ClientReceiveMessage> getClients() {
+        return cm.getClientsThread();
     }
 }

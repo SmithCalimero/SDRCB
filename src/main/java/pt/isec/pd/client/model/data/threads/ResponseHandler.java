@@ -1,15 +1,19 @@
 package pt.isec.pd.client.model.data.threads;
 
 import javafx.application.Platform;
+import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.server.data.Server;
 import pt.isec.pd.shared_data.Responses.*;
+import pt.isec.pd.utils.Log;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public class ResponseHandler extends Thread {
+    private final Log LOG = Log.getLogger(Client.class);
     private CommunicationHandler ch;
     private PropertyChangeSupport pcs;
     private Object data;
@@ -26,6 +30,7 @@ public class ResponseHandler extends Thread {
             try {
                 Object object = ch.getOis().readObject();
                 data = object;
+                LOG.log("Response received: " + data.getClass().getSimpleName().toUpperCase());
 
                 if(object instanceof RegisterResponse) {
                     Platform.runLater(() -> {
@@ -60,17 +65,15 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof SeatsResponse seatsResponse) {
                     Platform.runLater(() -> {
-                        pcs.firePropertyChange(ClientAction.VIEW_SEATS_PRICES.toString(),null,null);
+                        if (clientData.getShowId() == seatsResponse.getShowId()) {
+                            pcs.firePropertyChange(ClientAction.VIEW_SEATS_PRICES.toString(),null,null);
+                        }
                     });
                 }
                 else if (object instanceof InsertShowResponse insertShowResponse) {
                     if (insertShowResponse.isSuccess()) {
                         Platform.runLater(() -> {
-                            try {
-                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
                         });
                     } else {
                         Platform.runLater(() -> {
@@ -81,11 +84,7 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof DeleteResponse deleteResponse) {
                     if (deleteResponse.isSuccess()) {
                         Platform.runLater(() -> {
-                            try {
-                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
                         });
                     } else {
                         Platform.runLater(() -> {
@@ -96,11 +95,7 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof HandleVisibleShowResponse handleVisibleShowResponse) {
                     if (handleVisibleShowResponse.isSuccess()) {
                         Platform.runLater(() -> {
-                            try {
-                                ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            ch.writeToSocket(ClientAction.CONSULT_SHOWS_ALL,null);
                         });
                     } else {
                         Platform.runLater(() -> {
@@ -111,13 +106,12 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof SubmitReservationResponse submitReservationResponse) {
                     if (submitReservationResponse.isSuccess()) {
                         Platform.runLater(() -> {
-                            try {
-                                ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
                         });
                     }
+                }
+                else if (object instanceof DisconnectResponse) {
+                    break;
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
