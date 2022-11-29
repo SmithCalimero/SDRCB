@@ -14,6 +14,14 @@ public class ClientData implements Serializable {
 
     public ClientData() { }
 
+    public ClientData(ClientData clientData) {
+        this.id = clientData.getId();
+        this.showId = clientData.getShowId();
+        this.isAdmin = clientData.isAdmin;
+        this.action = clientData.getAction();
+        this.data = clientData.getData();
+    }
+
     public int getId() { return id; }
 
     public void setId(int id) { this.id = id; }

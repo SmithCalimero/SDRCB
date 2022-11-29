@@ -110,6 +110,7 @@ public class ModelManager {
 
     public void submitReservation(List<Seat> seats) {
         context.submitReservation(seats);
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
     public void consultsPaymentsAwaitingTransition() {

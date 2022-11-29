@@ -18,7 +18,7 @@ public enum State {
             case MANAGE_SHOWS -> new ManageShows(context,data);
             case SELECT_SHOWS -> new SelectShows(context,data);
             case CONSULT_PAYMENTS_AWAITING -> new ConsultPaymentsAwaiting(context,data);
-            default -> null;
+            case PAY_RESERVATION -> new PayReservation(context,data);
         };
     }
 }

@@ -12,8 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ClientReceiveMessage extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
@@ -24,6 +23,7 @@ public class ClientReceiveMessage extends Thread {
     private final ClientManagement clientManagement;
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
+    private Timer t = new Timer();
 
     public ClientReceiveMessage(Socket socket, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.hbController = controller;
@@ -80,7 +80,28 @@ public class ClientReceiveMessage extends Thread {
                 case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
                 case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos,ois);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
-                case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData,oos,ois);
+                case SUBMIT_RESERVATION -> {
+                    List<String> listQuery = dbHandler.submitReservation(clientData,oos,ois);
+                    ClientData clientDataOld = new ClientData(clientData);
+                    TimerTask tt = new TimerTask() {
+                        @Override
+                        public void run() {
+                            try {
+                                System.out.println(clientDataOld.getData());
+                                List<String> listQuery = dbHandler.deleteUnpaidReservation(clientDataOld,oos,ois);
+                                update(listQuery,clientDataOld);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        };
+                    };
+
+                    Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+                    calendar.add(Calendar.SECOND, 5);
+                    t.schedule(tt,calendar.getTime());
+
+                    yield listQuery;
+                }
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
                 case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
@@ -91,22 +112,29 @@ public class ClientReceiveMessage extends Thread {
             };
 
             //If db was updated, init the process of updating other servers db
-            if (!sqlCommands.isEmpty()) {
-                dbHandler.updateVersion(sqlCommands);
-                hbController.updateDataBase(sqlCommands,clientData);
-
-                //Broadcast the message
-                broadcastObserver(clientData);
-            }
+            update(sqlCommands,clientData);
         }  catch (ClassNotFoundException | SQLException | IOException e) {
             LOG.log("Unable to read client data: " + e);
+        }
+    }
+
+    private void update(List<String> sqlCommands,ClientData clientData) {
+        if (!sqlCommands.isEmpty()) {
+            try {
+                dbHandler.updateVersion(sqlCommands);
+                hbController.updateDataBase(sqlCommands,clientData);
+                //Broadcast the message
+                broadcastObserver(clientData);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     private void broadcastObserver(ClientData clientData) {
         try {
             switch (clientData.getAction()) {
-                case SUBMIT_RESERVATION -> {
+                case SUBMIT_RESERVATION,DELETE_UNPAID_RESERVATION -> {
                     for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
                         if (client != this) {
                             dbHandler.viewSeatsAndPrices(clientData,client.getOos(),null);

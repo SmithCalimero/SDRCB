@@ -27,6 +27,7 @@ public class SeatsAndPrices extends StateAdapter {
     @Override
     public void submitReservation(List<Seat> seats) {
          data.submitReservation(seats);
+         changeState(State.PAY_RESERVATION);
     }
 
     @Override

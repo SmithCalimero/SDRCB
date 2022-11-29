@@ -86,6 +86,9 @@ public class ResponseHandler extends Thread {
                         Platform.runLater(() -> ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null));
                     }
                 }
+                else if (object instanceof PayReservationResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_RESERVATION.toString(),null,null));
+                }
                 else if (object instanceof DisconnectResponse) {
                     break;
                 }

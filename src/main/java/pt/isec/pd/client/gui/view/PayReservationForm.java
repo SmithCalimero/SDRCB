@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Seat;
 
@@ -24,6 +25,10 @@ public class PayReservationForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+        });
+
+        model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
+            model.payReservationTransition(0);
         });
     }
 

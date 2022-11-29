@@ -29,7 +29,6 @@ public class DBHandler {
 
     public DBHandler(String path) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + path);
-        System.out.println(getCurrentVersion());
     }
 
     public int getCurrentVersion() throws SQLException {
@@ -677,7 +676,6 @@ public class DBHandler {
                 String country = result.getString("pais");
                 String ageClassification = result.getString("classificacao_etaria");
                 boolean visible = result.getBoolean("visivel");
-                System.out.println(visible);
                 // If the show is visible
                 if (visible) {
                     try {
@@ -692,7 +690,6 @@ public class DBHandler {
                         long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
                         //Duration difference = Duration.between(showDate,currentDate);
                         //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
-                        System.out.println(diff);
                         // If at least 24 hours before the show, it can be selected
                         if (diff <= 24) {
                             availableShows.add(new Show(
@@ -858,14 +855,14 @@ public class DBHandler {
 
                     ResultSet resultSet  = statement.executeQuery(
                             "SELECT id FROM reserva" +
-                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() +
-                                    "' and data_hora=' " + dateString +"';");
+                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() + "';");
 
                     int id = resultSet.getInt(1);
 
+                    System.out.println(id);
+
                     // Insert seats
                     for (var s : reserve.getValue()) {
-                        System.out.println(s.getId());
                         query = "INSERT INTO reserva_lugar (\n" +
                                 " id_reserva,\n" +
                                 " id_lugar\n" +
@@ -878,13 +875,15 @@ public class DBHandler {
                     }
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
+                    clientData.setData(id);
                     submitReservationResponse.setSuccess(true);
                     oos.writeObject(submitReservationResponse);
+
                     return listQuery;
                 } catch (SQLException e) {
                     LOG.log("Unable to submit reservation from user[" + username + "]");
                     submitReservationResponse.setSuccess(false);
-                    oos.writeObject(submitReservationResponse);;
+                    oos.writeObject(submitReservationResponse);
                     return listQuery;
                 } finally {
                     statement.close();
@@ -907,42 +906,61 @@ public class DBHandler {
 
     public synchronized List<String> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         String msg = "";
+        PayReservationResponse payReservationResponse = new PayReservationResponse();
+        String query = "";
+        List<String> listQuery = new ArrayList<>();
+
+        clientData.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+
         try {
             // Read the ID of the reserve to be deleted
-            Integer reservationId = (Integer) ois.readObject();
+            Integer reservationId = (Integer) clientData.getData();
 
             try {
                 // Create statement
                 Statement statement = connection.createStatement();
 
                 // Execute a query to get reserves data
-                ResultSet result = statement.executeQuery(
-                        "SELECT id, pago, id_utilizador FROM reserva"
-                );
+
 
                 // Execute a query to get the clients name
-                ResultSet username = statement.executeQuery(
+                ResultSet usernameSet = statement.executeQuery(
                         "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                );
+
+                String username = usernameSet.getString(1);
+
+                ResultSet result = statement.executeQuery(
+                        "SELECT id,pago, id_utilizador FROM reserva"
                 );
 
                 while (result.next()) {
                     // If the IDs match & paid=false, delete row
-                    if (reservationId == result.getInt("id") &&
-                            !result.getBoolean("pago") &&
-                            clientData.getId() == result.getInt("id_utilizador")) {
+                    int idReserva = result.getInt("id");
+                    boolean pago = result.getBoolean("pago");
+                    int idUtilizador = result.getInt("id_utilizador");
+
+                    if (reservationId == idReserva && !pago && clientData.getId() == idUtilizador) {
                         try {
-                            statement.executeQuery(
-                                    "DELETE FROM reserva WHERE id = '" + reservationId + "'"
-                            );
+                            query = "DELETE FROM reserva WHERE id = '" + reservationId + "';";
+                            statement.executeUpdate(query);
+                            listQuery.add(query);
+                            query = "DELETE FROM reserva_lugar WHERE id_reserva = '" + reservationId + "';";
+                            statement.executeUpdate(query);
+                            listQuery.add(query);
+
                             LOG.log("User[" + username + "] deleted unpaid successfully reservation id[" + reservationId + "]");
-                            oos.writeObject(true);
+                            payReservationResponse.setSuccess(true);
+                            oos.writeObject(payReservationResponse);
+
                         } catch (SQLException e) {
                             LOG.log("Unable to delete unpaid reservation from user [" + username + "]");
-                            oos.writeObject(false);
+                            payReservationResponse.setSuccess(false);
+                            oos.writeObject(payReservationResponse);
                         } finally {
                             statement.close();
                             result.close();
-                            if (username != null) username.close();
+                            if (username != null) usernameSet.close();
                         }
                     }
                 }
@@ -951,13 +969,13 @@ public class DBHandler {
                 LOG.log(msg);
                 oos.writeObject(msg);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
             oos.writeObject(msg);
         }
 
-        return new ArrayList<>();
+        return listQuery;
     }
 
     public synchronized List<String> payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {

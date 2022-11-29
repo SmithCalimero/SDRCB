@@ -14,6 +14,15 @@ public class PayReservation extends StateAdapter {
         this.resId = resId;
     }
 
+    public PayReservation(Context context, Client data) {
+        super(context, data);
+    }
+
+    @Override
+    public void payReservationTransition(int resId) {
+        changeState(State.MENU_CLIENT);
+    }
+
     @Override
     public State getState() {
         return State.PAY_RESERVATION;
