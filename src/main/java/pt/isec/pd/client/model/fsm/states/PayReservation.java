@@ -23,9 +23,10 @@ public class PayReservation extends StateAdapter {
     }
 
     @Override
-    public void payReservation() {
-        data.payReservation(resId);
-    }
+    public void payReservation() { data.payReservation(resId); }
+
+    @Override
+    public void payLater() { data.payLater(); }
 
     @Override
     public void next() {

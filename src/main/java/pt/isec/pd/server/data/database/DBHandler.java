@@ -413,6 +413,8 @@ public class DBHandler {
     }
 
     public synchronized List<String> consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+        ConsultUnpayedReservationResponse consultUnpayedReservationResponse = new ConsultUnpayedReservationResponse();
+
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
 
@@ -457,8 +459,11 @@ public class DBHandler {
         if (reserves.isEmpty())
             LOG.log("No payments awaiting from user [" + clientName + "]");
 
-        // Send list to client
-        oos.writeObject(reserves);
+        // Set response
+        consultUnpayedReservationResponse.setReserves(reserves);
+
+        // Send response to client
+        oos.writeObject(consultUnpayedReservationResponse);
 
         statement.close();
         result.close();

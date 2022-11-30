@@ -5,6 +5,7 @@ import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
+import pt.isec.pd.shared_data.Responses.PayLaterResponse;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
@@ -106,6 +107,11 @@ public class ClientReceiveMessage extends Thread {
                 case PAY_RESERVATION -> {
                     t.cancel();
                     yield dbHandler.payReservation(clientData,oos,ois);
+                }
+                case PAY_LATER_RESERVATION -> {
+                    t.cancel();
+                    oos.writeObject(new PayLaterResponse());
+                    yield Collections.emptyList();
                 }
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                 case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);

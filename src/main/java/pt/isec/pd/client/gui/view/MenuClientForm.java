@@ -15,7 +15,7 @@ public class MenuClientForm {
     public Button editButton;
     public Button showsButton;
     public Button selectShowsButton;
-    public Button reversasNaoPagasButton;
+    public Button unpaidReservesButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -37,7 +37,7 @@ public class MenuClientForm {
             model.showsTransition();
         });
 
-        reversasNaoPagasButton.setOnAction(actionEvent -> {
+        unpaidReservesButton.setOnAction(actionEvent -> {
             model.consultsPaymentsAwaitingTransition();
         });
 

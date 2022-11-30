@@ -118,18 +118,16 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public void consultsPaymentsAwaiting() {
-        context.consultsPaymentsAwaiting();
-    }
+    public void consultsPaymentsAwaiting() { context.consultsPaymentsAwaiting(); }
 
     public void payReservationTransition(int resId) {
         context.payReservationTransition(resId);
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
-    public void payReservation() {
-        context.payReservation();
-    }
+    public void payReservation() { context.payReservation(); }
+
+    public void payLater() { context.payLater(); }
 
     public Object getResponse() {
         return context.getResponse();

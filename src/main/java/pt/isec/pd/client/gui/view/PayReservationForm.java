@@ -1,18 +1,17 @@
 package pt.isec.pd.client.gui.view;
 
-import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
-import pt.isec.pd.shared_data.Seat;
-
-import java.util.List;
 
 public class PayReservationForm {
     public AnchorPane pane;
     public Button pagarButton;
+    @FXML
+    private Button payLaterButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -35,7 +34,13 @@ public class PayReservationForm {
             model.next();
         });
 
+        model.addPropertyChangeListener(ClientAction.PAY_LATER_RESERVATION.toString(), evt -> {
+            model.payReservationTransition(0);
+        });
+
         pagarButton.setOnAction(actionEvent -> model.payReservation());
+
+        payLaterButton.setOnAction(actionEvent -> model.payLater());
     }
 
     private void update() {

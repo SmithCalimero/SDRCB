@@ -14,7 +14,7 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
-    public void seatsTransition(Integer idSwow) {
+    public void seatsTransition(Integer idShow) {
         changeState(State.SELECT_SHOWS);
         data.resetShow();
     }
@@ -30,9 +30,7 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
-    public void payReservationTransition(int resId) {
-        context.changeState(new PayReservation(context,data,resId));
-    }
+    public void payReservationTransition(int resId) { context.changeState(new PayReservation(context,data,resId)); }
 
     @Override
     public State getState() {

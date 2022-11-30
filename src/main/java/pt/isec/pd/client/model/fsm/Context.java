@@ -99,23 +99,15 @@ public class Context {
         state.submitReservation(seats);
     }
 
-    public void consultsPaymentsAwaitingTransition() {
-        state.consultsPaymentsAwaitingTransition();
-    }
+    public void consultsPaymentsAwaitingTransition() { state.consultsPaymentsAwaitingTransition(); }
 
-    public void consultsPaymentsAwaiting() {
-        state.consultsPaymentsAwaiting();
-    }
+    public void consultsPaymentsAwaiting() { state.consultsPaymentsAwaiting(); }
 
-    public void payReservationTransition(int resId) {
-        state.payReservationTransition(resId);
-    }
+    public void payReservationTransition(int resId) { state.payReservationTransition(resId); }
 
-    public Object getResponse() {
-        return state.getResponse();
-    }
+    public Object getResponse() { return state.getResponse(); }
 
-    public void payReservation() {
-        state.payReservation();
-    }
+    public void payReservation() { state.payReservation(); }
+
+    public void payLater() { state.payLater(); }
 }

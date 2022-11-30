@@ -101,6 +101,12 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof ConsultPayedReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_PAYED_RESERVATIONS.toString(),null,null));
                 }
+                else if (object instanceof ConsultUnpayedReservationResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_PAYMENTS_AWAITING.toString(),null,null));
+                }
+                else if (object instanceof PayLaterResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_LATER_RESERVATION.toString(),null,null));
+                }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }

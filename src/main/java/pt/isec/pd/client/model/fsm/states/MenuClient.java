@@ -35,6 +35,7 @@ public class MenuClient extends StateAdapter {
     @Override
     public void consultsPaymentsAwaitingTransition() {
         changeState(State.CONSULT_PAYMENTS_AWAITING);
+        data.consultsPaymentsAwaiting();
     }
 
     @Override

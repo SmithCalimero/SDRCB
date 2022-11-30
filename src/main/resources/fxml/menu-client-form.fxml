@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.MenuClientForm">
-      <Button fx:id="reversasNaoPagasButton" layoutX="255.0" layoutY="220.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Reservas não pagas" textFill="WHITE" />
+      <Button fx:id="unpaidReservesButton" layoutX="255.0" layoutY="220.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Reservas não pagas" textFill="WHITE" />
       <Button fx:id="selectShowsButton" layoutX="255.0" layoutY="113.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Selecionar Espetáculo" textFill="WHITE" />
       <Button fx:id="editButton" layoutX="297.0" layoutY="149.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Editar" textFill="WHITE" />
       <Button fx:id="showsButton" layoutX="281.0" layoutY="186.0" mnemonicParsing="false" style="-fx-background-color: #000000;" text="Espetáculos" textFill="WHITE" />
