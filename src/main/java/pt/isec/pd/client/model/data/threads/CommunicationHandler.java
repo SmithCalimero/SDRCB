@@ -103,7 +103,7 @@ public class CommunicationHandler extends Thread {
             clientData.setAction(action);
             clientData.setData(object);
             oos.writeUnshared(clientData);
-            LOG.log("Request sent: " + clientData.getAction());
+            //LOG.log("Request sent: " + clientData.getAction());
         } catch (IOException e) {
             sendPing();
             writeToSocket(action,object);

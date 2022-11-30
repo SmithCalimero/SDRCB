@@ -114,4 +114,8 @@ public class Context {
     public Object getResponse() {
         return state.getResponse();
     }
+
+    public void payReservation() {
+        state.payReservation();
+    }
 }

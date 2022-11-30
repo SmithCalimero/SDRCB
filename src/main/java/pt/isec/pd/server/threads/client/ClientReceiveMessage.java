@@ -24,6 +24,7 @@ public class ClientReceiveMessage extends Thread {
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
+    private ClientData clientDataOld;
 
     public ClientReceiveMessage(Socket socket, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.hbController = controller;
@@ -47,14 +48,7 @@ public class ClientReceiveMessage extends Thread {
             try {
                 // Verifications for the clients actions
                 ClientData clientData = (ClientData) ois.readObject();
-                System.out.println(clientData.getAction());
-                if (!hbController.isUpdating() && queue.isEmpty()) {
-                    handleClientRequest(clientData);
-                } else {
-                    queue.add(clientData);
-                    LOG.log("The client requested a request but the server is currently updating");
-                    LOG.log("The request was added to the queue!");
-                }
+                request(clientData);
             } catch (ClassNotFoundException e) {
                 LOG.log("Unable to read client data: " + e);
             } catch (IOException e) {
@@ -63,6 +57,16 @@ public class ClientReceiveMessage extends Thread {
                 clientManagement.getClientsThread().remove(this);
                break;
             }
+        }
+    }
+
+    public void request(ClientData clientData) {
+        if (!hbController.isUpdating() && queue.isEmpty()) {
+            handleClientRequest(clientData);
+        } else {
+            queue.add(clientData);
+            LOG.log("The client requested a request but the server is currently updating");
+            LOG.log("The request was added to the queue!");
         }
     }
 
@@ -82,28 +86,27 @@ public class ClientReceiveMessage extends Thread {
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
                 case SUBMIT_RESERVATION -> {
                     List<String> listQuery = dbHandler.submitReservation(clientData,oos,ois);
-                    ClientData clientDataOld = new ClientData(clientData);
+                    clientDataOld = new ClientData(clientData);
                     TimerTask tt = new TimerTask() {
                         @Override
                         public void run() {
-                            try {
-                                System.out.println(clientDataOld.getData());
-                                List<String> listQuery = dbHandler.deleteUnpaidReservation(clientDataOld,oos,ois);
-                                update(listQuery,clientDataOld);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
+                            clientDataOld.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+                            request(clientDataOld);
                         };
                     };
 
                     Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-                    calendar.add(Calendar.SECOND, 5);
+                    calendar.add(Calendar.SECOND, 10);
+                    t = new Timer();
                     t.schedule(tt,calendar.getTime());
 
                     yield listQuery;
                 }
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
-                case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos,ois);
+                case PAY_RESERVATION -> {
+                    t.cancel();
+                    yield dbHandler.payReservation(clientData,oos,ois);
+                }
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                 case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
                 case DISCONNECTED -> dbHandler.disconnect(clientData,oos,ois);

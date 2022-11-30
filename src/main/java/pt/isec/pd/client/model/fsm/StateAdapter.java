@@ -20,6 +20,7 @@ public abstract class StateAdapter implements IState {
         context.changeState(newState.createState(context,data));
     }
 
+
     @Override
     public void next() {
         context.next();
@@ -111,6 +112,10 @@ public abstract class StateAdapter implements IState {
     }
     @Override
     public void payReservationTransition(int resId) {
+    }
+
+    @Override
+    public void payReservation() {
     }
 
     @Override

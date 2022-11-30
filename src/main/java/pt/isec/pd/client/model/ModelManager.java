@@ -127,6 +127,10 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
+    public void payReservation() {
+        context.payReservation();
+    }
+
     public Object getResponse() {
         return context.getResponse();
     }

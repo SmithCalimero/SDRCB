@@ -27,9 +27,15 @@ public class PayReservationForm {
             update();
         });
 
-        model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
+        model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
             model.payReservationTransition(0);
         });
+
+        model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
+            model.next();
+        });
+
+        pagarButton.setOnAction(actionEvent -> model.payReservation());
     }
 
     private void update() {

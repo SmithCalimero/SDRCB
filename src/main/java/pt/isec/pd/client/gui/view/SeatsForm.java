@@ -9,6 +9,7 @@ import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Responses.SeatsResponse;
+import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.List;
@@ -38,6 +39,11 @@ public class SeatsForm {
                 list.getItems().clear();
                 list.setItems(FXCollections.observableList(seatsResponse.getSeats()));
             }
+        });
+
+        model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
+            SubmitReservationResponse submitReservationResponse = (SubmitReservationResponse) model.getResponse();
+            model.payReservationTransition(submitReservationResponse.getResId());
         });
 
         cancelButton.setOnAction(actionEvent -> {

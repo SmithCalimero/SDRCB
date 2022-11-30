@@ -5,7 +5,6 @@ import pt.isec.pd.client.model.data.threads.CommunicationHandler;
 import pt.isec.pd.shared_data.*;
 
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,5 +79,13 @@ public class Client extends Thread {
 
     public Object getResponse() {
         return ch.getResponse();
+    }
+
+    public void payReservation(int restId) {
+        ch.writeToSocket(ClientAction.PAY_RESERVATION,restId);
+    }
+
+    public void consultReservesPayed() {
+        ch.writeToSocket(ClientAction.CONSULT_PAYED_RESERVATIONS,null);
     }
 }

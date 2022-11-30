@@ -4,7 +4,7 @@ import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.fsm.states.*;
 
 public enum State {
-    LOGIN, REGISTER, EDIT_USER, MENU_CLIENT,SHOWS, SELECT_SHOWS,SEATS_PRICES, MENU_ADMIN, MANAGE_SHOWS, CONSULT_PAYMENTS_AWAITING, PAY_RESERVATION;
+    LOGIN, REGISTER, EDIT_USER, MENU_CLIENT,SHOWS, SELECT_SHOWS,SEATS_PRICES, MENU_ADMIN, MANAGE_SHOWS, CONSULT_PAYMENTS_AWAITING, PAY_RESERVATION, CONSULT_PAYMENTS;
 
     IState createState(Context context, Client data) {
         return switch (this) {
@@ -19,6 +19,7 @@ public enum State {
             case SELECT_SHOWS -> new SelectShows(context,data);
             case CONSULT_PAYMENTS_AWAITING -> new ConsultPaymentsAwaiting(context,data);
             case PAY_RESERVATION -> new PayReservation(context,data);
+            case CONSULT_PAYMENTS -> new ConsultPayments(context,data);
         };
     }
 }

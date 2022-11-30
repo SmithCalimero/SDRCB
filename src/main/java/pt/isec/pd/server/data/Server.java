@@ -37,7 +37,6 @@ public class Server {
 
         hbController = new HeartBeatController(hbList,this);
         cm = new ClientManagement(pingPort, dbHandler,hbList, hbController);
-
     }
 
     public void start() {

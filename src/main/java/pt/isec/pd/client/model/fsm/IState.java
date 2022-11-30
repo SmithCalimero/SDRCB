@@ -29,5 +29,8 @@ public interface IState {
     void consultsPaymentsAwaitingTransition();
     void consultsPaymentsAwaiting();
     void payReservationTransition(int resId);
+
+    void payReservation();
+
     Object getResponse();
 }

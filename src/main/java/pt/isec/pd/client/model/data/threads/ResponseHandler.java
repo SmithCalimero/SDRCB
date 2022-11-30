@@ -83,14 +83,23 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof SubmitReservationResponse submitReservationResponse) {
                     if (submitReservationResponse.isSuccess()) {
-                        Platform.runLater(() -> ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null));
+                        Platform.runLater(() -> {
+                            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
+                            pcs.firePropertyChange(ClientAction.SUBMIT_RESERVATION.toString(),null,null);
+                        });
                     }
+                }
+                else if (object instanceof DeleteReservationResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.DELETE_UNPAID_RESERVATION.toString(),null,null));
                 }
                 else if (object instanceof PayReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_RESERVATION.toString(),null,null));
                 }
                 else if (object instanceof DisconnectResponse) {
                     break;
+                }
+                else if (object instanceof ConsultPayedReservationResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_PAYED_RESERVATIONS.toString(),null,null));
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
