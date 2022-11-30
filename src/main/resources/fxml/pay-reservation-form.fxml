@@ -6,8 +6,7 @@
 
 <AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.PayReservationForm">
    <children>
-      <Button fx:id="cancelButton" layoutX="23.0" layoutY="14.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="Voltar aos lugares" underline="true" />
-      <Button fx:id="pagarButton" layoutX="275.0" layoutY="153.0" mnemonicParsing="false" style="-fx-background-color: #00bf00; -fx-text-fill: #ffffff;" text="Pagar reserva" />
+      <Button fx:id="payButton" layoutX="275.0" layoutY="153.0" mnemonicParsing="false" style="-fx-background-color: #00bf00; -fx-text-fill: #ffffff;" text="Pagar reserva" />
       <Button fx:id="payLaterButton" layoutX="276.0" layoutY="212.0" mnemonicParsing="false" style="-fx-background-color: #f90000; -fx-text-fill: #ffffff;" text="Pagar Depois" />
    </children>
 </AnchorPane>

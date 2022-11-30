@@ -27,6 +27,7 @@ public interface IState {
     void selectShowsTransition();
     void submitReservation(List<Seat> seats);
     void consultsPaymentsAwaitingTransition();
+    void consultsPaymentsTransition();
     void consultsPaymentsAwaiting();
     void payReservationTransition(int resId);
 

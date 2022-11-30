@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ConsultPaymentsAwaitingForm">
-   <Button fx:id="cancelButton" layoutX="16.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="retroceder" textAlignment="CENTER" underline="true" />
-   <ListView fx:id="list" layoutX="46.0" layoutY="57.0" prefHeight="271.0" prefWidth="568.0" />
+<AnchorPane fx:id="pane" prefHeight="360.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.pd.client.gui.view.ConsultPaymentsAwaitingForm">
+   <children>
+      <Button fx:id="cancelButton" layoutX="16.0" layoutY="13.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="retroceder" textAlignment="CENTER" underline="true" />
+      <ListView fx:id="list" layoutX="46.0" layoutY="57.0" prefHeight="245.0" prefWidth="568.0" />
+      <Button fx:id="payButton" layoutX="287.0" layoutY="316.0" mnemonicParsing="false" text="Pagar" />
+   </children>
 </AnchorPane>

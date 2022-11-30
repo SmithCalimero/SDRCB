@@ -2,6 +2,7 @@ package pt.isec.pd.client.gui.view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
@@ -10,14 +11,20 @@ import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Responses.ConsultUnpayedReservationResponse;
+import pt.isec.pd.shared_data.Seat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConsultPaymentsAwaitingForm {
-    public AnchorPane pane;
-    public ListView<Reserve> list;
-    public Button cancelButton;
-
+    @FXML
+    private AnchorPane pane;
+    @FXML
+    private  ListView<Reserve> list;
+    @FXML
+    private Button cancelButton;
+    @FXML
+    private Button payButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -38,6 +45,12 @@ public class ConsultPaymentsAwaitingForm {
         cancelButton.setOnAction(actionEvent -> {
             model.consultsPaymentsAwaitingTransition();
         });
+
+        payButton.setOnAction(actionEvent -> {
+            int resId = list.getSelectionModel().getSelectedItem().getId();
+            if (resId != 0)
+                model.payReservationTransition(resId);
+        });
     }
 
 
@@ -52,7 +65,6 @@ public class ConsultPaymentsAwaitingForm {
         list.getItems().clear();
 
         // write the updated list
-        //ArrayList<Reserve> unpaidReserves = (ArrayList<Reserve>) model.getResponse();
         for (var r : response.getReserves())
             list.getItems().add(r);
     }

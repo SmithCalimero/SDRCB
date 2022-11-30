@@ -118,6 +118,11 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
+    public void consultsPaymentsTransition() {
+        context.consultPaymentsTransition();
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
     public void consultsPaymentsAwaiting() { context.consultsPaymentsAwaiting(); }
 
     public void payReservationTransition(int resId) {

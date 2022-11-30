@@ -9,7 +9,7 @@ import pt.isec.pd.client.model.fsm.State;
 
 public class PayReservationForm {
     public AnchorPane pane;
-    public Button pagarButton;
+    public Button payButton;
     @FXML
     private Button payLaterButton;
     private ModelManager model;
@@ -38,7 +38,7 @@ public class PayReservationForm {
             model.payReservationTransition(0);
         });
 
-        pagarButton.setOnAction(actionEvent -> model.payReservation());
+        payButton.setOnAction(actionEvent -> model.payReservation());
 
         payLaterButton.setOnAction(actionEvent -> model.payLater());
     }

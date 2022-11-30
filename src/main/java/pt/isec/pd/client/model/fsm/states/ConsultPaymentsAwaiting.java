@@ -21,6 +21,9 @@ public class ConsultPaymentsAwaiting extends StateAdapter {
     }
 
     @Override
+    public void payReservationTransition(int resId) { context.changeState(new PayReservation(context,data,resId)); }
+
+    @Override
     public State getState() {
         return State.CONSULT_PAYMENTS_AWAITING;
     }

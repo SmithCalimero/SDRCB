@@ -18,7 +18,7 @@ public class SeatsForm {
     public AnchorPane pane;
     public ListView<Seat> list;
     public Button cancelButton;
-    public Button reservarButton;
+    public Button reserveButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -50,7 +50,7 @@ public class SeatsForm {
             model.seatsTransition(null);
         });
 
-        reservarButton.setOnAction(actionEvent -> {
+        reserveButton.setOnAction(actionEvent -> {
             List<Seat> seats = list.getSelectionModel().getSelectedItems().stream().toList();
             if (!seats.isEmpty()) {
                 model.submitReservation(seats);

@@ -63,7 +63,7 @@ public class LoginForm {
     private void clearView() {
         usernameField.clear();
         passwordField.clear();
-        registerLabel.setText("");
+        //registerLabel.setText("");
         errorMessage.setText("");
     }
 }

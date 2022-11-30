@@ -1001,15 +1001,31 @@ public class DBHandler {
                         "SELECT * FROM reserva WHERE id = '" + resId + "'"
                 );
 
-                String date = "";
-                // Verify if the time exceeds the limit to pay
+
+                // Verify if the reservation exists
                 if (result.next()) {
-                    date = result.getString("data_hora");
+                    // Get username
+                    ResultSet usernameRes = statement.executeQuery(
+                            "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
+                    );
+                    String username = usernameRes.getString("username");
+
+                    // Set paid=true
+                    query = "UPDATE reserva SET pago = '" + 1 + "' WHERE id = '" + resId + "'";
+                    statement.executeUpdate(query);
+
+                    listQuery.add(query);
+                    LOG.log("Reservation from user [" + username + "] was paid successfully...");
+                    payReservationResponse.setSuccess(true);
+                    oos.writeObject(payReservationResponse);
+
+                    statement.close();
+                    result.close();
+                    usernameRes.close();
                 }
 
-                try {
-                    // Get the reservation date (assuming its formatted: "dd/MM/yyyy HH:mm:ss")
-                    Date reserveDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
+                // Get the reservation date (assuming its formatted: "dd/MM/yyyy HH:mm:ss")
+                    /*Date reserveDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
                     // Get the current day
                     Date currentDate = new Date();
 
@@ -1039,16 +1055,9 @@ public class DBHandler {
                         LOG.log("Reservation from user [" + username + "] was paid successfully...");
                         payReservationResponse.setSuccess(true);
                         oos.writeObject(payReservationResponse);
-                    }
+                    } */
 
-                    statement.close();
-                    result.close();
-                    usernameRes.close();
-                } catch(ParseException e) {
-                    msg = "Unable to format the show Date";
-                    LOG.log(msg);
-                    oos.writeObject(msg);
-                }
+
             } catch (SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);

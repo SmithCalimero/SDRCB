@@ -104,9 +104,11 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public void consultsPaymentsAwaitingTransition() {
+    public void consultsPaymentsAwaitingTransition() { }
 
-    }
+    @Override
+    public void consultsPaymentsTransition() { }
+
     @Override
     public void consultsPaymentsAwaiting() {
     }

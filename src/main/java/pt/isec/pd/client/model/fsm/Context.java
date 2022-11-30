@@ -59,9 +59,7 @@ public class Context {
         state.editTransition();
     }
 
-    public void showsTransition() {
-        state.showsTransition();
-    }
+    public void showsTransition() { state.showsTransition(); }
 
     public void consultShows(HashMap<String,String> filters) {
         state.consultShows(filters);
@@ -102,6 +100,8 @@ public class Context {
     public void consultsPaymentsAwaitingTransition() { state.consultsPaymentsAwaitingTransition(); }
 
     public void consultsPaymentsAwaiting() { state.consultsPaymentsAwaiting(); }
+
+    public void consultPaymentsTransition() { state.consultsPaymentsTransition(); }
 
     public void payReservationTransition(int resId) { state.payReservationTransition(resId); }
 

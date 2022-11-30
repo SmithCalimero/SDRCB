@@ -33,6 +33,10 @@ public class ConsultPaymentsForm {
             ConsultPayedReservationResponse reservationResponse = (ConsultPayedReservationResponse) model.getResponse();
             list.setItems(FXCollections.observableList(reservationResponse.getReserves()));
         });
+
+        cancelButton.setOnAction(actionEvent -> {
+            model.consultsPaymentsTransition();
+        });
     }
 
     private void update() {
