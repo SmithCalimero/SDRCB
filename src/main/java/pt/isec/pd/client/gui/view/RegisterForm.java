@@ -26,6 +26,7 @@ public class RegisterForm {
 
         registerHandlers();
         update();
+        clearView();
     }
 
     private void registerHandlers() {
@@ -55,5 +56,12 @@ public class RegisterForm {
 
     private void update() {
         pane.setVisible(model != null && model.getState() == State.REGISTER);
+    }
+
+    private void clearView() {
+        passwordField.clear();
+        nameField.clear();
+        userNameField.clear();
+        errorMsg.setText("");
     }
 }

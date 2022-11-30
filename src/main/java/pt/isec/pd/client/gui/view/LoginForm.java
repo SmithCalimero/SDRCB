@@ -28,6 +28,7 @@ public class LoginForm {
 
         registerHandlers();
         update();
+        clearView();
     }
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
@@ -57,5 +58,12 @@ public class LoginForm {
 
     private void update() {
         pane.setVisible(model != null && model.getState() == State.LOGIN);
+    }
+
+    private void clearView() {
+        usernameField.clear();
+        passwordField.clear();
+        registerLabel.setText("");
+        errorMessage.setText("");
     }
 }
