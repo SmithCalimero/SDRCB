@@ -695,24 +695,28 @@ public class DBHandler {
                         Date currentDate = new Date();
 
                         // Verify if remain at least 24 hours before the show
-                        long  diffInMillies = Math.abs(showDate.getTime() - currentDate.getTime()) ;
-                        long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
-                        //Duration difference = Duration.between(showDate,currentDate);
-                        //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
-                        // If at least 24 hours before the show, it can be selected
-                        if (diff <= 24) {
-                            availableShows.add(new Show(
-                                    id,
-                                    description,
-                                    type,
-                                    date,
-                                    duration,
-                                    local,
-                                    locality,
-                                    country,
-                                    ageClassification,
-                                    visible
-                            ));
+                        long  diffInMillies = showDate.getTime() - currentDate.getTime();
+                        System.out.println(diffInMillies);
+                        if (diffInMillies > 0) {
+                            long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
+
+                            //Duration difference = Duration.between(showDate,currentDate);
+                            //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
+                            // If at least 24 hours before the show, it can be selected
+                            if (diff >= 24) {
+                                availableShows.add(new Show(
+                                        id,
+                                        description,
+                                        type,
+                                        date,
+                                        duration,
+                                        local,
+                                        locality,
+                                        country,
+                                        ageClassification,
+                                        visible
+                                ));
+                            }
                         }
                     } catch(ParseException e) {
                         msg = "Unable to format the show Date";
