@@ -33,7 +33,9 @@ public class Client extends Thread {
         try {
             ch.writeToSocket(ClientAction.DISCONNECTED,null);
             //waits the response thread to shut down
-            ch.getResponseHandler().join();
+            if (ch.getResponseHandler() != null) {
+                ch.getResponseHandler().join();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

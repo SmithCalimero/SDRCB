@@ -1309,6 +1309,9 @@ public class DBHandler {
             LOG.log( "Unable to get data from the database");
         }
 
+        if (oos != null) {
+            oos.writeObject(response);
+        }
         return listQuery;
     }
 
