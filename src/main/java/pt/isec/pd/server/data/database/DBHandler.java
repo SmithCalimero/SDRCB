@@ -544,12 +544,9 @@ public class DBHandler {
         try {
             // Received filters from user
             HashMap<String, String> filters = (HashMap<String, String>) clientData.getData();
-
             try {
-                // Create statement
                 Statement statement = connection.createStatement();
 
-                // Execute query to get the clients name
                 ResultSet clientName = statement.executeQuery(
                         "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
                 );
@@ -569,7 +566,6 @@ public class DBHandler {
 
                 ResultSet result = statement.executeQuery("SELECT * FROM espetaculo WHERE " + query);
 
-                // Add objects to array
                 while (result.next()) {
                     shows.add(new Show(
                             result.getInt("id"),
@@ -592,43 +588,30 @@ public class DBHandler {
                 if (shows.isEmpty())
                     LOG.log("Shows not found based on the received filters");
 
-                // Send list to client
                 oos.writeObject(response);
-
                 statement.close();
                 clientName.close();
             } catch (SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
             }
         } catch(IOException e) {
-            msg = "Unable to get the data from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to get the data from user");
         }
 
         return new ArrayList<>();
     }
 
-    public synchronized List<String> consultShowsAdmin(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultShowsAdmin(ObjectOutputStream oos) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
-        String msg = "";
         ShowsResponse showsResponse = new ShowsResponse();
 
         try {
-            // Received filters from user
-            HashMap<String, String> filters = (HashMap<String, String>) clientData.getData();
-
             try {
-                // Create statement
                 Statement statement = connection.createStatement();
-
 
                 ResultSet result = statement.executeQuery("SELECT * FROM espetaculo");
 
-                // Add objects to array
                 while (result.next()) {
                     shows.add(new Show(
                             result.getInt("id"),
@@ -647,7 +630,6 @@ public class DBHandler {
                 if (shows.isEmpty())
                     LOG.log("Shows not found based on the received filters");
 
-                // Send list to client
                 showsResponse.setAction(ClientAction.CONSULT_SHOWS_ALL);
                 showsResponse.setShows(shows);
                 oos.writeObject(showsResponse);
@@ -655,30 +637,22 @@ public class DBHandler {
                 result.close();
                 statement.close();
             } catch (SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
             }
         } catch(IOException e) {
-            msg = "Unable to get the data from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to get the data from user");
         }
 
         return new ArrayList<>();
     }
 
-    public synchronized List<String> selectShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> selectShows(ObjectOutputStream oos) throws IOException {
         ArrayList<Show> availableShows = new ArrayList<>();
-        String msg = "";
-
         ShowsResponse response = new ShowsResponse();
 
         try {
-            // Create statement
             Statement statement = connection.createStatement();
 
-            // Execute query to get the shows
             ResultSet result = statement.executeQuery(
                     "SELECT * FROM espetaculo"
             );
@@ -694,24 +668,18 @@ public class DBHandler {
                 String country = result.getString("pais");
                 String ageClassification = result.getString("classificacao_etaria");
                 boolean visible = result.getBoolean("visivel");
-                // If the show is visible
+
                 if (visible) {
                     try {
-                        // Get the show date (assuming its formatted: "dd/MM/yyyy HH:mm:ss")
+                        // Get the show date (assuming its formatted: "yyyy-MM-dd HH:mm:ss")
                         Date showDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
 
-                        // Get the current day
                         Date currentDate = new Date();
 
-                        // Verify if remain at least 24 hours before the show
-                        long  diffInMillies = showDate.getTime() - currentDate.getTime();
+                        long  diffInMillis = showDate.getTime() - currentDate.getTime();
+                        if (diffInMillis > 0) {
+                            long diff = TimeUnit.MILLISECONDS.toHours(diffInMillis);
 
-                        if (diffInMillies > 0) {
-                            long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
-
-                            //Duration difference = Duration.between(showDate,currentDate);
-                            //String difResult = String.format("%d:%02d", difference.toHours(), difference.toMinutes());
-                            // If at least 24 hours before the show, it can be selected
                             if (diff >= 24) {
                                 availableShows.add(new Show(
                                         id,
@@ -723,14 +691,12 @@ public class DBHandler {
                                         locality,
                                         country,
                                         ageClassification,
-                                        visible
+                                        true
                                 ));
                             }
                         }
                     } catch(ParseException e) {
-                        msg = "Unable to format the show Date";
-                        LOG.log(msg);
-                        oos.writeObject(msg);
+                        LOG.log("Unable to format the show Date");
                     }
                 }
             }
@@ -745,22 +711,20 @@ public class DBHandler {
             statement.close();
             result.close();
         } catch (SQLException e) {
-            msg = "Unable to get data from the database";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log( "Unable to get data from the database");
         }
 
         return new ArrayList<>();
     }
 
     public synchronized List<String> viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        String msg = "";
         SeatsResponse seatsResponse = new SeatsResponse();
+        List<Seat> available = new ArrayList<>();
 
         try {
             // At this moment the client has already selected the show, so we search by the show id
             // Receive show id
-            Integer recShowId = clientData.getShowId();
+            int recShowId = clientData.getShowId();
             seatsResponse.setShowId(recShowId);
             
             // Get unavailable seats ids
@@ -768,21 +732,14 @@ public class DBHandler {
 
             try {
                 Statement statement = connection.createStatement();
-                ResultSet reservedSeats = statement.executeQuery(
-                        "SELECT id_lugar FROM reserva_lugar"
-                );
+                ResultSet reservedSeats = statement.executeQuery("SELECT id_lugar FROM reserva_lugar");
 
                 while (reservedSeats.next()) {
                     int reservedSeatId = reservedSeats.getInt("id_lugar");
                     unavailable.add(reservedSeatId);
                 }
 
-                // Get available seats
-                ArrayList<Seat> available = new ArrayList<>();
-
-                ResultSet availableSeats = statement.executeQuery(
-                        "SELECT * FROM lugar"
-                );
+                ResultSet availableSeats = statement.executeQuery("SELECT * FROM lugar");
 
                 while (availableSeats.next()) {
                     int seatId = availableSeats.getInt("id");
@@ -806,57 +763,41 @@ public class DBHandler {
                     }
                 }
 
-                // Send available seats list to client
                 seatsResponse.setSeats(available);
                 oos.writeObject(seatsResponse);
-
-                /*ResultSet username = statement.executeQuery(
-                        "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
-                );*/
 
                 statement.close();
                 availableSeats.close();
                 reservedSeats.close();
             } catch(SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
             }
         } catch(IOException e) {
-            msg = "Unable to read show id from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to read show id from user");
         }
 
         return new ArrayList<>();
     }
 
     public synchronized List<String> submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        Date currentTime = new Date();  // Get current time of the server to set in reserve object
+        Date currentTime = new Date();
         int isPaid = 0;
-        String msg = "";
-        String query = "";
+        String query;
         List<String> listQuery = new ArrayList<>();
-
-        SubmitReservationResponse submitReservationResponse = new SubmitReservationResponse();
+        SubmitReservationResponse response = new SubmitReservationResponse();
 
         try {
-            // Receive reserve from client  (format: showId, List<Seat>
+            // Receive reserve from client  (format: showId, List<Seat>)
             Pair<Integer, List<Seat>> reserve = (Pair<Integer, List<Seat>>) clientData.getData();
 
             try {
-                // Create statement
                 Statement statement = connection.createStatement();
 
                 // Execute a query to get all reserves id
-                ResultSet reserves = statement.executeQuery(
-                        "SELECT id FROM reserva"
-                );
+                ResultSet reserves = statement.executeQuery("SELECT id FROM reserva");
 
                 // Execute a query to get the clients name
-                ResultSet usernameResult = statement.executeQuery(
-                        "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
-                );
+                ResultSet usernameResult = statement.executeQuery("SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'");
 
                 String username = usernameResult.getString(1);
 
@@ -877,19 +818,18 @@ public class DBHandler {
 
                     ResultSet resultSet  = statement.executeQuery(
                             "SELECT id FROM reserva" +
-                            " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey()
-                                    + "' and data_hora='" + dateString + "';");
+                                    " WHERE id_utilizador='"+  clientData.getId() + "' and id_espetaculo=' " + reserve.getKey() +
+                                    "' and data_hora='" + dateString + "';");
 
                     int id = resultSet.getInt(1);
 
                     // Insert seats
                     for (var s : reserve.getValue()) {
-                        query = "INSERT INTO reserva_lugar (\n" +
-                                " id_reserva,\n" +
-                                " id_lugar\n" +
-                                " )\n" +
-                                " VALUES (\n" +
-                                id +  " ,\n" +
+                        query = "INSERT INTO reserva_lugar (" +
+                                " id_reserva," +
+                                " id_lugar)" +
+                                " VALUES (" +
+                                id +  " ," +
                                 s.getId() + ");";
                         statement.executeUpdate(query);
                         listQuery.add(query);
@@ -897,15 +837,15 @@ public class DBHandler {
 
                     LOG.log("Reservation submitted with success from user[" + username + "]");
                     clientData.setData(id);
-                    submitReservationResponse.setSuccess(true);
-                    submitReservationResponse.setResId(id);
-                    oos.writeObject(submitReservationResponse);
+                    response.setSuccess(true);
+                    response.setResId(id);
+                    oos.writeObject(response);
 
                     return listQuery;
                 } catch (SQLException e) {
                     LOG.log("Unable to submit reservation from user[" + username + "]");
-                    submitReservationResponse.setSuccess(false);
-                    oos.writeObject(submitReservationResponse);
+                    response.setSuccess(false);
+                    oos.writeObject(response);
                     return listQuery;
                 } finally {
                     statement.close();
@@ -913,24 +853,20 @@ public class DBHandler {
                     usernameResult.close();
                 }
             } catch(SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
                 return listQuery;
             }
         } catch(IOException e) {
-            msg = "Unable to read data from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to read data from user");
             return listQuery;
         }
     }
 
     public synchronized List<String> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        String msg = "";
-        DeleteReservationResponse deleteReservationResponse = new DeleteReservationResponse();
-        String query = "";
+        DeleteReservationResponse response = new DeleteReservationResponse();
+        String query;
         List<String> listQuery = new ArrayList<>();
+        List<Reserve> reserves = new ArrayList<>();
 
         try {
             // Read the ID of the reserve to be deleted
@@ -966,10 +902,7 @@ public class DBHandler {
                             listQuery.add(query);
 
                             LOG.log("User[" + username + "] deleted unpaid successfully reservation id[" + reservationId + "]");
-                            deleteReservationResponse.setSuccess(true);
-
-                            // Get the array of the remaining reserves
-                            ArrayList<Reserve> reserves = new ArrayList<>();
+                            response.setSuccess(true);
 
                             // Execute query to search reserves
                             result = statement.executeQuery(
@@ -1002,15 +935,12 @@ public class DBHandler {
                             if (reserves.isEmpty())
                                 LOG.log("No payments awaiting from user [" + username + "]");
 
-                            // Set the new array
-                            deleteReservationResponse.setReserves(reserves);
-
-                            // Write object
-                            oos.writeObject(deleteReservationResponse);
+                            response.setReserves(reserves);
+                            oos.writeObject(response);
                         } catch (SQLException e) {
                             LOG.log("Unable to delete unpaid reservation from user [" + username + "]");
-                            deleteReservationResponse.setSuccess(false);
-                            oos.writeObject(deleteReservationResponse);
+                            response.setSuccess(false);
+                            oos.writeObject(response);
                         } finally {
                             statement.close();
                             result.close();
@@ -1019,38 +949,31 @@ public class DBHandler {
                     }
                 }
             } catch(SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
             }
         } catch (IOException e) {
-            msg = "Unable to read data from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to read data from user");
         }
 
         return listQuery;
     }
 
     public synchronized List<String> payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        String msg = "";
         List<String> listQuery = new ArrayList<>();
-        String query = "";
+        String query;
 
-        PayReservationResponse payReservationResponse = new PayReservationResponse();
+        PayReservationResponse response = new PayReservationResponse();
         try {
             // Receive reserve ID for payment
             Integer resId = (Integer) clientData.getData();
 
             try {
-                // Create connection
                 Statement statement = connection.createStatement();
 
                 // Search reserve by id
                 ResultSet result = statement.executeQuery(
                         "SELECT * FROM reserva WHERE id = '" + resId + "'"
                 );
-
 
                 // Verify if the reservation exists
                 if (result.next()) {
@@ -1066,57 +989,19 @@ public class DBHandler {
 
                     listQuery.add(query);
                     LOG.log("Reservation from user [" + username + "] was paid successfully...");
-                    payReservationResponse.setSuccess(true);
-                    oos.writeObject(payReservationResponse);
+                    response.setSuccess(true);
+                    oos.writeObject(response);
 
                     statement.close();
                     result.close();
                     usernameRes.close();
                 }
 
-                // Get the reservation date (assuming its formatted: "dd/MM/yyyy HH:mm:ss")
-                    /*Date reserveDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
-                    // Get the current day
-                    Date currentDate = new Date();
-
-                    // Get the difference between the two dates
-                    long difference = currentDate.getTime() - reserveDate.getTime();
-
-                    // Calculate time in seconds
-                    long differenceSeconds = (difference / 1000) % 60;
-
-                    // Get username
-                    ResultSet usernameRes = statement.executeQuery(
-                            "SELECT username FROM utilizador WHERE id = '" + clientData.getId() + "'"
-                    );
-                    String username = usernameRes.getString("username");
-
-                    // Verify if the time limit was exceeded
-                    if (differenceSeconds > Constants.TIME_TO_PAY) {
-                        LOG.log("TIME EXCEEDED: Unable to pay reservation from user [" + username + "]");
-                        payReservationResponse.setSuccess(false);
-                        oos.writeObject(payReservationResponse);
-                    } else {
-                        // Set paid=true
-                        query = "UPDATE reserva SET pago = '" + 1 + "' WHERE id = '" + resId + "'";
-                        statement.executeUpdate(query);
-
-                        listQuery.add(query);
-                        LOG.log("Reservation from user [" + username + "] was paid successfully...");
-                        payReservationResponse.setSuccess(true);
-                        oos.writeObject(payReservationResponse);
-                    } */
-
-
             } catch (SQLException e) {
-                msg = "Unable to get data from the database";
-                LOG.log(msg);
-                oos.writeObject(msg);
+                LOG.log("Unable to get data from the database");
             }
         } catch (IOException  e) {
-            msg = "Unable to read data from user";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log("Unable to read data from user");
         }
 
         return listQuery;
@@ -1124,12 +1009,12 @@ public class DBHandler {
 
     public synchronized List<String> showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         Integer showId = (Integer) clientData.getData();
-        String query = "";
+        String query;
         String msg;
 
         List<String> listQuery = new ArrayList<>();
 
-        HandleVisibleShowResponse handleVisibleShowResponse = new HandleVisibleShowResponse();
+        HandleVisibleShowResponse response = new HandleVisibleShowResponse();
 
         try {
             Statement statement = connection.createStatement();
@@ -1145,9 +1030,9 @@ public class DBHandler {
                 listQuery.add(query);
 
                 LOG.log(msg);
-                handleVisibleShowResponse.setSuccess(true);
-                handleVisibleShowResponse.setMsg(msg);
-                oos.writeObject(handleVisibleShowResponse);
+                response.setSuccess(true);
+                response.setMsg(msg);
+                oos.writeObject(response);
                 return listQuery;
             }
 
@@ -1157,9 +1042,9 @@ public class DBHandler {
 
             msg = "The show is now visible";
             LOG.log(msg);
-            handleVisibleShowResponse.setSuccess(true);
-            handleVisibleShowResponse.setMsg("The show is now visible");
-            oos.writeObject(handleVisibleShowResponse);
+            response.setSuccess(true);
+            response.setMsg("The show is now visible");
+            oos.writeObject(response);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -1169,21 +1054,20 @@ public class DBHandler {
 
 
     public synchronized List<String> insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
-        String msg = "";
-        InsertShowResponse insertShowResponse = new InsertShowResponse();
+        String msg;
+        InsertShowResponse response = new InsertShowResponse();
 
         List<String> listQuery = new ArrayList<>();
         String query;
 
         try {
-            // Receive the new value from client
             String filePath = (String) clientData.getData();
             Pair<Show, Map<String, List<Seat>>> mapShows = Utils.readFile(filePath);
 
             if (mapShows == null) {
-                insertShowResponse.setSuccess(false);
-                insertShowResponse.setMsg("There was a problem reading from the file");
-                oos.writeObject(insertShowResponse);
+                response.setSuccess(false);
+                response.setMsg("There was a problem reading from the file");
+                oos.writeObject(response);
                 return listQuery;
             }
             try {
@@ -1196,13 +1080,12 @@ public class DBHandler {
                 );
 
                 if (idExist.next()) {
-                    insertShowResponse.setSuccess(false);
-                    insertShowResponse.setMsg("This show already exists in the database");
-                    oos.writeObject(insertShowResponse);
+                    response.setSuccess(false);
+                    response.setMsg("This show already exists in the database");
+                    oos.writeObject(response);
                     return listQuery;
                 }
 
-                // Add Show
                 query = "INSERT INTO espetaculo(descricao,tipo,data_hora,duracao,local,localidade,pais,classificacao_etaria) "
                         + "VALUES("
                         + "'" + mapShows.getKey().getDescription() + "',"
@@ -1239,24 +1122,24 @@ public class DBHandler {
                     }
                 }
 
-                insertShowResponse.setSuccess(true);
-                insertShowResponse.setMsg("The show was successfully added");
-                oos.writeObject(insertShowResponse);
+                response.setSuccess(true);
+                response.setMsg("The show was successfully added");
+                oos.writeObject(response);
             } catch(SQLException e) {
                 msg = "Unable to get data from the database";
                 LOG.log(msg);
 
-                insertShowResponse.setSuccess(true);
-                insertShowResponse.setMsg(msg);
-                oos.writeObject(insertShowResponse);
+                response.setSuccess(true);
+                response.setMsg(msg);
+                oos.writeObject(response);
             }
         } catch(IOException e) {
             msg = "Unable to read data from user";
             LOG.log(msg);
 
-            insertShowResponse.setSuccess(true);
-            insertShowResponse.setMsg(msg);
-            oos.writeObject(insertShowResponse);
+            response.setSuccess(true);
+            response.setMsg(msg);
+            oos.writeObject(response);
         }
 
         return listQuery;
@@ -1264,9 +1147,9 @@ public class DBHandler {
 
     public synchronized List<String> deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         boolean hasPaidReserve = false;
-        String msg = "";
+        String msg;
         List<String> listQuery = new ArrayList<>();
-        String query = "";
+        String query;
         DeleteResponse deleteResponse = new DeleteResponse();
 
         try {
@@ -1359,10 +1242,9 @@ public class DBHandler {
     }
 
     public synchronized List<String> disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
-        String msg = "";
-        String query = "";
+        String query;
         List<String> listQuery = new ArrayList<>();
-        DisconnectResponse disconnectResponse = new DisconnectResponse();
+        DisconnectResponse response = new DisconnectResponse();
 
         try {
             // Create statement
@@ -1386,7 +1268,7 @@ public class DBHandler {
                         listQuery.add(query);
 
                         LOG.log("User[" + username + "] logged out successfully");
-                        oos.writeObject(disconnectResponse);
+                        oos.writeObject(response);
                     } catch (SQLException e) {
                         LOG.log("Unable to logout user[" + username + "]");
                     } finally {
@@ -1396,9 +1278,7 @@ public class DBHandler {
                 }
             }
         } catch(SQLException e) {
-            msg = "Unable to get data from the database";
-            LOG.log(msg);
-            oos.writeObject(msg);
+            LOG.log( "Unable to get data from the database");
         }
 
         return listQuery;

@@ -68,7 +68,7 @@ public class HeartBeatReceiver extends Thread{
                             }
                             case INSERT_SHOWS,DELETE_SHOW,VISIBLE_SHOW ->  {
                                 for (ClientReceiveMessage client : controller.getClients()) {
-                                    dbHandler.selectShows(prepare.getData(),client.getOos(),null);
+                                    dbHandler.selectShows(client.getOos());
                                 }
                             }
                         }

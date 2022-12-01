@@ -81,8 +81,8 @@ public class ClientReceiveMessage extends Thread {
                 case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos,ois);
                 case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos,ois);
                 case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos,ois);
-                case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(clientData,oos,ois);
-                case SELECT_SHOWS -> dbHandler.selectShows(clientData,oos,ois);
+                case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(oos);
+                case SELECT_SHOWS -> dbHandler.selectShows(oos);
                 case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos,ois);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
                 case SUBMIT_RESERVATION -> {
@@ -148,7 +148,7 @@ public class ClientReceiveMessage extends Thread {
                 case VISIBLE_SHOW,INSERT_SHOWS,DELETE_SHOW -> {
                     for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
                         if (client != this) {
-                            dbHandler.selectShows(clientData,client.getOos(),null);
+                            dbHandler.selectShows(client.getOos());
                         }
                     }
                 }
