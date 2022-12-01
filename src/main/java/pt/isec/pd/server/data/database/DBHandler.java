@@ -1294,7 +1294,9 @@ public class DBHandler {
                         listQuery.add(query);
 
                         LOG.log("User[" + username + "] logged out successfully");
-                        oos.writeObject(response);
+                        if (oos != null) {
+                            oos.writeObject(response);
+                        }
                     } catch (SQLException e) {
                         LOG.log("Unable to logout user[" + username + "]");
                     } finally {

@@ -19,13 +19,14 @@ public class ClientReceiveMessage extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
     private final HeartBeatController hbController;
     private final DBHandler dbHandler;
-    private final ObjectOutputStream oos;
+    private ObjectOutputStream oos;
     private final ObjectInputStream ois;
     private final ClientManagement clientManagement;
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
     private ClientData clientDataOld;
+    private ClientData clientData;
 
     public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.oos = oos;
@@ -42,7 +43,7 @@ public class ClientReceiveMessage extends Thread {
         while (true) {
             try {
                 // Verifications for the clients actions
-                ClientData clientData = (ClientData) ois.readObject();
+                clientData = (ClientData) ois.readObject();
                 request(clientData);
             } catch (ClassNotFoundException e) {
                 LOG.log("Unable to read client data: " + e);
@@ -50,7 +51,10 @@ public class ClientReceiveMessage extends Thread {
                 LOG.log("Client left");
                 clientManagement.subConnection();
                 clientManagement.getClientsThread().remove(this);
-               break;
+                oos = null;
+                clientData.setAction(ClientAction.DISCONNECTED);
+                request(clientData);
+                break;
             }
         }
     }
