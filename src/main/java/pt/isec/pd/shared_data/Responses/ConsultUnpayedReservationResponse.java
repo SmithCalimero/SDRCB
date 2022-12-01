@@ -3,15 +3,16 @@ package pt.isec.pd.shared_data.Responses;
 import pt.isec.pd.shared_data.Reserve;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConsultUnpayedReservationResponse extends Response {
-    ArrayList<Reserve> reserves;
+    List<Reserve> reserves;
 
-    public ArrayList<Reserve> getReserves() {
+    public List<Reserve> getReserves() {
         return reserves;
     }
 
-    public void setReserves(ArrayList<Reserve> reserves) {
+    public void setReserves(List<Reserve> reserves) {
         this.reserves = reserves;
     }
 }

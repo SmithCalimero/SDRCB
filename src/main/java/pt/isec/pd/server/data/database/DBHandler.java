@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DBHandler {
     private final Log LOG = Log.getLogger(DBHandler.class);
-    private Connection connection;
+    private final Connection connection;
 
     public DBHandler(String path) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + path);
@@ -57,12 +57,11 @@ public class DBHandler {
                     ");");
         }
 
-
         statement.close();
     }
 
     //======================  ACTIONS ======================
-    public synchronized List<String> register(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> register(ClientData clientData, ObjectOutputStream oos) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
         int isAdmin = 0;
         boolean isAuthenticated = false;
@@ -146,12 +145,12 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> login(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> login(ClientData clientData, ObjectOutputStream oos) throws IOException {
         boolean requestAccepted = false;
         boolean isAuthenticated = false;
         boolean isAdmin = false;
-        String msg = "";
-        String query = "";
+        String msg;
+        String query;
         List<String> listQuery = new ArrayList<>();
 
         LoginResponse loginResponse = new LoginResponse();
@@ -248,10 +247,10 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> editClientData(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> editClientData(ClientData clientData, ObjectOutputStream oos) throws IOException {
         boolean requestAccepted = true;
-        String msg = "";
-        String query = "";
+        String msg;
+        String query;
 
         List<String> listQuery = new ArrayList<>();
 
@@ -412,13 +411,9 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
-        ConsultUnpayedReservationResponse consultUnpayedReservationResponse = new ConsultUnpayedReservationResponse();
-
-        // Stores reserves awaiting payment to be sent to the user
-        ArrayList<Reserve> reserves = new ArrayList<>();
-
-        // Create statement
+    public synchronized List<String> consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos) throws SQLException, IOException, ClassNotFoundException {
+        List<Reserve> reserves = new ArrayList<>();
+        ConsultUnpayedReservationResponse response = new ConsultUnpayedReservationResponse();
         Statement statement = connection.createStatement();
 
         // Execute query to get the clients name
@@ -460,10 +455,10 @@ public class DBHandler {
             LOG.log("No payments awaiting from user [" + clientName + "]");
 
         // Set response
-        consultUnpayedReservationResponse.setReserves(reserves);
+        response.setReserves(reserves);
 
         // Send response to client
-        oos.writeObject(consultUnpayedReservationResponse);
+        oos.writeObject(response);
 
         statement.close();
         result.close();
@@ -472,15 +467,14 @@ public class DBHandler {
         return new ArrayList<>();
     }
 
-    public synchronized List<String> consultPayedReservations(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultPayedReservations(ClientData clientData, ObjectOutputStream oos) throws IOException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
-        String msg = "";
+        String msg;
 
         ConsultPayedReservationResponse consultPayedReservationResponse = new ConsultPayedReservationResponse();
 
         try {
-            // Create statement
             Statement statement = connection.createStatement();
 
             // Execute query to get the clients name
@@ -534,11 +528,10 @@ public class DBHandler {
         return new ArrayList<>();
     }
 
-    public synchronized List<String> consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> consultShows(ClientData clientData, ObjectOutputStream oos) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         ConsultShowsFilterResponse response = new ConsultShowsFilterResponse();
-        String msg = "";
         StringBuilder query = new StringBuilder();
 
         try {
@@ -717,7 +710,7 @@ public class DBHandler {
         return new ArrayList<>();
     }
 
-    public synchronized List<String> viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos) throws IOException {
         SeatsResponse seatsResponse = new SeatsResponse();
         List<Seat> available = new ArrayList<>();
 
@@ -779,7 +772,7 @@ public class DBHandler {
         return new ArrayList<>();
     }
 
-    public synchronized List<String> submitReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> submitReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
         Date currentTime = new Date();
         int isPaid = 0;
         String query;
@@ -862,7 +855,7 @@ public class DBHandler {
         }
     }
 
-    public synchronized List<String> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
         DeleteReservationResponse response = new DeleteReservationResponse();
         String query;
         List<String> listQuery = new ArrayList<>();
@@ -958,7 +951,7 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> payReservation(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> payReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
         List<String> listQuery = new ArrayList<>();
         String query;
 
@@ -1007,7 +1000,7 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> showVisible(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> showVisible(ClientData clientData, ObjectOutputStream oos) throws IOException {
         Integer showId = (Integer) clientData.getData();
         String query;
         String msg;
@@ -1053,7 +1046,7 @@ public class DBHandler {
     }
 
 
-    public synchronized List<String> insertShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> insertShows(ClientData clientData, ObjectOutputStream oos) throws IOException {
         String msg;
         InsertShowResponse response = new InsertShowResponse();
 
@@ -1145,7 +1138,7 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> deleteShow(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
+    public synchronized List<String> deleteShow(ClientData clientData, ObjectOutputStream oos) throws IOException {
         boolean hasPaidReserve = false;
         String msg;
         List<String> listQuery = new ArrayList<>();
@@ -1241,7 +1234,7 @@ public class DBHandler {
         return listQuery;
     }
 
-    public synchronized List<String> disconnect(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized List<String> disconnect(ClientData clientData, ObjectOutputStream oos) throws SQLException, IOException, ClassNotFoundException {
         String query;
         List<String> listQuery = new ArrayList<>();
         DisconnectResponse response = new DisconnectResponse();
