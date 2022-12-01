@@ -130,7 +130,13 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,context.getState());
     }
 
+    public void deleteReservationAwaiting(int resId) {
+        context.deleteReservationAwaiting(resId);
+    }
+
     public void payReservation() { context.payReservation(); }
+
+    public void deleteReservation() { context.deleteReservation(); }
 
     public Object getResponse() {
         return context.getResponse();

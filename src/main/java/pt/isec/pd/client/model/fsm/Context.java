@@ -29,9 +29,7 @@ public class Context {
         return state.getState();
     }
 
-    public void next() {
-        state.next();
-    }
+    public void next() { state.next(); }
 
     public void login(String userName, String password) {
         state.login(userName,password);
@@ -108,4 +106,8 @@ public class Context {
     public Object getResponse() { return state.getResponse(); }
 
     public void payReservation() { state.payReservation(); }
+
+    public void deleteReservation() { state.deleteReservation(); }
+
+    public void deleteReservationAwaiting(int resId) { state.deleteReservationAwaiting(resId);}
 }

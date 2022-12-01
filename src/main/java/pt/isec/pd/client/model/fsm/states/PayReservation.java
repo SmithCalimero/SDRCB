@@ -8,7 +8,7 @@ import pt.isec.pd.client.model.fsm.StateAdapter;
 
 public class PayReservation extends StateAdapter {
     int resId;
-    public PayReservation(Context context, Client data,int resId) {
+    public PayReservation(Context context,Client data,int resId) {
         super(context, data);
         this.resId = resId;
     }
@@ -24,6 +24,9 @@ public class PayReservation extends StateAdapter {
 
     @Override
     public void payReservation() { data.payReservation(resId); }
+
+    @Override
+    public void deleteReservation() { data.deleteReservation(resId); }
 
     @Override
     public void next() {

@@ -73,19 +73,15 @@ public class Client extends Thread {
         ch.writeToSocket(ClientAction.SUBMIT_RESERVATION,new Pair<>(seats.get(0).getShowId(),seats));
     }
 
-    public void consultsPaymentsAwaiting() {
-        ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
-    }
+    public void consultsPaymentsAwaiting() { ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null); }
 
-    public void consultsPayments() {
-        ch.writeToSocket(ClientAction.CONSULT_PAYED_RESERVATIONS,null);
-    }
+    public void consultsPayments() { ch.writeToSocket(ClientAction.CONSULT_PAYED_RESERVATIONS,null); }
 
     public Object getResponse() {
         return ch.getResponse();
     }
 
-    public void payReservation(int resId) {
-        ch.writeToSocket(ClientAction.PAY_RESERVATION,resId);
-    }
+    public void payReservation(int resId) { ch.writeToSocket(ClientAction.PAY_RESERVATION,resId); }
+
+    public void deleteReservation(int resId) { ch.writeToSocket(ClientAction.DELETE_UNPAID_RESERVATION,resId); }
 }

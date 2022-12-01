@@ -26,6 +26,8 @@ public class ConsultPaymentsAwaitingForm {
     private Button cancelButton;
     @FXML
     private Button payButton;
+    @FXML
+    private Button deleteResButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -37,6 +39,10 @@ public class ConsultPaymentsAwaitingForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+        });
+
+        model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
+            updateListOnPay();
         });
 
         model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
@@ -55,6 +61,12 @@ public class ConsultPaymentsAwaitingForm {
             Reserve res = list.getSelectionModel().getSelectedItem();
             if (res != null)
                 model.payReservationTransition(res.getId());
+        });
+
+        deleteResButton.setOnAction(actionEvent -> {
+            Reserve res = list.getSelectionModel().getSelectedItem();
+            if (res != null)
+                model.deleteReservationAwaiting(res.getId());
         });
     }
 
@@ -76,6 +88,18 @@ public class ConsultPaymentsAwaitingForm {
     }
 
     private void updateListOnDelete() {
+        DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
+        if (response != null) {
+            // clear list
+            list.getItems().clear();
+
+            // write the updated list
+            for (var r : response.getReserves())
+                list.getItems().add(r);
+        }
+    }
+
+    private void updateListOnPay() {
         DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
         if (response != null) {
             // clear list

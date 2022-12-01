@@ -21,7 +21,10 @@ public class ConsultPaymentsAwaiting extends StateAdapter {
     }
 
     @Override
-    public void payReservationTransition(int resId) { context.changeState(new PayReservation(context,data,resId)); }
+    public void payReservationTransition(int resId) { data.payReservation(resId); }
+
+    @Override
+    public void deleteReservationAwaiting(int resId) { data.deleteReservation(resId); }
 
     @Override
     public State getState() {

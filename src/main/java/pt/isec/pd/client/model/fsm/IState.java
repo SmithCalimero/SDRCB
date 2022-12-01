@@ -31,8 +31,10 @@ public interface IState {
     void consultsPaymentsAwaiting();
     void consultsPayments();
     void payReservationTransition(int resId);
+    void deleteReservationAwaiting(int resId);
 
     void payReservation();
+    void deleteReservation();
 
     Object getResponse();
 }

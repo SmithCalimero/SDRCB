@@ -22,9 +22,7 @@ public abstract class StateAdapter implements IState {
 
 
     @Override
-    public void next() {
-        context.next();
-    }
+    public void next() { context.next(); }
 
     @Override
     public void login(String userName, String password) {
@@ -110,19 +108,22 @@ public abstract class StateAdapter implements IState {
     public void consultsPaymentsTransition() { }
 
     @Override
-    public void consultsPaymentsAwaiting() {
-    }
-    @Override
-    public void payReservationTransition(int resId) {
-    }
+    public void consultsPaymentsAwaiting() { }
 
     @Override
-    public void consultsPayments() {
-    }
+    public void payReservationTransition(int resId) { }
 
     @Override
-    public void payReservation() {
-    }
+    public void deleteReservationAwaiting(int resId) { }
+
+    @Override
+    public void consultsPayments() { }
+
+    @Override
+    public void payReservation() { }
+
+    @Override
+    public void deleteReservation() { }
 
     @Override
     public Object getResponse() {

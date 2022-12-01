@@ -8,10 +8,14 @@ import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 
 public class PayReservationForm {
-    public AnchorPane pane;
-    public Button payButton;
     @FXML
-    private Button payLaterButton;
+    private Button payButton;
+    @FXML
+    private Button deleteResButton;
+    @FXML
+    private AnchorPane pane;
+    @FXML
+    private Button backToMenuButton;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -31,12 +35,14 @@ public class PayReservationForm {
         });
 
         model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
-            model.next();
+            model.previous();
         });
+
+        backToMenuButton.setOnAction(actionEvent -> model.previous());
 
         payButton.setOnAction(actionEvent -> model.payReservation());
 
-        payLaterButton.setOnAction(actionEvent -> model.previous());
+        deleteResButton.setOnAction(actionEvent -> model.deleteReservation());
     }
 
     private void update() {
