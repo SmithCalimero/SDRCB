@@ -9,9 +9,11 @@ import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.client.model.fsm.states.PayReservation;
 import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Responses.ConsultUnpayedReservationResponse;
 import pt.isec.pd.shared_data.Responses.DeleteReservationResponse;
+import pt.isec.pd.shared_data.Responses.PayReservationResponse;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class ConsultPaymentsAwaitingForm {
         });
 
         model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
-            updateListOnPay();
+            model.consultsPaymentsAwaiting();
         });
 
         model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
@@ -88,18 +90,6 @@ public class ConsultPaymentsAwaitingForm {
     }
 
     private void updateListOnDelete() {
-        DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
-        if (response != null) {
-            // clear list
-            list.getItems().clear();
-
-            // write the updated list
-            for (var r : response.getReserves())
-                list.getItems().add(r);
-        }
-    }
-
-    private void updateListOnPay() {
         DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
         if (response != null) {
             // clear list
