@@ -17,4 +17,9 @@ public class ConsultPayments extends StateAdapter {
 
     @Override
     public void consultsPaymentsTransition() { changeState(State.MENU_CLIENT); }
+
+    @Override
+    public void consultsPayments() {
+        data.consultsPayments();
+    }
 }

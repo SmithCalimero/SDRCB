@@ -117,6 +117,10 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
+    public void consultsPayments() {
+    }
+
+    @Override
     public void payReservation() {
     }
 

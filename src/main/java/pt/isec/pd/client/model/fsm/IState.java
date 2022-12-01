@@ -29,6 +29,7 @@ public interface IState {
     void consultsPaymentsAwaitingTransition();
     void consultsPaymentsTransition();
     void consultsPaymentsAwaiting();
+    void consultsPayments();
     void payReservationTransition(int resId);
 
     void payReservation();

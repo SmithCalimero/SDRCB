@@ -103,6 +103,8 @@ public class Context {
 
     public void consultPaymentsTransition() { state.consultsPaymentsTransition(); }
 
+    public void consultPayments() { state.consultsPayments(); }
+
     public void payReservationTransition(int resId) { state.payReservationTransition(resId); }
 
     public Object getResponse() { return state.getResponse(); }

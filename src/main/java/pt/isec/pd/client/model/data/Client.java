@@ -77,6 +77,10 @@ public class Client extends Thread {
         ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
     }
 
+    public void consultsPayments() {
+        ch.writeToSocket(ClientAction.CONSULT_PAYED_RESERVATIONS,null);
+    }
+
     public Object getResponse() {
         return ch.getResponse();
     }
