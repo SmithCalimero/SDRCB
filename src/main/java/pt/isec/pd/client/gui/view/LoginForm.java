@@ -6,7 +6,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
@@ -19,7 +18,6 @@ public class LoginForm {
     public AnchorPane pane;
     public Button loginButton;
     public Button registerButton;
-    public Label registerLabel;
 
     private ModelManager model;
 

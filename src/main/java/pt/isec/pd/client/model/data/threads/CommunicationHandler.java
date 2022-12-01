@@ -27,6 +27,7 @@ public class CommunicationHandler extends Thread {
     private ClientData clientData;
     private ResponseHandler responseHandler;
     private PropertyChangeSupport pcs;
+    private boolean start = false;
 
     public CommunicationHandler(ServerAddress pingAddr, PropertyChangeSupport pcs) {
         this.pcs = pcs;
@@ -90,8 +91,13 @@ public class CommunicationHandler extends Thread {
             socket = new Socket(address.getIp(), address.getPort());
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
-            responseHandler = new ResponseHandler(this,pcs,clientData);
-            responseHandler.start();
+            //Create the response Thread only the first time that establish a connection
+            if(!start) {
+                responseHandler = new ResponseHandler(this,pcs,clientData);
+                responseHandler.start();
+                start = true;
+            }
+
             return true;
         } catch(IOException e) {
             return false;
