@@ -63,7 +63,7 @@ public class HeartBeatReceiver extends Thread{
                         switch (prepare.getData().getAction()) {
                             case SUBMIT_RESERVATION,DELETE_UNPAID_RESERVATION -> {
                                 for (ClientReceiveMessage client : controller.getClients()) {
-                                    dbHandler.viewSeatsAndPrices(prepare.getData(),client.getOos(),null);
+                                    dbHandler.viewSeatsAndPrices(prepare.getData(),client.getOos());
                                 }
                             }
                             case INSERT_SHOWS,DELETE_SHOW,VISIBLE_SHOW ->  {

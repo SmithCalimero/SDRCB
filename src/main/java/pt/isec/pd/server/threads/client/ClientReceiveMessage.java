@@ -75,18 +75,18 @@ public class ClientReceiveMessage extends Thread {
         LOG.log("Execution " + clientData.getAction());
         try {
             List<String> sqlCommands = switch(clientData.getAction()) {
-                case REGISTER -> dbHandler.register(clientData,oos,ois);
-                case LOGIN -> dbHandler.login(clientData,oos,ois);
-                case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos,ois);
-                case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos,ois);
-                case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos,ois);
-                case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos,ois);
+                case REGISTER -> dbHandler.register(clientData,oos);
+                case LOGIN -> dbHandler.login(clientData,oos);
+                case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos);
+                case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos);
+                case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos);
+                case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos);
                 case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(oos);
                 case SELECT_SHOWS -> dbHandler.selectShows(oos);
-                case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos,ois);
-                case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos,ois);
+                case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos);
+                case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos);
                 case SUBMIT_RESERVATION -> {
-                    List<String> listQuery = dbHandler.submitReservation(clientData,oos,ois);
+                    List<String> listQuery = dbHandler.submitReservation(clientData,oos);
                     clientDataOld = new ClientData(clientData);
                     TimerTask tt = new TimerTask() {
                         @Override
@@ -103,14 +103,14 @@ public class ClientReceiveMessage extends Thread {
 
                     yield listQuery;
                 }
-                case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos,ois);
+                case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos);
                 case PAY_RESERVATION -> {
                     t.cancel();
-                    yield dbHandler.payReservation(clientData,oos,ois);
+                    yield dbHandler.payReservation(clientData,oos);
                 }
-                case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
-                case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
-                case DISCONNECTED -> dbHandler.disconnect(clientData,oos,ois);
+                case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos);
+                case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos);
+                case DISCONNECTED -> dbHandler.disconnect(clientData,oos);
 
                 default -> throw new IllegalArgumentException("Unexpected action value");
             };
@@ -141,7 +141,7 @@ public class ClientReceiveMessage extends Thread {
                 case SUBMIT_RESERVATION,DELETE_UNPAID_RESERVATION -> {
                     for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
                         if (client != this) {
-                            dbHandler.viewSeatsAndPrices(clientData,client.getOos(),null);
+                            dbHandler.viewSeatsAndPrices(clientData,client.getOos());
                         }
                     }
                 }
