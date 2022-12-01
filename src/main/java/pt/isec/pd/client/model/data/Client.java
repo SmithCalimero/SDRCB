@@ -93,7 +93,4 @@ public class Client extends Thread {
         ch.writeToSocket(ClientAction.PAY_LATER_RESERVATION,null);
     }
 
-    public void consultReservesPayed() {
-        ch.writeToSocket(ClientAction.CONSULT_PAYED_RESERVATIONS,null);
-    }
 }

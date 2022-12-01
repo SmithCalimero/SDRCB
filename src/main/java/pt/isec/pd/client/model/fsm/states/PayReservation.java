@@ -31,7 +31,7 @@ public class PayReservation extends StateAdapter {
     @Override
     public void next() {
         changeState(State.CONSULT_PAYMENTS);
-        data.consultReservesPayed();
+        data.consultsPayments();
     }
 
     @Override
