@@ -47,9 +47,13 @@ public class ConsultPaymentsAwaitingForm {
         });
 
         payButton.setOnAction(actionEvent -> {
-            int resId = list.getSelectionModel().getSelectedItem().getId();
-            if (resId != 0)
-                model.payReservationTransition(resId);
+
+            Reserve res = list.getSelectionModel().getSelectedItem();
+
+            if (res != null){
+                model.payReservationTransition(res.getId());
+            }
+
         });
     }
 
