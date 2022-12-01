@@ -30,7 +30,7 @@
          <font>
             <Font name="Consolas" size="12.0" />
          </font></Label>
-      <Label fx:id="errorMessage" alignment="CENTER" layoutX="146.0" layoutY="300.0" prefHeight="17.0" prefWidth="349.0" />
+      <Label fx:id="errorMessage" alignment="CENTER" layoutX="145.0" layoutY="327.0" prefHeight="17.0" prefWidth="349.0" />
       <Button fx:id="registerButton" layoutX="382.0" layoutY="292.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="179.0" style="-fx-background-color: transparent;" text="Registe-se aqui!" textAlignment="CENTER" underline="true" />
       <Label layoutX="408.0" layoutY="83.0" text="Faça login para continuar" />
       <Label layoutX="425.0" layoutY="28.0" text="Login">
