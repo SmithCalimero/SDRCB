@@ -11,8 +11,8 @@ public class Log {
     public static <T> Log getLogger(Class<T> type) {
         if (Log == null) {
             Log = new Log();
-            owner = type.getSimpleName();
         }
+        owner = type.getSimpleName();
         return Log;
     }
 

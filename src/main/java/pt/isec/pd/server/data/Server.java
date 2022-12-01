@@ -42,20 +42,6 @@ public class Server {
     public void start() {
         hbController.start();
 
-        /*List<HeartBeat> hbDbVersion = new ArrayList<>(List.copyOf(hbList));
-        hbDbVersion.sort(new CompareDbVersionHeartBeat());
-
-        System.out.println(hbDbVersion);
-
-       if (hbController.getHbEvent().getDbVersion() < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
-
-           System.out.println("update needed");
-           //createDataBase();
-        } else {
-           System.out.println("no need");
-            //transferDataBase();
-        }*/
-
         cm.startPingHandler();
         cm.start();
     }

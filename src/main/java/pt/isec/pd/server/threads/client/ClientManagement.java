@@ -8,6 +8,7 @@ import pt.isec.pd.shared_data.HeartBeat;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,17 +46,27 @@ public class ClientManagement extends Thread {
     public void run() {
         try {
             while (isConnected) {
-                Socket clientSocket = serverSocket.accept();
-                incConnection();
-                LOG.log("New connection established: " + numConnections);
+                Socket socket = serverSocket.accept();
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
-                // Creates a thread for that client
-                ClientReceiveMessage clientRM = new ClientReceiveMessage(clientSocket, dbHandler, this,hbController);
-                clientRM.start();
+                //Update db
+                if((Integer) ois.readObject() == 0) {
+                    int version = (Integer) ois.readObject();
+                    List<String> sqlCommands = dbHandler.getListOfQuery(version,dbHandler.getCurrentVersion());
+                    oos.writeObject(sqlCommands);
+                } else {
+                    incConnection();
+                    LOG.log("New connection established: " + numConnections);
 
-                clientsThread.add(clientRM);
+                    // Creates a thread for that client
+                    ClientReceiveMessage clientRM = new ClientReceiveMessage(oos,ois, dbHandler, this,hbController);
+                    clientRM.start();
+
+                    clientsThread.add(clientRM);
+                }
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException | SQLException e ) {
             e.printStackTrace();
         }
     }

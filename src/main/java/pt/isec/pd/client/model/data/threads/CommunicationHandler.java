@@ -91,6 +91,7 @@ public class CommunicationHandler extends Thread {
             socket = new Socket(address.getIp(), address.getPort());
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
+            oos.writeObject(1);
             //Create the response Thread only the first time that establish a connection
             if(!start) {
                 responseHandler = new ResponseHandler(this,pcs,clientData);

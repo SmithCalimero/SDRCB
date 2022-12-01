@@ -27,19 +27,13 @@ public class ClientReceiveMessage extends Thread {
     private Timer t = new Timer();
     private ClientData clientDataOld;
 
-    public ClientReceiveMessage(Socket socket, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
+    public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
+        this.oos = oos;
+        this.ois = ois;
         this.hbController = controller;
         this.dbHandler = dbHandler;
         this.clientManagement = clientManagement;
         queueUpdate = new QueueUpdate(controller,queue,this);
-
-        try {
-            oos = new ObjectOutputStream(socket.getOutputStream());
-            ois = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         queueUpdate.start();
     }
 

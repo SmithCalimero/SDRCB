@@ -1,11 +1,13 @@
 package pt.isec.pd.server.data;
 
 import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatLifeTime;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatReceiver;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatSender;
 import pt.isec.pd.shared_data.Commit;
+import pt.isec.pd.shared_data.CompareDbVersionHeartBeat;
 import pt.isec.pd.shared_data.HeartBeat;
 import pt.isec.pd.shared_data.Prepare;
 import pt.isec.pd.utils.Constants;
@@ -13,12 +15,17 @@ import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HeartBeatController {
-    private final Log LOG = Log.getLogger(Server.class);
+    private final Log LOG = Log.getLogger(HeartBeatController.class);
     private final Server server;
+    private final DBHandler dbHandler;
 
     private HeartBeat hbEvent;
     private final HeartBeatReceiver receiver;
@@ -36,6 +43,7 @@ public class HeartBeatController {
         joinGroup();
 
         this.server = server;
+        this.dbHandler = server.getDbHandler();
         this.hbList = hbList;
         receiver = new HeartBeatReceiver(this,server.getDbHandler());
         sender = new HeartBeatSender(this);
@@ -63,6 +71,32 @@ public class HeartBeatController {
             Thread.sleep(Constants.STARTUP * Constants.TO_SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+
+        List<HeartBeat> hbDbVersion = new ArrayList<>(List.copyOf(hbList));
+        hbDbVersion.sort(new CompareDbVersionHeartBeat());
+
+        if (!hbDbVersion.isEmpty()) {
+            try {
+                int myVersion = dbHandler.getCurrentVersion();
+                HeartBeat hbNew = hbDbVersion.get(hbDbVersion.size() - 1);
+                if (myVersion < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
+                    LOG.log("Updating the server to the most recent version");
+                    Socket socket = new Socket("localhost", hbNew.getPortTcp());
+
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                    ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+
+                    oos.writeObject(0);
+                    oos.writeObject(myVersion);
+                    List<String> update = (List<String>) ois.readObject();
+
+                    dbHandler.updateToNewVersion(update);
+                }
+            }
+            catch (SQLException | IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         sender.start();

@@ -8,7 +8,6 @@ import pt.isec.pd.shared_data.Responses.*;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
 import pt.isec.pd.shared_data.Triple;
-import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
@@ -42,6 +41,7 @@ public class DBHandler {
         return version;
     }
 
+
     public void updateVersion(List<String> listQuery) throws SQLException {
         Statement statement = connection.createStatement();
 
@@ -60,11 +60,44 @@ public class DBHandler {
         statement.close();
     }
 
+
+    public List<String> getListOfQuery(int myVersion, int newVersion) throws SQLException {
+        Statement statement = connection.createStatement();
+        List<String> commands = new ArrayList<>();
+        //Returns all needed updates
+        ResultSet result = statement.executeQuery("SELECT id," +
+                "\"query\"" +
+                " FROM versao WHERE id > + " + myVersion + " and id <=" + newVersion + " ORDER BY key asc;");
+        while(result.next()) {
+            result.getInt("id");
+            commands.add(result.getString("query"));
+        }
+
+        result.close();
+        statement.close();
+
+        return commands;
+    }
+
+    public void updateToNewVersion(List<String> querys) throws SQLException {
+        Statement statement = connection.createStatement();
+
+        updateVersion(querys);
+
+        for (String query : querys) {
+            System.out.println(query);
+            statement.executeUpdate(query);
+        }
+
+        statement.close();
+
+    }
+
     //======================  ACTIONS ======================
     public synchronized List<String> register(ClientData clientData, ObjectOutputStream oos) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
         int isAdmin = 0;
-        boolean isAuthenticated = false;
+        int isAuthenticated = 0;
         boolean requestAccepted = true;
         String msg = "";
         String query = "";
@@ -147,7 +180,7 @@ public class DBHandler {
 
     public synchronized List<String> login(ClientData clientData, ObjectOutputStream oos) throws IOException {
         boolean requestAccepted = false;
-        boolean isAuthenticated = false;
+        int isAuthenticated = 0;
         boolean isAdmin = false;
         String msg;
         String query;
@@ -175,7 +208,7 @@ public class DBHandler {
                     boolean authenticated = result.getBoolean("autenticado");
                     // Validate login data and authentication
                     if (username.equals(loginData.getKey()) && password.equals(loginData.getValue()) && authenticated) {
-                        isAuthenticated = true;
+                        isAuthenticated = 1;
                         break;
                     }
                     // Validate username & password
@@ -216,7 +249,7 @@ public class DBHandler {
                     return listQuery;
                 }
 
-                if (!isAuthenticated) {
+                if (isAuthenticated == 0) {
                     msg = "The username " + loginData.getKey() + " or password are incorrect";
                     LOG.log(msg);
                 } else {
