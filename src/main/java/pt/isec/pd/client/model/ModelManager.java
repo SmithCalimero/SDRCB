@@ -132,8 +132,6 @@ public class ModelManager {
 
     public void payReservation() { context.payReservation(); }
 
-    public void payLater() { context.payLater(); }
-
     public Object getResponse() {
         return context.getResponse();
     }

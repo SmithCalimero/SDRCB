@@ -11,6 +11,7 @@ import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Reserve;
 import pt.isec.pd.shared_data.Responses.ConsultUnpayedReservationResponse;
+import pt.isec.pd.shared_data.Responses.DeleteReservationResponse;
 import pt.isec.pd.shared_data.Seat;
 
 import java.util.ArrayList;
@@ -38,6 +39,10 @@ public class ConsultPaymentsAwaitingForm {
             update();
         });
 
+        model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
+            updateListOnDelete();
+        });
+
         model.addPropertyChangeListener(ClientAction.CONSULT_PAYMENTS_AWAITING.toString(), evt -> {
             updateList();
         });
@@ -47,13 +52,9 @@ public class ConsultPaymentsAwaitingForm {
         });
 
         payButton.setOnAction(actionEvent -> {
-
             Reserve res = list.getSelectionModel().getSelectedItem();
-
-            if (res != null){
+            if (res != null)
                 model.payReservationTransition(res.getId());
-            }
-
         });
     }
 
@@ -64,12 +65,25 @@ public class ConsultPaymentsAwaitingForm {
 
     private void updateList() {
         ConsultUnpayedReservationResponse response = (ConsultUnpayedReservationResponse) model.getResponse();
+        if (response != null) {
+            // clear list
+            list.getItems().clear();
 
-        // clear list
-        list.getItems().clear();
+            // write the updated list
+            for (var r : response.getReserves())
+                list.getItems().add(r);
+        }
+    }
 
-        // write the updated list
-        for (var r : response.getReserves())
-            list.getItems().add(r);
+    private void updateListOnDelete() {
+        DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
+        if (response != null) {
+            // clear list
+            list.getItems().clear();
+
+            // write the updated list
+            for (var r : response.getReserves())
+                list.getItems().add(r);
+        }
     }
 }

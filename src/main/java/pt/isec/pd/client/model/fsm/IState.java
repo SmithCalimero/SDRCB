@@ -33,7 +33,6 @@ public interface IState {
     void payReservationTransition(int resId);
 
     void payReservation();
-    void payLater();
 
     Object getResponse();
 }

@@ -949,7 +949,6 @@ public class DBHandler {
 
                     if (reservationId == idReserva && !pago && clientData.getId() == idUtilizador) {
                         try {
-                            System.out.println("here");
                             query = "DELETE FROM reserva WHERE id = '" + reservationId + "';";
                             statement.executeUpdate(query);
                             listQuery.add(query);
@@ -959,8 +958,46 @@ public class DBHandler {
 
                             LOG.log("User[" + username + "] deleted unpaid successfully reservation id[" + reservationId + "]");
                             deleteReservationResponse.setSuccess(true);
-                            oos.writeObject(deleteReservationResponse);
 
+                            // Get the array of the remaining reserves
+                            ArrayList<Reserve> reserves = new ArrayList<>();
+
+                            // Execute query to search reserves
+                            result = statement.executeQuery(
+                                    "SELECT * FROM reserva;"
+                            );
+
+                            while(result.next()) {
+                                int id = result.getInt("id");
+                                String date = result.getString("data_hora");
+                                boolean paid = result.getBoolean("pago");
+                                int userId = result.getInt("id_utilizador");
+                                int showId = result.getInt("id_espetaculo");
+
+                                // Validate client id & verify if the reserve is unpaid
+                                if (clientData.getId() == userId && !paid) {
+                                    try {
+                                        reserves.add(new Reserve(
+                                                id,
+                                                date,
+                                                false,
+                                                userId,
+                                                showId
+                                        ));
+                                    } catch (Exception e) {
+                                        LOG.log("Unable to consult unpaid reserves from user [" + username + "]");
+                                    }
+                                }
+                            }
+
+                            if (reserves.isEmpty())
+                                LOG.log("No payments awaiting from user [" + username + "]");
+
+                            // Set the new array
+                            deleteReservationResponse.setReserves(reserves);
+
+                            // Write object
+                            oos.writeObject(deleteReservationResponse);
                         } catch (SQLException e) {
                             LOG.log("Unable to delete unpaid reservation from user [" + username + "]");
                             deleteReservationResponse.setSuccess(false);

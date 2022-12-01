@@ -108,11 +108,6 @@ public class ClientReceiveMessage extends Thread {
                     t.cancel();
                     yield dbHandler.payReservation(clientData,oos,ois);
                 }
-                case PAY_LATER_RESERVATION -> {
-                    t.cancel();
-                    oos.writeObject(new PayLaterResponse());
-                    yield Collections.emptyList();
-                }
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos,ois);
                 case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos,ois);
                 case DISCONNECTED -> dbHandler.disconnect(clientData,oos,ois);

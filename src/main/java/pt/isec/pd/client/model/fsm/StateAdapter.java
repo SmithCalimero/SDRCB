@@ -125,9 +125,6 @@ public abstract class StateAdapter implements IState {
     }
 
     @Override
-    public void payLater() { }
-
-    @Override
     public Object getResponse() {
         return data.getResponse();
     }

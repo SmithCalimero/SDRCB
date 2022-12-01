@@ -16,7 +16,6 @@ public enum ClientAction {
     SUBMIT_RESERVATION,             // done
     DELETE_UNPAID_RESERVATION,      // done
     PAY_RESERVATION,                // done
-    PAY_LATER_RESERVATION,
     INSERT_SHOWS,
     DELETE_SHOW,                    // done
     DISCONNECTED,                   // done

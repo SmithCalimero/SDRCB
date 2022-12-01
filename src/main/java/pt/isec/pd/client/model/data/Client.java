@@ -88,9 +88,4 @@ public class Client extends Thread {
     public void payReservation(int resId) {
         ch.writeToSocket(ClientAction.PAY_RESERVATION,resId);
     }
-
-    public void payLater() {
-        ch.writeToSocket(ClientAction.PAY_LATER_RESERVATION,null);
-    }
-
 }

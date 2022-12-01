@@ -45,9 +45,7 @@ public class Context {
         state.edit(action,edit);
     }
 
-    public void previous() {
-        state.previous();
-    }
+    public void previous() { state.previous(); }
 
     public void disconnect() {
         data.disconnect();
@@ -110,6 +108,4 @@ public class Context {
     public Object getResponse() { return state.getResponse(); }
 
     public void payReservation() { state.payReservation(); }
-
-    public void payLater() { state.payLater(); }
 }
