@@ -10,7 +10,11 @@ import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Responses.ConsultShowsFilterResponse;
 import pt.isec.pd.shared_data.Show;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -109,7 +113,15 @@ public class ShowsForm {
                 filters.put("tipo",tipoField.getText());
             }
             if (dataCheck.isSelected() && !datField.getEditor().getText().isEmpty()) {
-                filters.put("data_hora",datField.getEditor().getText());
+                try {
+                    DateFormat dfFrom = new SimpleDateFormat("dd/MM/yyyy");
+                    Date inputDate = dfFrom.parse(datField.getEditor().getText());
+                    DateFormat dfTo = new SimpleDateFormat("yyyy-MM-dd");
+                    String outputDate = dfTo.format(inputDate);
+                    filters.put("data_hora",outputDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
             if (duracaoCheck.isSelected() && !duracaoField.getText().isEmpty()) {
                 filters.put("duracao",duracaoField.getText());

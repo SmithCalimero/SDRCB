@@ -539,6 +539,7 @@ public class DBHandler {
         ArrayList<Show> shows = new ArrayList<>();
         ConsultShowsFilterResponse response = new ConsultShowsFilterResponse();
         String msg = "";
+        StringBuilder query = new StringBuilder();
 
         try {
             // Received filters from user
@@ -554,31 +555,36 @@ public class DBHandler {
                 );
 
                 // Verify the type of info the user pretends to be searched
-                for (var i : filters.entrySet()) {
-                    // Get all the shows from DB
-                    ResultSet result = statement.executeQuery(
-                            "SELECT * FROM espetaculo WHERE " + i.getKey() + " LIKE '%" + i.getValue() + "%'"
-                    );
-
-                    System.out.println(i);
-
-                    // Add objects to array
-                    while (result.next()) {
-                        shows.add(new Show(
-                                result.getInt("id"),
-                                result.getString("descricao"),
-                                result.getString("tipo"),
-                                result.getString("data_hora"),
-                                result.getInt("duracao"),
-                                result.getString("local"),
-                                result.getString("localidade"),
-                                result.getString("pais"),
-                                result.getString("classificacao_etaria"),
-                                result.getBoolean("visivel"))
-                        );
+                var filtersEntry = filters.entrySet().iterator();
+                while(filtersEntry.hasNext()) {
+                    Map.Entry<String,String> filter = filtersEntry.next();
+                    System.out.println(filter.getValue());
+                    query.append(filter.getKey()).append(" LIKE '%").append(filter.getValue()).append("%' ");
+                    if (filtersEntry.hasNext()) {
+                        query.append(" and ");
+                    } else {
+                        query.append(";");
                     }
-                    result.close();
                 }
+
+                ResultSet result = statement.executeQuery("SELECT * FROM espetaculo WHERE " + query);
+
+                // Add objects to array
+                while (result.next()) {
+                    shows.add(new Show(
+                            result.getInt("id"),
+                            result.getString("descricao"),
+                            result.getString("tipo"),
+                            result.getString("data_hora"),
+                            result.getInt("duracao"),
+                            result.getString("local"),
+                            result.getString("localidade"),
+                            result.getString("pais"),
+                            result.getString("classificacao_etaria"),
+                            result.getBoolean("visivel"))
+                    );
+                }
+                result.close();
 
                 shows.removeIf(item -> !item.isVisible());
                 response.setShows(shows);
