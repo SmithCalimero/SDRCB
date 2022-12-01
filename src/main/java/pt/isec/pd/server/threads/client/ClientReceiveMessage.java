@@ -111,6 +111,7 @@ public class ClientReceiveMessage extends Thread {
 
             //If db was updated, init the process of updating other servers db
             update(sqlCommands,clientData);
+            hbController.updateHeartBeat();
         }  catch (ClassNotFoundException | SQLException | IOException e) {
             LOG.log("Unable to read client data: " + e);
         }

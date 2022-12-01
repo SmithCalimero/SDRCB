@@ -13,14 +13,12 @@ public class Server {
     private final Log LOG = Log.getLogger(Server.class);
     private HeartBeatList hbList;
     private ClientManagement cm;
-    //private ClientController clientController;
     private final String dbPath;
     private HeartBeatController hbController;
     private DBHandler dbHandler;
 
     public Server(int pingPort,String dbPath) {
         this.dbPath = dbPath;
-
         init(pingPort);
         start();
     }
@@ -82,5 +80,9 @@ public class Server {
 
     public synchronized List<ClientReceiveMessage> getClients() {
         return cm.getClientsThread();
+    }
+
+    public ClientManagement getClientManager() {
+        return cm;
     }
 }

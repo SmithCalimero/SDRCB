@@ -1,35 +1,37 @@
 package pt.isec.pd.server.threads.heart_beat;
 
-import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.server.data.*;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
-import pt.isec.pd.shared_data.Commit;
-import pt.isec.pd.shared_data.Prepare;
+import pt.isec.pd.shared_data.*;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
-import pt.isec.pd.shared_data.HeartBeat;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class HeartBeatReceiver extends Thread{
-    private final Log LOG = Log.getLogger(Server.class);
+    private final Log LOG = Log.getLogger(HeartBeatReceiver.class);
     private final MulticastSocket ms;
     private final HeartBeatList hbList;
     private final HeartBeatController controller;
     private final DBHandler dbHandler;
     private Prepare prepare;
+    private final Server server;
 
-    public HeartBeatReceiver(HeartBeatController controller, DBHandler dbHandler) {
+    public HeartBeatReceiver(HeartBeatController controller, DBHandler dbHandler,Server server) {
         this.ms = controller.getMs();
         this.hbList = controller.getHbList();
         this.controller = controller;
         this.dbHandler = dbHandler;
+        this.server = server;
     }
 
     @Override
@@ -42,6 +44,55 @@ public class HeartBeatReceiver extends Thread{
 
                 if (object instanceof HeartBeat hbEvent) {
                     hbList.updateList(hbEvent);
+
+                    List<HeartBeat> hbDbVersion = new ArrayList<>(List.copyOf(hbList));
+                    hbDbVersion.sort(new CompareDbVersionHeartBeat());
+
+                    if (!hbList.isEmpty() && controller.isEndOfStartup() && !controller.isUpdating()) {
+                        HeartBeat highest = hbDbVersion.get(hbDbVersion.size() - 1);
+                        if (controller.getHb().getDbVersion() < highest.getDbVersion()) {
+                            LOG.log("Theres a highest version");
+                            controller.setAvailable(false);
+
+                            //Update the list
+                            Date date = new Date();
+                            hbList.removeIf(n -> (n.getTimeout().compareTo(date) < 0 || !n.isStatus()));
+
+                            ListServerAddress list = new ListServerAddress();
+                            list.setServers(hbList.getOrderList());
+
+                            for (ClientReceiveMessage client : server.getClients()) {
+                                client.getOos().writeObject(list);
+                            }
+
+                            //Sends the heartBeat
+                            byte[] bytes = Utils.serializeObject(controller.updateHeartBeat());
+                            dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                            ms.send(dp);
+
+                            int myVersion = dbHandler.getCurrentVersion();
+                            HeartBeat hbNew = hbDbVersion.get(hbDbVersion.size() - 1);
+                            if (myVersion < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
+                                LOG.log("Updating the server to the most recent version");
+                                Socket socket = new Socket("localhost", hbNew.getPortTcp());
+
+                                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+
+                                oos.writeObject(0);
+                                oos.writeObject(myVersion);
+                                List<String> update = (List<String>) ois.readObject();
+
+                                dbHandler.updateToNewVersion(update);
+                            }
+
+                            controller.setAvailable(true);
+
+                            bytes = Utils.serializeObject(controller.updateHeartBeat());
+                            dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                            ms.send(dp);
+                        }
+                    }
 
                 }  else if(!controller.imUpdating() && object instanceof Prepare prepare) {
                     controller.setUpdating(true);
@@ -77,7 +128,7 @@ public class HeartBeatReceiver extends Thread{
                     controller.setUpdater(false);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

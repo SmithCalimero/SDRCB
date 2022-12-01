@@ -34,8 +34,8 @@ public class HeartBeatController {
     private final HeartBeatList hbList;
     private boolean updater = false;
     private boolean updating = false;
-
     private boolean available = true;
+    private boolean endOfStartup = false;
 
     private MulticastSocket ms;
 
@@ -45,7 +45,7 @@ public class HeartBeatController {
         this.server = server;
         this.dbHandler = server.getDbHandler();
         this.hbList = hbList;
-        receiver = new HeartBeatReceiver(this,server.getDbHandler());
+        receiver = new HeartBeatReceiver(this,server.getDbHandler(),server);
         sender = new HeartBeatSender(this);
         lifeTimeChecker = new HeartBeatLifeTime(hbList);
     }
@@ -99,6 +99,7 @@ public class HeartBeatController {
             }
         }
 
+        endOfStartup = true;
         sender.start();
     }
 
@@ -115,7 +116,7 @@ public class HeartBeatController {
         return hbEvent;
     }
 
-    public HeartBeat getHbEvent() {
+    public synchronized HeartBeat getHb() {
         return hbEvent;
     }
 
@@ -193,5 +194,9 @@ public class HeartBeatController {
 
     public List<ClientReceiveMessage> getClients() {
         return server.getClients();
+    }
+
+    public synchronized boolean isEndOfStartup() {
+        return endOfStartup;
     }
 }

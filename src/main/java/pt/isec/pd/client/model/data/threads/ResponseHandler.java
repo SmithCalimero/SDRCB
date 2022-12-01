@@ -4,11 +4,15 @@ import javafx.application.Platform;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.shared_data.ListServerAddress;
 import pt.isec.pd.shared_data.Responses.*;
+import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.util.List;
 
 public class ResponseHandler extends Thread {
     private final Log LOG = Log.getLogger(Client.class);
@@ -106,6 +110,13 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof ConsultShowsFilterResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_SHOWS_VISIBLE.toString(),null,null));
+                } else if (object instanceof ListServerAddress list) {
+                    try {
+                        LOG.log("Establishing connection to a new server");
+                        ch.establishingTcpConn(list.getServers());
+                    } catch (NoServerFound e) {
+                        e.printStackTrace();
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 LOG.log("There was a problem with the server we are trying to fix it");
