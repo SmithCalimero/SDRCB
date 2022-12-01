@@ -5,7 +5,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
+import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.ConsultShowsFilterResponse;
 import pt.isec.pd.shared_data.Show;
 
 import java.util.ArrayList;
@@ -35,7 +37,6 @@ public class ShowsForm {
     public Button retrocederButton;
 
     private ModelManager model;
-    private List<Show> shows = new ArrayList<>();
 
     public void setModel(ModelManager model) {
         this.model = model;
@@ -46,6 +47,11 @@ public class ShowsForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+        });
+
+        model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_VISIBLE.toString(), evt -> {
+            ConsultShowsFilterResponse response = (ConsultShowsFilterResponse) model.getResponse();
+            list.setItems(FXCollections.observableList(response.getShows()));
         });
 
         retrocederButton.setOnAction(actionEvent -> {
@@ -121,8 +127,7 @@ public class ShowsForm {
                 filters.put("classificacao_etaria",classField.getText());
             }
 
-            //shows = model.consultShows(filters);
-            list.setItems(FXCollections.observableList(shows));
+            model.consultShows(filters);
         });
 
         list.setOnMouseClicked(actionEvent -> {

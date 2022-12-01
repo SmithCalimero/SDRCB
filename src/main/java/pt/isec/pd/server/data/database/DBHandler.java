@@ -537,6 +537,7 @@ public class DBHandler {
     public synchronized List<String> consultShows(ClientData clientData, ObjectOutputStream oos, ObjectInputStream ois) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
+        ConsultShowsFilterResponse response = new ConsultShowsFilterResponse();
         String msg = "";
 
         try {
@@ -559,6 +560,8 @@ public class DBHandler {
                             "SELECT * FROM espetaculo WHERE " + i.getKey() + " LIKE '%" + i.getValue() + "%'"
                     );
 
+                    System.out.println(i);
+
                     // Add objects to array
                     while (result.next()) {
                         shows.add(new Show(
@@ -573,18 +576,18 @@ public class DBHandler {
                                 result.getString("classificacao_etaria"),
                                 result.getBoolean("visivel"))
                         );
-                        result.close();
                     }
+                    result.close();
                 }
 
                 shows.removeIf(item -> !item.isVisible());
-
+                response.setShows(shows);
 
                 if (shows.isEmpty())
                     LOG.log("Shows not found based on the received filters");
 
                 // Send list to client
-                oos.writeObject(shows);
+                oos.writeObject(response);
 
                 statement.close();
                 clientName.close();
@@ -663,7 +666,7 @@ public class DBHandler {
         ArrayList<Show> availableShows = new ArrayList<>();
         String msg = "";
 
-        ShowsResponse showsResponse = new ShowsResponse();
+        ShowsResponse response = new ShowsResponse();
 
         try {
             // Create statement
@@ -696,7 +699,7 @@ public class DBHandler {
 
                         // Verify if remain at least 24 hours before the show
                         long  diffInMillies = showDate.getTime() - currentDate.getTime();
-                        System.out.println(diffInMillies);
+
                         if (diffInMillies > 0) {
                             long diff = TimeUnit.MILLISECONDS.toHours(diffInMillies);
 
@@ -727,9 +730,9 @@ public class DBHandler {
             }
 
             // Send available shows to user
-            showsResponse.setAction(ClientAction.SELECT_SHOWS);
-            showsResponse.setShows(availableShows);
-            oos.writeObject(showsResponse);
+            response.setAction(ClientAction.SELECT_SHOWS);
+            response.setShows(availableShows);
+            oos.writeObject(response);
             if (availableShows.isEmpty())
                 LOG.log("No shows available at the moment");
 

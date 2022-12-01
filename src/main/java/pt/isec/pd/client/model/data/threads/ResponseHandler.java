@@ -104,8 +104,12 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof ConsultUnpayedReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_PAYMENTS_AWAITING.toString(),null,null));
                 }
+                else if (object instanceof ConsultShowsFilterResponse) {
+                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_SHOWS_VISIBLE.toString(),null,null));
+                }
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                LOG.log("There was a problem with the server we are trying to fix it");
+                ch.sendPing();
             }
         }
     }
