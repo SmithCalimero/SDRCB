@@ -87,10 +87,6 @@ public class HeartBeatReceiver extends Thread{
                             }
 
                             controller.setAvailable(true);
-
-                            bytes = Utils.serializeObject(controller.updateHeartBeat());
-                            dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
-                            ms.send(dp);
                         }
                     }
 
@@ -124,6 +120,11 @@ public class HeartBeatReceiver extends Thread{
                             }
                         }
                     }
+
+                    byte[] bytes = Utils.serializeObject(controller.updateHeartBeat());
+                    dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                    ms.send(dp);
+
                     controller.setUpdating(false);
                     controller.setUpdater(false);
                 }
