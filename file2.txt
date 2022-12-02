@@ -1,7 +1,7 @@
 “Designação”;"Teste 1"
 “Tipo”:”Música”
-“Data”;"29";"11”;”2022"
-“Hora”;"21”;”30"
+“Data”;"3";"12”;”2022"
+“Hora”;"23”;”30"
 “Duração”;”75”
 “Local”;”Convento São Francisco –Sala D. Afonso Henriques”
 “Localidade”;”Coimbra”

@@ -81,8 +81,4 @@ public class Server {
     public synchronized List<ClientReceiveMessage> getClients() {
         return cm.getClientsThread();
     }
-
-    public ClientManagement getClientManager() {
-        return cm;
-    }
 }

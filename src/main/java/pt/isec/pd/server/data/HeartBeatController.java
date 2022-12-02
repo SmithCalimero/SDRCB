@@ -126,7 +126,7 @@ public class HeartBeatController {
     }
 
     // Only called when a request from client updated the database
-    public void updateDataBase(List<String> sqlCommand, ClientData clientData) {
+    public synchronized void updateDataBase(List<String> sqlCommand, ClientData clientData) {
         if (!isUpdating()) {
             try {
                 DatagramPacket dp;

@@ -59,7 +59,7 @@ public class ClientReceiveMessage extends Thread {
         }
     }
 
-    public void request(ClientData clientData) {
+    public synchronized void request(ClientData clientData) {
         if (!hbController.isUpdating() && queue.isEmpty()) {
             handleClientRequest(clientData);
         } else {
@@ -69,7 +69,7 @@ public class ClientReceiveMessage extends Thread {
         }
     }
 
-    public void handleClientRequest(ClientData clientData) {
+    public synchronized void handleClientRequest(ClientData clientData) {
         LOG.log("Execution " + clientData.getAction());
         try {
             List<String> sqlCommands = switch(clientData.getAction()) {
@@ -121,7 +121,7 @@ public class ClientReceiveMessage extends Thread {
         }
     }
 
-    private void update(List<String> sqlCommands,ClientData clientData) {
+    private synchronized void update(List<String> sqlCommands,ClientData clientData) {
         if (!sqlCommands.isEmpty()) {
             try {
                 dbHandler.updateVersion(sqlCommands);
