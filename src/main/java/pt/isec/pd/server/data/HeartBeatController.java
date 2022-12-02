@@ -21,6 +21,7 @@ import java.net.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class HeartBeatController {
     private final Log LOG = Log.getLogger(HeartBeatController.class);
@@ -89,9 +90,13 @@ public class HeartBeatController {
 
                     oos.writeObject(0);
                     oos.writeObject(myVersion);
-                    List<String> update = (List<String>) ois.readObject();
+                    Map<Integer,List<String>> versionQuerys = (Map<Integer,List<String>>) ois.readObject();
 
-                    dbHandler.updateToNewVersion(update);
+                    dbHandler.updateToNewVersion(versionQuerys);
+
+                    byte[] bytes = Utils.serializeObject(updateHeartBeat());
+                    DatagramPacket dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                    ms.send(dp);
                 }
             }
             catch (SQLException | IOException | ClassNotFoundException e) {

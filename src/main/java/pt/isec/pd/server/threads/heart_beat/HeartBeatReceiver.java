@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class HeartBeatReceiver extends Thread{
     private final Log LOG = Log.getLogger(HeartBeatReceiver.class);
@@ -51,7 +52,6 @@ public class HeartBeatReceiver extends Thread{
                     if (!hbList.isEmpty() && controller.isEndOfStartup() && !controller.isUpdating()) {
                         HeartBeat highest = hbDbVersion.get(hbDbVersion.size() - 1);
                         if (controller.getHb().getDbVersion() < highest.getDbVersion()) {
-                            LOG.log("Theres a highest version");
                             controller.setAvailable(false);
 
                             //Update the list
@@ -81,7 +81,7 @@ public class HeartBeatReceiver extends Thread{
 
                                 oos.writeObject(0);
                                 oos.writeObject(myVersion);
-                                List<String> update = (List<String>) ois.readObject();
+                                Map<Integer,List<String>> update = (Map<Integer,List<String>>) ois.readObject();
 
                                 dbHandler.updateToNewVersion(update);
                             }

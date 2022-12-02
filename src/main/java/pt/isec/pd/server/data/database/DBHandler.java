@@ -60,37 +60,43 @@ public class DBHandler {
         statement.close();
     }
 
-
-    public List<String> getListOfQuery(int myVersion, int newVersion) throws SQLException {
+    public void updateToNewVersion(Map<Integer,List<String>> versionQuerys) throws SQLException {
         Statement statement = connection.createStatement();
-        List<String> commands = new ArrayList<>();
-        //Returns all needed updates
-        ResultSet result = statement.executeQuery("SELECT id," +
-                "\"query\"" +
-                " FROM versao WHERE id > + " + myVersion + " and id <=" + newVersion + " ORDER BY key asc;");
-        while(result.next()) {
-            result.getInt("id");
-            commands.add(result.getString("query"));
+
+        for (var version : versionQuerys.entrySet()) {
+            List<String> querys = version.getValue();
+            updateVersion(querys);
+            for (var query : querys) {
+                LOG.log("Executing: " + query);
+                statement.executeUpdate(query);
+            }
         }
 
-        result.close();
         statement.close();
-
-        return commands;
     }
 
-    public void updateToNewVersion(List<String> querys) throws SQLException {
+    public Map<Integer,List<String>> getListOfQuery(int myVersion, int newVersion) throws SQLException {
         Statement statement = connection.createStatement();
+        Map<Integer,List<String>> versionQuerys = new HashMap<>();
+        myVersion++;
 
-        updateVersion(querys);
+        for (int i = myVersion; i <= newVersion; i++) {
+            ResultSet result = statement.executeQuery("SELECT id," +
+                    "\"query\"" +
+                    " FROM versao WHERE id = " + i + " ORDER BY key asc;");
+            versionQuerys.put(i,new ArrayList<>());
+            while(result.next()) {
+                result.getInt("id");
+                versionQuerys.get(i).add(result.getString("query"));
+            }
 
-        for (String query : querys) {
-            System.out.println(query);
-            statement.executeUpdate(query);
+            result.close();
         }
+        //Returns all needed updates
 
         statement.close();
 
+        return versionQuerys;
     }
 
     //======================  ACTIONS ======================

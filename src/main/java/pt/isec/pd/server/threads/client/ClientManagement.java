@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ClientManagement extends Thread {
     private final Log LOG = Log.getLogger(Server.class);
@@ -53,8 +54,8 @@ public class ClientManagement extends Thread {
                 //Update db
                 if((Integer) ois.readObject() == 0) {
                     int version = (Integer) ois.readObject();
-                    List<String> sqlCommands = dbHandler.getListOfQuery(version,dbHandler.getCurrentVersion());
-                    oos.writeObject(sqlCommands);
+                    Map<Integer,List<String>> versionQuerys = dbHandler.getListOfQuery(version,dbHandler.getCurrentVersion());
+                    oos.writeObject(versionQuerys);
                 } else {
                     incConnection();
                     LOG.log("New connection established: " + numConnections);
