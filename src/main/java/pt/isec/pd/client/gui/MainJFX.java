@@ -40,7 +40,6 @@ public class MainJFX extends Application {
         stage.setMinWidth(400);
         stage.show();
 
-
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {

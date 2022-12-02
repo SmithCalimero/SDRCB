@@ -1,28 +1,42 @@
 package pt.isec.pd.client.gui.view;
 
-import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import pt.isec.pd.client.model.ModelManager;
-import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Responses.SeatsResponse;
 import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
 import pt.isec.pd.shared_data.Seat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SeatsForm {
-    public AnchorPane pane;
-    public ListView<Seat> list;
-    public Button cancelButton;
-    public Button reserveButton;
+    @FXML
+    private Button cancelButton;
+
+    @FXML
+    private AnchorPane pane;
+
+    @FXML
+    private Pane centerPane;
+
     private ModelManager model;
+
+    private List<Seat> seats;
 
     public void setModel(ModelManager model) {
         this.model = model;
+        this.seats = new ArrayList<>();
 
         registerHandlers();
         update();
@@ -34,11 +48,8 @@ public class SeatsForm {
         });
 
         model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
-            if (model.getState() == State.SEATS_PRICES) {
-                SeatsResponse seatsResponse = (SeatsResponse) model.getResponse();
-                list.getItems().clear();
-                list.setItems(FXCollections.observableList(seatsResponse.getSeats()));
-            }
+            if (model.getState() == State.SEATS_PRICES)
+                updateSeatsList();
         });
 
         model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
@@ -49,16 +60,69 @@ public class SeatsForm {
         cancelButton.setOnAction(actionEvent -> {
             model.seatsTransition(null);
         });
-
-        reserveButton.setOnAction(actionEvent -> {
-            List<Seat> seats = list.getSelectionModel().getSelectedItems().stream().toList();
-            if (!seats.isEmpty()) {
-                model.submitReservation(seats);
-            }
-        });
     }
 
     private void update() {
         pane.setVisible(model != null && model.getState() == State.SEATS_PRICES);
+    }
+
+    private void updateSeatsList() {
+        SeatsResponse seatsResponse = (SeatsResponse) model.getResponse();
+        ArrayList<String> rows = new ArrayList<>();
+        VBox container = new VBox();
+        container.prefWidthProperty().bind(pane.widthProperty().multiply(1));
+
+        // Get all the rows, to search by row
+        for (var s : seatsResponse.getSeats())
+            if (!rows.contains(s.getRow()))
+                rows.add(s.getRow());
+
+        // Create rows
+        for (var r : rows) {
+            HBox row = new HBox(10);
+            row.setPadding(new Insets(0,0,10,0));
+            row.getChildren().add(new Label(r + ": "));
+
+            // Create columns
+            for (var s : seatsResponse.getSeats()) {
+                if (s.getRow().equalsIgnoreCase(r)) {
+                    VBox column = new VBox(10);
+
+                    Button button = new Button();
+                    ImageView view = new ImageView(
+                            new Image(String.valueOf(getClass().getResource("/icons/seat.png")))
+                    );
+                    view.setFitHeight(20);
+                    view.setFitWidth(20);
+                    view.preserveRatioProperty();
+                    button.setGraphic(view);
+
+                    column.getChildren().add(button);
+                    column.setAlignment(Pos.CENTER);
+
+                    button.setOnAction(actionEvent -> {
+                        seats.add(s);
+                        button.setBackground(Background.fill(Color.rgb(0,1,0,0.5)));
+                    });
+
+                    // Fill row
+                    row.getChildren().add(column);
+                    row.setAlignment(Pos.CENTER_LEFT);
+                }
+            }
+            // Add row to container
+            container.getChildren().add(row);
+        }
+
+        HBox hBoxReserve = new HBox(10);
+        Button reserveButton = new Button("Reservar");
+        reserveButton.setOnAction(actionEvent -> {
+            model.submitReservation(seats);
+        });
+        hBoxReserve.getChildren().add(reserveButton);
+        hBoxReserve.setAlignment(Pos.CENTER);
+        container.getChildren().add(hBoxReserve);
+
+        centerPane.getChildren().addAll(container);
     }
 }
