@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SeatsForm {
+    public Label msg;
     @FXML
     private Button cancelButton;
 
@@ -48,13 +49,19 @@ public class SeatsForm {
         });
 
         model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
+            msg.setText("");
             if (model.getState() == State.SEATS_PRICES)
                 updateSeatsList();
         });
 
         model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
+            msg.setText("");
             SubmitReservationResponse submitReservationResponse = (SubmitReservationResponse) model.getResponse();
-            model.payReservationTransition(submitReservationResponse.getResId());
+            if (submitReservationResponse.isSuccess()) {
+                model.payReservationTransition(submitReservationResponse.getResId());
+            } else {
+                msg.setText("There was a client that requested that seat first sorry!");
+            }
         });
 
         cancelButton.setOnAction(actionEvent -> {

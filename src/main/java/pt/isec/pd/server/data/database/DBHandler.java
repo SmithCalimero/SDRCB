@@ -765,6 +765,28 @@ public class DBHandler {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String dateString = dateFormat.format(currentTime);
 
+            boolean check = false;
+            for (Seat seat : reserve.getValue()) {
+                ResultSet checkSeats = statement.executeQuery("SELECT id FROM lugar WHERE fila= '" + seat.getRow() + "'" + " and assento='"
+                        + seat.getNumber() + "' and espetaculo_id='" + seat.getShowId() + "'");
+                int id = checkSeats.getInt(1);
+                checkSeats.close();
+                if (id != 0) {
+                    ResultSet seatReserve = statement.executeQuery("SELECT id_reserva FROM reserva_lugar WHERE id_lugar ='" + id + "'");
+                    if (seatReserve.getInt(1) != 0) {
+                        check = true;
+                    }
+                }
+            }
+
+            if (check) {
+                LOG.log("The seat is already being used");
+                response.setSuccess(false);
+                return new Pair<>(response,null);
+            }
+
+            LOG.log("The seats are available");
+
             try {
                 // Insert reserve
                 ResultSet result = statement.executeQuery("SELECT max(id) FROM reserva");

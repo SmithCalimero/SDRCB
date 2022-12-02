@@ -6,6 +6,7 @@ import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
+import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
@@ -112,19 +113,22 @@ public class ClientReceiveMessage extends Thread {
 
                 //SUBMIT_RESERVATION
                 if (clientData.getAction() == ClientAction.SUBMIT_RESERVATION) {
-                    clientData10sec = new ClientData(clientData);
-                    TimerTask tt = new TimerTask() {
-                        @Override
-                        public void run() {
-                            clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
-                            request(clientData10sec);
-                        }
-                    };
+                    if (((SubmitReservationResponse) sqlCommands.getKey()).isSuccess()) {
+                        clientData10sec = new ClientData(clientData);
 
-                    Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-                    calendar.add(Calendar.SECOND, 10);
-                    t = new Timer();
-                    t.schedule(tt,calendar.getTime());
+                        TimerTask tt = new TimerTask() {
+                            @Override
+                            public void run() {
+                                clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+                                request(clientData10sec);
+                            }
+                        };
+
+                        Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+                        calendar.add(Calendar.SECOND, 10);
+                        t = new Timer();
+                        t.schedule(tt,calendar.getTime());
+                    }
                 } else if (clientData.getAction() == ClientAction.PAY_RESERVATION) {
                     t.cancel();
                 }

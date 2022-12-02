@@ -91,6 +91,10 @@ public class ResponseHandler extends Thread {
                             ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
                             pcs.firePropertyChange(ClientAction.SUBMIT_RESERVATION.toString(),null,null);
                         });
+                    } else {
+                        Platform.runLater(() -> {
+                            pcs.firePropertyChange(ClientAction.SUBMIT_RESERVATION.toString(),null,null);
+                        });
                     }
                 }
                 else if (object instanceof DeleteReservationResponse) {
