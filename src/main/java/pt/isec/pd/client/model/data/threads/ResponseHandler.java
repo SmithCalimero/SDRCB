@@ -95,6 +95,7 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof DeleteReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.DELETE_UNPAID_RESERVATION.toString(),null,null));
+                    ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
                 }
                 else if (object instanceof PayReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_RESERVATION.toString(),null,null));

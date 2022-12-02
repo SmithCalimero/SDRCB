@@ -47,10 +47,6 @@ public class ConsultPaymentsAwaitingForm {
             model.consultsPaymentsAwaiting();
         });
 
-        model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
-            updateListOnDelete();
-        });
-
         model.addPropertyChangeListener(ClientAction.CONSULT_PAYMENTS_AWAITING.toString(), evt -> {
             updateList();
         });
@@ -80,24 +76,8 @@ public class ConsultPaymentsAwaitingForm {
     private void updateList() {
         ConsultUnpayedReservationResponse response = (ConsultUnpayedReservationResponse) model.getResponse();
         if (response != null) {
-            // clear list
             list.getItems().clear();
-
-            // write the updated list
-            for (var r : response.getReserves())
-                list.getItems().add(r);
-        }
-    }
-
-    private void updateListOnDelete() {
-        DeleteReservationResponse response = (DeleteReservationResponse) model.getResponse();
-        if (response != null) {
-            // clear list
-            list.getItems().clear();
-
-            // write the updated list
-            for (var r : response.getReserves())
-                list.getItems().add(r);
+            list.setItems(FXCollections.observableList(response.getReserves()));
         }
     }
 }

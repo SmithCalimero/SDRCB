@@ -1,15 +1,13 @@
 package pt.isec.pd.server.data;
 
+import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatLifeTime;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatReceiver;
 import pt.isec.pd.server.threads.heart_beat.HeartBeatSender;
-import pt.isec.pd.shared_data.Commit;
-import pt.isec.pd.shared_data.CompareDbVersionHeartBeat;
-import pt.isec.pd.shared_data.HeartBeat;
-import pt.isec.pd.shared_data.Prepare;
+import pt.isec.pd.shared_data.*;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
@@ -33,8 +31,8 @@ public class HeartBeatController {
     private final HeartBeatSender sender;
     private final HeartBeatLifeTime lifeTimeChecker;
     private final HeartBeatList hbList;
-    private boolean updater = false;
-    private boolean updating = false;
+    private Boolean updater = false;
+    private Boolean updating = false;
     private boolean available = true;
     private boolean endOfStartup = false;
 
@@ -116,9 +114,9 @@ public class HeartBeatController {
         this.available = available;
     }
 
-    public HeartBeat updateHeartBeat() {
-        hbEvent = new HeartBeat(server.getServerPort(),isAvailable(), server.getDBVersion(), server.getActiveConnections());
-        return hbEvent;
+    public synchronized HeartBeat updateHeartBeat() {
+            hbEvent = new HeartBeat(server.getServerPort(),isAvailable(), server.getDBVersion(), server.getActiveConnections());
+            return hbEvent;
     }
 
     public synchronized HeartBeat getHb() {
@@ -126,66 +124,93 @@ public class HeartBeatController {
     }
 
     // Only called when a request from client updated the database
-    public synchronized void updateDataBase(List<String> sqlCommand, ClientData clientData) {
-        if (!isUpdating()) {
-            try {
-                DatagramPacket dp;
-                LOG.log("Update Starting...");
-                setUpdater(true);
+    public synchronized boolean updateDataBase(Pair<Object, List<String>> sqlCommand, ClientData clientData,ClientReceiveMessage client) {
+        setUpdater(true);
+        boolean r = false;
 
-                DatagramSocket ds = new DatagramSocket();
-                ds.setSoTimeout(1000);
+        try {
+            DatagramPacket dp;
+            LOG.log("Update Starting...");
 
-                // 1. Send the 'prepare' object to the multicast
-                Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand,clientData);
-                LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.size());
-                byte[] prepareBytes = Utils.serializeObject(prepare);
+            DatagramSocket ds = new DatagramSocket();
+            ds.setSoTimeout(1000);
 
-                dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
-                ms.send(dp);
-                LOG.log("Prepare");
+            // 1. Send the 'prepare' object to the multicast
+            Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand.getValue(),clientData);
+            LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
+            byte[] prepareBytes = Utils.serializeObject(prepare);
 
-                // 2. Wait for the servers to send the signal (timeout 1000 ms)
-                while (true) {
-                    try {
-                        DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
-                        ds.receive(dpReceive);
-                        LOG.log("Confirmation");
-                    } catch (SocketTimeoutException e) {
+            dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+            ms.send(dp);
+
+            // 2. Wait for the servers to send the signal (timeout 1000 ms)
+            int servers = 0;
+            int attempts = 0;
+            while (true) {
+                try {
+                    DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
+                    ds.receive(dpReceive);
+                    servers++;
+                } catch (SocketTimeoutException e) {
+                    if (servers != hbList.size()) {
+                        if (attempts == 1) {
+                            break;
+                        }
+                        prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand.getValue(),clientData);
+                        LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
+                        prepareBytes = Utils.serializeObject(prepare);
+
+                        dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                        ms.send(dp);
+                        LOG.log("Not all servers sent a confirmation trying again");
+                        attempts++;
+                    } else {
                         LOG.log("End of Confirmation");
                         break;
                     }
                 }
+            }
 
+            if (attempts == 0) {
                 // 3. Send a 'commit' to start the updating
                 Commit commit = new Commit(prepare.getNextVersion());
                 byte[] commitBytes = Utils.serializeObject(commit);
                 dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
-                LOG.log("Commit");
+                r = true;
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                Abort abort = new Abort(prepare.getNextVersion());
+                byte[] commitBytes = Utils.serializeObject(abort);
+                dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                ms.send(dp);
+                r = false;
             }
-        } else {
-            LOG.log("Theres a updating working at the moment");
+
+
+            wait();
+            setUpdater(false);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
+
+        return r;
     }
 
 
-    public synchronized void setUpdater(boolean updater) {
+    public void setUpdater(Boolean updater) {
         this.updater = updater;
     }
 
-    public synchronized boolean imUpdating() {
+    public Boolean imUpdating() {
         return updater;
     }
 
-    public synchronized boolean isUpdating() {
+    public Boolean isUpdating() {
         return updating;
     }
 
-    public synchronized void setUpdating(boolean updating) {
+    public void setUpdating(Boolean updating) {
         this.updating = updating;
     }
 

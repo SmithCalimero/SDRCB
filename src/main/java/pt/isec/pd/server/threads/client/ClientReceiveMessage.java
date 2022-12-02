@@ -1,17 +1,16 @@
 package pt.isec.pd.server.threads.client;
 
+import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
-import pt.isec.pd.shared_data.Responses.PayLaterResponse;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -25,8 +24,8 @@ public class ClientReceiveMessage extends Thread {
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
-    private ClientData clientDataOld;
     private ClientData clientData;
+    private ClientData clientData10sec;
 
     public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.oos = oos;
@@ -59,7 +58,7 @@ public class ClientReceiveMessage extends Thread {
         }
     }
 
-    public synchronized void request(ClientData clientData) {
+    public void request(ClientData clientData) {
         if (!hbController.isUpdating() && queue.isEmpty()) {
             handleClientRequest(clientData);
         } else {
@@ -69,10 +68,10 @@ public class ClientReceiveMessage extends Thread {
         }
     }
 
-    public synchronized void handleClientRequest(ClientData clientData) {
+    public void handleClientRequest(ClientData clientData) {
         LOG.log("Execution " + clientData.getAction());
         try {
-            List<String> sqlCommands = switch(clientData.getAction()) {
+            Pair<Object,List<String>> sqlCommands = switch(clientData.getAction()) {
                 case REGISTER -> dbHandler.register(clientData,oos);
                 case LOGIN -> dbHandler.login(clientData,oos);
                 case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos);
@@ -83,29 +82,9 @@ public class ClientReceiveMessage extends Thread {
                 case SELECT_SHOWS -> dbHandler.selectShows(oos);
                 case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos);
-                case SUBMIT_RESERVATION -> {
-                    List<String> listQuery = dbHandler.submitReservation(clientData,oos);
-                    clientDataOld = new ClientData(clientData);
-                    TimerTask tt = new TimerTask() {
-                        @Override
-                        public void run() {
-                            clientDataOld.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
-                            request(clientDataOld);
-                        };
-                    };
-
-                    Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-                    calendar.add(Calendar.SECOND, 10);
-                    t = new Timer();
-                    t.schedule(tt,calendar.getTime());
-
-                    yield listQuery;
-                }
+                case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData,oos);
                 case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos);
-                case PAY_RESERVATION -> {
-                    t.cancel();
-                    yield dbHandler.payReservation(clientData,oos);
-                }
+                case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos);
                 case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos);
                 case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos);
                 case DISCONNECTED -> dbHandler.disconnect(clientData,oos);
@@ -115,21 +94,42 @@ public class ClientReceiveMessage extends Thread {
 
             //If db was updated, init the process of updating other servers db
             update(sqlCommands,clientData);
-            hbController.updateHeartBeat();
-        }  catch (ClassNotFoundException | SQLException | IOException e) {
+        }  catch (IOException | ClassNotFoundException | SQLException e) {
             LOG.log("Unable to read client data: " + e);
         }
     }
 
-    private synchronized void update(List<String> sqlCommands,ClientData clientData) {
-        if (!sqlCommands.isEmpty()) {
+    private void update(Pair<Object, List<String>> sqlCommands, ClientData clientData) {
+        boolean result = true;
+        if (sqlCommands.getValue() != null) {
+            result = hbController.updateDataBase(sqlCommands,clientData,this);
+        }
+
+        if (oos != null && result) {
+            LOG.log("Sending response");
             try {
-                dbHandler.updateVersion(sqlCommands);
-                hbController.updateDataBase(sqlCommands,clientData);
-                //Broadcast the message
-                broadcastObserver(clientData);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+                oos.writeObject(sqlCommands.getKey());
+
+                //SUBMIT_RESERVATION
+                if (clientData.getAction() == ClientAction.SUBMIT_RESERVATION) {
+                    clientData10sec = new ClientData(clientData);
+                    TimerTask tt = new TimerTask() {
+                        @Override
+                        public void run() {
+                            clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+                            request(clientData10sec);
+                        }
+                    };
+
+                    Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+                    calendar.add(Calendar.SECOND, 10);
+                    t = new Timer();
+                    t.schedule(tt,calendar.getTime());
+                } else if (clientData.getAction() == ClientAction.PAY_RESERVATION) {
+                    t.cancel();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

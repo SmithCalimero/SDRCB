@@ -1,5 +1,6 @@
 package pt.isec.pd.shared_data;
 
+import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientData;
 
 import java.io.Serial;
@@ -10,14 +11,14 @@ public class Prepare implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private int port;
-    private List<String> sqlCommand;
+    private List<String> update;
     private ClientData data;
     private int nextVersion;
 
     public Prepare(int port, int serverPort, List<String> sqlCommand, ClientData data) {
         this.port = port;
         this.data = data;
-        this.sqlCommand = sqlCommand;
+        this.update = sqlCommand;
     }
 
     public int getPort() {
@@ -28,12 +29,12 @@ public class Prepare implements Serializable {
         this.port = port;
     }
 
-    public List<String> getSqlCommand() {
-        return sqlCommand;
+    public List<String> getUpdate() {
+        return update;
     }
 
-    public void setSqlCommand(List<String> sqlCommand) {
-        this.sqlCommand = sqlCommand;
+    public void setUpdate(List<String> update) {
+        this.update = update;
     }
 
     public int getNextVersion() {
@@ -43,7 +44,7 @@ public class Prepare implements Serializable {
     @Override
     public String toString() {
         return "port: " + port +
-                ", sqlCommand: " + sqlCommand;
+                ", sqlCommand: " + update;
     }
 
     public ClientData getData() {
