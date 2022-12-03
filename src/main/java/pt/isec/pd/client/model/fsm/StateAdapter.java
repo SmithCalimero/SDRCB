@@ -129,4 +129,23 @@ public abstract class StateAdapter implements IState {
     public Object getResponse() {
         return data.getResponse();
     }
+
+    @Override
+    public void payReservationTransitionToState(int resId, int showId) {
+
+    }
+
+    @Override
+    public void showNotification(int showId) {
+
+    }
+
+    @Override
+    public String getMessage() {
+        return null;
+    }
+
+    @Override
+    public void setMessage(String message) {
+    }
 }

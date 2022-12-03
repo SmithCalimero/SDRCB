@@ -45,6 +45,8 @@ public class RootPane extends BorderPane {
             throw new RuntimeException(e);
         }
 
+
+
         login.<LoginForm>getController().setModel(model);
         register.<RegisterForm>getController().setModel(model);
         edit.<EditForm>getController().setModel(model);
@@ -59,6 +61,7 @@ public class RootPane extends BorderPane {
         consultPayReservations.<ConsultPaymentsForm>getController().setModel(model);
 
         this.setCenter(stackPane);
+        this.setTop(new StatusBar(model));
     }
 
     private void registerHandlers() { }

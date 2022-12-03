@@ -31,10 +31,14 @@ public interface IState {
     void consultsPaymentsAwaiting();
     void consultsPayments();
     void payReservationTransition(int resId);
+    void payReservationTransitionToState(int resId,int showId);
     void deleteReservationAwaiting(int resId);
 
     void payReservation();
     void deleteReservation();
+    void showNotification(int showId);
 
+    String getMessage();
+    void setMessage(String message);
     Object getResponse();
 }

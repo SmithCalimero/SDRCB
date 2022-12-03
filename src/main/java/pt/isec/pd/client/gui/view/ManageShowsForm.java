@@ -23,7 +23,6 @@ public class ManageShowsForm {
     public ListView<Show> list;
     public AnchorPane pane;
     public Button retrocederButton;
-    public Label result;
     public Button removeButton;
     public Button handleVisibilityButton;
     private ModelManager model;
@@ -46,17 +45,17 @@ public class ManageShowsForm {
 
         model.addPropertyChangeListener(ClientAction.INSERT_SHOWS.toString(), evt -> {
             InsertShowResponse showsResponse = (InsertShowResponse) model.getResponse();
-            result.setText(showsResponse.getMsg());
+            model.setMessage(showsResponse.getMsg());
         });
 
         model.addPropertyChangeListener(ClientAction.DELETE_SHOW.toString(), evt -> {
             InsertShowResponse insertShowResponse = (InsertShowResponse) model.getResponse();
-            result.setText(insertShowResponse.getMsg());
+            model.setMessage(insertShowResponse.getMsg());
         });
 
         model.addPropertyChangeListener(ClientAction.VISIBLE_SHOW.toString(), evt -> {
             HandleVisibleShowResponse handleVisibleShowResponse = (HandleVisibleShowResponse) model.getResponse();
-            result.setText(handleVisibleShowResponse.getMsg());
+            model.setMessage(handleVisibleShowResponse.getMsg());
         });
 
         retrocederButton.setOnAction(actionEvent ->{
@@ -71,7 +70,7 @@ public class ManageShowsForm {
 
         removeButton.setOnAction(actionEvent -> {
             if (list.getSelectionModel().getSelectedItem() == null) {
-                result.setText("Selecione o espetaculo que pretende remover");
+                model.setMessage("Selecione o espetaculo que pretende remover");
                 return;
             }
 
@@ -80,7 +79,7 @@ public class ManageShowsForm {
 
         handleVisibilityButton.setOnAction(actionEvent -> {
             if (list.getSelectionModel().getSelectedItem() == null) {
-                result.setText("Selecione o espetaculo que pretende tornar visivel");
+                model.setMessage("Selecione o espetaculo que pretende tornar visivel");
                 return;
             }
 
@@ -89,5 +88,6 @@ public class ManageShowsForm {
     }
     private void update() {
         pane.setVisible(model != null && model.getState() == State.MANAGE_SHOWS);
+        model.setMessage("");
     }
 }

@@ -30,6 +30,7 @@ public class ResponseHandler extends Thread {
     public void run() {
         while (true) {
             try {
+
                 Object object = ch.getOis().readUnshared();
                 data = object;
                 LOG.log("Response received: " + data.getClass().getSimpleName().toUpperCase());
@@ -88,8 +89,8 @@ public class ResponseHandler extends Thread {
                 else if (object instanceof SubmitReservationResponse submitReservationResponse) {
                     if (submitReservationResponse.isSuccess()) {
                         Platform.runLater(() -> {
-                            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
                             pcs.firePropertyChange(ClientAction.SUBMIT_RESERVATION.toString(),null,null);
+                            ch.writeToSocket(ClientAction.VIEW_SEATS_PRICES,null);
                         });
                     } else {
                         Platform.runLater(() -> {

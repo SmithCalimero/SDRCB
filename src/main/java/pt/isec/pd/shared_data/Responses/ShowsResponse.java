@@ -9,6 +9,7 @@ import java.util.List;
 public class ShowsResponse implements Serializable {
     ClientAction action;
     List<Show> shows;
+    int showId;
 
     public ClientAction getAction() {
         return action;
@@ -20,6 +21,14 @@ public class ShowsResponse implements Serializable {
 
     public List<Show> getShows() {
         return shows;
+    }
+
+    public int getShowId() {
+        return showId;
+    }
+
+    public void setShowId(int showId) {
+        this.showId = showId;
     }
 
     public void setShows(List<Show> shows) {

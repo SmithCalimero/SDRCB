@@ -933,7 +933,7 @@ public class DBHandler {
     }
 
     public synchronized Pair<Object,List<String>> showVisible(ClientData clientData) throws IOException {
-        Integer showId = (Integer) clientData.getData();
+        Integer showId = clientData.getShowId();
         String query;
         String msg;
 
@@ -1076,11 +1076,11 @@ public class DBHandler {
             if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                     isAdmin.getString("nome").equalsIgnoreCase("admin")) {
                     // Receive from client the ID of the show to be deleted
-                    Integer deleteShowId = (Integer) clientData.getData();
+                    Integer deleteShowId = clientData.getShowId();
 
                     // Search reservations
                     ResultSet reservations = statement.executeQuery(
-                            "SELECT * from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
+                            "SELECT pago from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
 
                     // If there are no reservations associated
                     if (!reservations.next())
@@ -1102,12 +1102,20 @@ public class DBHandler {
                         // If there are no paid reservations associated, the show can be deleted
                         if (!hasPaidReserve) {
                             try {
+                                ResultSet reserva = statement.executeQuery(
+                                        "SELECT id from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
+
+                                while (reserva.next()) {
+                                    int id = reserva.getInt("id");
+                                    System.out.println(id);
+                                    query = "DELETE from reserva_lugar WHERE id_reserva = "+ id + ";";
+                                    listQuery.add(query);
+                                }
                                 query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
                                 listQuery.add(query);
 
                                 query = "DELETE from lugar WHERE espetaculo_id = "+ deleteShowId + ";";
                                 listQuery.add(query);
-
 
                                 msg = "Show[" + deleteShowId + "] was deleted successfully...";
                                 LOG.log(msg);

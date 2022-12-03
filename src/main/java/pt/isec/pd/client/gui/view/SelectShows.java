@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
@@ -30,8 +31,10 @@ public class SelectShows {
         });
 
         model.addPropertyChangeListener(ClientAction.SELECT_SHOWS.toString(), evt -> {
-            ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
-            list.setItems(FXCollections.observableList(showsResponse.getShows()));
+            try {
+                ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
+                list.setItems(FXCollections.observableList(showsResponse.getShows()));
+            } catch (ClassCastException ignored) {}
         });
 
         list.setOnMouseClicked(actionEvent -> {

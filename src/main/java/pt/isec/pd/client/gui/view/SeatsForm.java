@@ -1,30 +1,23 @@
 package pt.isec.pd.client.gui.view;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Popup;
-import javafx.stage.PopupWindow;
-import javafx.stage.Stage;
-import pt.isec.pd.client.gui.RootPane;
+
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.shared_data.Responses.SeatsResponse;
+import pt.isec.pd.shared_data.Responses.ShowsResponse;
 import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
 import pt.isec.pd.shared_data.Seat;
 
@@ -34,25 +27,17 @@ public class SeatsForm {
     public Label msg;
     @FXML
     private Button cancelButton;
-
     @FXML
     private AnchorPane pane;
-
     @FXML
     private Pane centerPane;
-
     private ModelManager model;
-
     private List<Seat> seats;
-    private Pane seatInfo;
+    private SeatsResponse seatsResponse;
 
     public void setModel(ModelManager model) {
         this.model = model;
         this.seats = new ArrayList<>();
-
-
-
-
         registerHandlers();
         update();
     }
@@ -65,10 +50,23 @@ public class SeatsForm {
 
         model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
             seats.clear();
-            msg.setText("");
+            model.setMessage("");
             if (model.getState() == State.SEATS_PRICES)
                 updateSeatsList();
         });
+
+        model.addPropertyChangeListener(ClientAction.SELECT_SHOWS.toString(), evt -> {
+            if (model.getState() == State.SEATS_PRICES) {
+                try {
+                    ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
+                    if (showsResponse != null && showsResponse.getShowId() == seatsResponse.getShowId()) {
+                        model.previous();
+                        model.setMessage("O show foi removido pelo administrado");
+                    }
+                } catch (ClassCastException ignored) {}
+            }
+        });
+
 
         model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
             msg.setText("");
@@ -77,7 +75,6 @@ public class SeatsForm {
                 model.payReservationTransition(submitReservationResponse.getResId());
             else
                 msg.setText("There was a client that requested that seat first sorry!");
-            //updateSeatsList();
         });
 
         cancelButton.setOnAction(actionEvent -> {
@@ -135,10 +132,30 @@ public class SeatsForm {
                         info.setBackground(Background.fill(Color.rgb(1,1,1,0.5)));
                         info.getChildren().addAll(rowLabel,number,price);
 
+                        column.setOnMouseEntered(mouseEvent -> {
+                            Bounds bound = column.localToScene(column.getBoundsInLocal());
+                            stage.getContent().clear();
+                            stage.getContent().add(info);
+                            stage.setX(pane.getScene().getWindow().getX() + column.getLayoutX());
+                            stage.setY(pane.getScene().getWindow().getY() + bound.getMinY() - 25);
+                            stage.setAutoHide(true);
+                            stage.show(pane.getScene().getWindow());
+                        });
+
+                        column.setOnMouseExited(mouseEvent -> {
+                            stage.hide();
+                        });
+
                         // If reserved button is disabled and red
-                        if (s.isReserved())
+                        if (s.isReserved()) {
+                            seats.remove(s);
                             button.setBackground(Background.fill(Color.rgb(200, 0, 0, 0.5)));
+                        }
                         else {
+                            // If the user had this seat selected before de update (sets selected color)
+                            if (seats.contains(s))
+                                button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.65)));
+
                             button.setOnAction(actionEvent -> {
                                 if (seats.contains(s)) {
                                     seats.remove(s);
@@ -148,20 +165,8 @@ public class SeatsForm {
                                 } else {
                                     button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.65)));
                                     seats.add(s);
+                                    System.out.println("ADDED SEAT: " + s.getNumber());
                                 }
-                            });
-
-                            button.setOnMouseEntered(mouseEvent -> {
-                                Bounds bound = column.localToScene(column.getBoundsInLocal());
-                                stage.getContent().clear();
-                                stage.getContent().add(info);
-                                stage.setX(pane.getScene().getWindow().getX() + column.getLayoutX());
-                                stage.setY(pane.getScene().getWindow().getY() + bound.getMinY() - 25);
-                                stage.setAutoHide(true);
-                                stage.show(pane.getScene().getWindow());
-                            });
-                            button.setOnMouseExited(mouseEvent -> {
-                                stage.hide();
                             });
                         }
 
@@ -177,8 +182,10 @@ public class SeatsForm {
             HBox hBoxReserve = new HBox(10);
             Button reserveButton = new Button("Reservar");
             reserveButton.setOnAction(actionEvent -> {
-                if (!seats.isEmpty())
+                if (!seats.isEmpty()) {
                     model.submitReservation(seats);
+                    seats.clear();
+                }
             });
 
             hBoxReserve.getChildren().add(reserveButton);

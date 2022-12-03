@@ -6,6 +6,7 @@ import javafx.scene.layout.AnchorPane;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.ShowsResponse;
 
 public class PayReservationForm {
     @FXML
@@ -33,6 +34,15 @@ public class PayReservationForm {
         model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
             model.previous();
         });
+
+        model.addPropertyChangeListener(ClientAction.SELECT_SHOWS.toString(), evt -> {
+            if (model.getState() == State.PAY_RESERVATION) {
+                ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
+                model.showNotification(showsResponse.getShowId());
+                model.setMessage("O show foi removido pelo administrado a sua reserva foi cancelada");
+            }
+        });
+
 
         model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
             model.previous();

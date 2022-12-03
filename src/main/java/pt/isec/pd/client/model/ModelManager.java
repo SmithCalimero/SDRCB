@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ModelManager {
     public static final String PROP_STATE = "state";
-    public static final String PROP_DATA  = "data";
+    public static final String PROP_DATA = "data";
     Context context;
     PropertyChangeSupport pcs;
 
@@ -33,6 +33,16 @@ public class ModelManager {
     public State getState() {
         return context.getState();
     }
+
+    public String getMessage() {
+        return context.getMessage();
+    }
+
+    public void setMessage(String message) {
+        context.setMessage(message);
+        pcs.firePropertyChange(PROP_DATA,null,null);
+    }
+
 
     public void login(String userName, String password) {
         context.login(userName,password);
@@ -141,4 +151,15 @@ public class ModelManager {
     public Object getResponse() {
         return context.getResponse();
     }
+
+    public void payReservationTransitionToState(int resId, int showId) {
+        context.payReservationTransitionToState(resId,showId);
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
+    public void showNotification(int showId) {
+        context.showNotification(showId);
+        pcs.firePropertyChange(PROP_STATE,null,context.getState());
+    }
+
 }

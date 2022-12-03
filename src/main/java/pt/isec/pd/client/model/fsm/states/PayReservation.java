@@ -7,14 +7,17 @@ import pt.isec.pd.client.model.fsm.State;
 import pt.isec.pd.client.model.fsm.StateAdapter;
 
 public class PayReservation extends StateAdapter {
-    int resId;
-    public PayReservation(Context context,Client data,int resId) {
-        super(context, data);
-        this.resId = resId;
-    }
+    private int resId;
+    private int showId;
 
     public PayReservation(Context context, Client data) {
         super(context, data);
+    }
+
+    public PayReservation(Context context, Client data, int resId, int showId) {
+        super(context, data);
+        this.resId = resId;
+        this.showId = showId;
     }
 
     @Override
@@ -37,6 +40,13 @@ public class PayReservation extends StateAdapter {
     @Override
     public void previous() {
         changeState(State.MENU_CLIENT);
+    }
+
+    @Override
+    public void showNotification(int showId) {
+        if (showId == this.showId){
+            changeState(State.MENU_CLIENT);
+        }
     }
 
     @Override

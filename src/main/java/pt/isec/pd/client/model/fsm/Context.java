@@ -110,4 +110,20 @@ public class Context {
     public void deleteReservation() { state.deleteReservation(); }
 
     public void deleteReservationAwaiting(int resId) { state.deleteReservationAwaiting(resId);}
+
+    public void payReservationTransitionToState(int resId, int showId) {
+        state.payReservationTransitionToState(resId,showId);
+    }
+
+    public void showNotification(int show) {
+        state.showNotification(show);
+    }
+
+    public String getMessage() {
+        return data.getMessage();
+    }
+
+    public void setMessage(String message) {
+        data.setMessage(message);
+    }
 }

@@ -14,7 +14,6 @@ import pt.isec.pd.shared_data.Responses.LoginResponse;
 public class LoginForm {
     public TextField usernameField;
     public PasswordField passwordField;
-    public Label errorMessage;
     public AnchorPane pane;
     public Button loginButton;
     public Button registerButton;
@@ -36,11 +35,11 @@ public class LoginForm {
         model.addPropertyChangeListener(ClientAction.LOGIN.toString(), evt -> {
             LoginResponse loginResponse = (LoginResponse) model.getResponse();
 
-            errorMessage.setText("");
+            model.setMessage("");
             if (loginResponse.isSuccess()) {
                 model.next();
             } else {
-                errorMessage.setText(loginResponse.getMsg());
+                model.setMessage(loginResponse.getMsg());
             }
         });
 
@@ -75,7 +74,6 @@ public class LoginForm {
     private void clearView() {
         usernameField.clear();
         passwordField.clear();
-        //registerLabel.setText("");
-        errorMessage.setText("");
+        model.setMessage("");
     }
 }

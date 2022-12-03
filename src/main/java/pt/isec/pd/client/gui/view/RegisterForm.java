@@ -18,7 +18,6 @@ public class RegisterForm {
     public TextField userNameField;
     public Button loginButton;
     public Button registerButton;
-    public Label errorMsg;
     private ModelManager model;
 
     public void setModel(ModelManager model) {
@@ -36,7 +35,7 @@ public class RegisterForm {
 
         //Request
         registerButton.setOnAction(actionEvent -> {
-            errorMsg.setText("");
+            model.setMessage("");
             if (userNameField.getText().isEmpty()) {
                 userNameField.setStyle("-fx-background-color: #FF2400;");
                 return;
@@ -56,7 +55,7 @@ public class RegisterForm {
                 passwordField.setStyle("");
             }
             if (userNameField.getText().equals(nameField.getText())) {
-                errorMsg.setText("O username e nome devem ser diferentes");
+                model.setMessage("O username e nome devem ser diferentes");
                 return;
             }
 
@@ -69,7 +68,7 @@ public class RegisterForm {
             if (registerResponse.isSuccess()) {
                 model.swapToRegister();
             } else {
-                errorMsg.setText(registerResponse.getMsg());
+                model.setMessage(registerResponse.getMsg());
             }
         });
 
@@ -81,6 +80,7 @@ public class RegisterForm {
 
     private void update() {
         pane.setVisible(model != null && model.getState() == State.REGISTER);
+        model.setMessage("");
     }
 
     private void clearView() {
@@ -90,6 +90,5 @@ public class RegisterForm {
         userNameField.setStyle("");
         nameField.setStyle("");
         passwordField.setStyle("");
-        errorMsg.setText("");
     }
 }

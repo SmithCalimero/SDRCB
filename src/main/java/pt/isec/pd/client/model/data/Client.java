@@ -2,6 +2,7 @@ package pt.isec.pd.client.model.data;
 
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.threads.CommunicationHandler;
+import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.shared_data.*;
 
 import java.beans.PropertyChangeSupport;
@@ -11,6 +12,7 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class Client extends Thread {
     private final CommunicationHandler ch;
+    private String message;
 
     public Client(ServerAddress pingAddr, PropertyChangeSupport pcs) {
         ch = new CommunicationHandler(pingAddr,pcs);
@@ -60,7 +62,8 @@ public class Client extends Thread {
     }
 
     public void deleteShow(int idShow) {
-        ch.writeToSocket(ClientAction.DELETE_SHOW,idShow);
+        ch.getClientData().setShowId(idShow);
+        ch.writeToSocket(ClientAction.DELETE_SHOW,null);
     }
 
     public Type getType() {
@@ -68,7 +71,8 @@ public class Client extends Thread {
     }
 
     public void showVisible(int idShow) {
-        ch.writeToSocket(ClientAction.VISIBLE_SHOW,idShow);
+        ch.getClientData().setShowId(idShow);
+        ch.writeToSocket(ClientAction.VISIBLE_SHOW,null);
     }
 
     public void submitReservation(List<Seat> seats) {
@@ -86,4 +90,12 @@ public class Client extends Thread {
     public void payReservation(int resId) { ch.writeToSocket(ClientAction.PAY_RESERVATION,resId); }
 
     public void deleteReservation(int resId) { ch.writeToSocket(ClientAction.DELETE_UNPAID_RESERVATION,resId); }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

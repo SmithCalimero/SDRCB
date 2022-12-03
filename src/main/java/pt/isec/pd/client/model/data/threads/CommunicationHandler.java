@@ -1,12 +1,11 @@
 package pt.isec.pd.client.model.data.threads;
 
 import javafx.application.Platform;
-import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
+import pt.isec.pd.client.model.fsm.Context;
 import pt.isec.pd.shared_data.ServerAddress;
-import pt.isec.pd.shared_data.SubmitReservation;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;

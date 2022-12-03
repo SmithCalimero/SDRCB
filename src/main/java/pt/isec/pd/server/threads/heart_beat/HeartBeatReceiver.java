@@ -4,6 +4,7 @@ import pt.isec.pd.server.data.*;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.shared_data.*;
+import pt.isec.pd.shared_data.Responses.ShowsResponse;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
@@ -14,7 +15,6 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,6 @@ public class HeartBeatReceiver extends Thread{
                     try {
                         if (!hbList.isEmpty() && controller.isEndOfStartup() && !controller.isUpdating()) {
                             HeartBeat highest = hbDbVersion.get(hbDbVersion.size() - 1);
-                            System.out.println( hbEvent.getDbVersion() + "   " + highest.getDbVersion());
                             if (controller.getHb().getDbVersion() < highest.getDbVersion()) {
                                 controller.setAvailable(false);
 
@@ -120,7 +119,10 @@ public class HeartBeatReceiver extends Thread{
                             }
                             case INSERT_SHOWS,DELETE_SHOW,VISIBLE_SHOW ->  {
                                 for (ClientReceiveMessage client : controller.getClients()) {
-                                    client.getOos().writeObject(dbHandler.selectShows().getKey());
+                                    ShowsResponse response = (ShowsResponse) dbHandler.selectShows().getKey();
+                                    System.out.println(prepare.getData().getShowId());
+                                    response.setShowId(prepare.getData().getShowId());
+                                    client.getOos().writeObject(response);
                                 }
                             }
                         }

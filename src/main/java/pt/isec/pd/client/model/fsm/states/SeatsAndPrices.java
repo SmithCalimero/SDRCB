@@ -20,6 +20,11 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
+    public void previous() {
+        changeState(State.MENU_CLIENT);
+    }
+
+    @Override
     public void disconnect() {
         super.disconnect();
     }
@@ -30,7 +35,9 @@ public class SeatsAndPrices extends StateAdapter {
     }
 
     @Override
-    public void payReservationTransition(int resId) { context.changeState(new PayReservation(context,data,resId)); }
+    public void payReservationTransitionToState(int resId, int showId) {
+        context.changeState(new PayReservation(context,data,resId,showId));
+    }
 
     @Override
     public State getState() {

@@ -15,7 +15,6 @@ public class EditForm {
     public Button editButton;
     public TextField editField;
     public Button cancelButton;
-    public Label msg;
 
     private ModelManager model;
 
@@ -34,7 +33,7 @@ public class EditForm {
 
         model.addPropertyChangeListener(ClientAction.EDIT_DATA.toString(), evt -> {
            EditResponse editResponse = (EditResponse) model.getResponse();
-           msg.setText(editResponse.getMsg());
+           model.setMessage(editResponse.getMsg());
         });
 
 
