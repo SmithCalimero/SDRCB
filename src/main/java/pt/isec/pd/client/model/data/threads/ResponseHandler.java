@@ -30,7 +30,7 @@ public class ResponseHandler extends Thread {
     public void run() {
         while (true) {
             try {
-                Object object = ch.getOis().readObject();
+                Object object = ch.getOis().readUnshared();
                 data = object;
                 LOG.log("Response received: " + data.getClass().getSimpleName().toUpperCase());
 
@@ -98,8 +98,10 @@ public class ResponseHandler extends Thread {
                     }
                 }
                 else if (object instanceof DeleteReservationResponse) {
-                    Platform.runLater(() -> pcs.firePropertyChange(ClientAction.DELETE_UNPAID_RESERVATION.toString(),null,null));
-                    ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
+                    Platform.runLater(() -> {
+                        pcs.firePropertyChange(ClientAction.DELETE_UNPAID_RESERVATION.toString(),null,null);
+                        ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null);
+                    });
                 }
                 else if (object instanceof PayReservationResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_RESERVATION.toString(),null,null));

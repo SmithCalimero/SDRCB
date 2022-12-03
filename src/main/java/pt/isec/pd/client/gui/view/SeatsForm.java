@@ -45,10 +45,12 @@ public class SeatsForm {
 
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
+            seats.clear();
             update();
         });
 
         model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
+            seats.clear();
             msg.setText("");
             if (model.getState() == State.SEATS_PRICES)
                 updateSeatsList();
@@ -61,7 +63,6 @@ public class SeatsForm {
                 model.payReservationTransition(submitReservationResponse.getResId());
             else
                 msg.setText("There was a client that requested that seat first sorry!");
-
             //updateSeatsList();
         });
 
@@ -123,6 +124,7 @@ public class SeatsForm {
                             } else {
                                 button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.5)));
                                 seats.add(s);
+
                             }
                         });
                     }
@@ -142,6 +144,7 @@ public class SeatsForm {
             if (!seats.isEmpty())
                 model.submitReservation(seats);
         });
+
         hBoxReserve.getChildren().add(reserveButton);
         hBoxReserve.setAlignment(Pos.CENTER);
         container.getChildren().add(hBoxReserve);

@@ -6,12 +6,15 @@ import pt.isec.pd.server.threads.client.ClientManagement;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.utils.Log;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.List;
 
 public class Server {
     private final Log LOG = Log.getLogger(Server.class);
     private HeartBeatList hbList;
+    private String ip;
     private ClientManagement cm;
     private final String dbPath;
     private HeartBeatController hbController;
@@ -19,8 +22,18 @@ public class Server {
 
     public Server(int pingPort,String dbPath) {
         this.dbPath = dbPath;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("Device ip: " + ip);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         init(pingPort);
         start();
+    }
+
+    public String getIp() {
+        return ip;
     }
 
     public void init(int pingPort) {
@@ -34,7 +47,7 @@ public class Server {
         }
 
         hbController = new HeartBeatController(hbList,this);
-        cm = new ClientManagement(pingPort, dbHandler,hbList, hbController);
+        cm = new ClientManagement(pingPort, dbHandler,hbList, hbController,ip);
     }
 
     public void start() {

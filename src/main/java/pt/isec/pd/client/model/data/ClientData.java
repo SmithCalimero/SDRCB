@@ -1,18 +1,15 @@
 package pt.isec.pd.client.model.data;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 public class ClientData implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
     private int id;
     private int showId;
     private boolean isAdmin;
     private ClientAction action;
     private Object data;
 
-    public ClientData() { }
+    public ClientData() {}
 
     public ClientData(ClientData clientData) {
         this.id = clientData.getId();
@@ -36,6 +33,7 @@ public class ClientData implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
+        System.out.println(data);
     }
 
     public boolean isAdmin() {

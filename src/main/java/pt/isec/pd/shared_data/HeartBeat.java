@@ -11,12 +11,14 @@ public class HeartBeat implements Serializable,Comparable<HeartBeat> {
     private boolean status;
     private int dbVersion;
     private int activeConnections;
+    private String ip;
     private Date timeout;
 
-    public HeartBeat(int portTcp, boolean status, int dbVersion, int activeConnections) {
+    public HeartBeat(int portTcp, boolean status, int dbVersion, int activeConnections,String ip) {
         this.portTcp = portTcp;
         this.status = status;
         this.dbVersion = dbVersion;
+        this.ip = ip;
         this.activeConnections = activeConnections;
         this.timeout = addTimeStamp(new Date());
     }
@@ -65,6 +67,14 @@ public class HeartBeat implements Serializable,Comparable<HeartBeat> {
 
     public void setTimeout(Date timeout) {
         this.timeout = timeout;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     @Override

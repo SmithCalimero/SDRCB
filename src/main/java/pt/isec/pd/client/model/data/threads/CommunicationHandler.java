@@ -1,10 +1,12 @@
 package pt.isec.pd.client.model.data.threads;
 
 import javafx.application.Platform;
+import javafx.util.Pair;
 import pt.isec.pd.client.model.data.Client;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.shared_data.SubmitReservation;
 import pt.isec.pd.utils.Constants;
 import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;
@@ -109,23 +111,12 @@ public class CommunicationHandler extends Thread {
         try {
             clientData.setAction(action);
             clientData.setData(object);
+            oos.reset();
             oos.writeUnshared(clientData);
-            //LOG.log("Request sent: " + clientData.getAction());
         } catch (IOException e) {
             sendPing();
             writeToSocket(action,object);
         }
-    }
-
-    public Object readFromSocket() throws IOException {
-        try {
-            return ois.readObject();
-        } catch (SocketException e) {
-            sendPing();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
     }
 
     public ClientAction getClientAction() { return clientData.getAction(); }

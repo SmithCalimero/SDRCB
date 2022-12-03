@@ -21,8 +21,10 @@ public class QueueUpdate extends Thread {
         while (true) {
             try {
                 if (!controller.isUpdating() && !queue.isEmpty()) {
-                    ClientData clientData = queue.remove(0);
-                    client.handleClientRequest(clientData);
+                    synchronized (queue) {
+                        ClientData clientData = queue.remove(0);
+                        client.handleClientRequest(clientData);
+                    }
                 }
                 Thread.sleep(500);
             } catch (InterruptedException e ) {

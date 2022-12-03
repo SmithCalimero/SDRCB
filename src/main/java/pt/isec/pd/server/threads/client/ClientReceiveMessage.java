@@ -7,6 +7,8 @@ import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
+import pt.isec.pd.shared_data.Seat;
+import pt.isec.pd.shared_data.SubmitReservation;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
@@ -25,7 +27,7 @@ public class ClientReceiveMessage extends Thread {
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
-    private ClientData clientData;
+
     private ClientData clientData10sec;
 
     public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
@@ -41,9 +43,11 @@ public class ClientReceiveMessage extends Thread {
     @Override
     public synchronized void run() {
         while (true) {
+            ClientData clientData = new ClientData();
             try {
                 // Verifications for the clients actions
-                clientData = (ClientData) ois.readObject();
+                clientData = (ClientData) ois.readUnshared();
+                System.out.println(clientData.getData());
                 request(clientData);
             } catch (ClassNotFoundException e) {
                 LOG.log("Unable to read client data: " + e);
@@ -63,9 +67,9 @@ public class ClientReceiveMessage extends Thread {
         if (!hbController.isUpdating() && queue.isEmpty()) {
             handleClientRequest(clientData);
         } else {
-            queue.add(clientData);
-            LOG.log("The client requested a request but the server is currently updating");
-            LOG.log("The request was added to the queue!");
+            queue.add(new ClientData(clientData));
+
+            LOG.log("The request " + clientData.getAction() +  " was added to the queue!");
         }
     }
 
@@ -131,7 +135,7 @@ public class ClientReceiveMessage extends Thread {
                             t.schedule(tt, calendar.getTime());
                         }
                     }
-                    case PAY_RESERVATION -> t.cancel();
+                    case PAY_RESERVATION,DELETE_UNPAID_RESERVATION -> t.cancel();
                     default -> {}
                 }
             } catch (IOException e) {

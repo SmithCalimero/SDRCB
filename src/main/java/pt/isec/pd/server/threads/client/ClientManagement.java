@@ -10,6 +10,7 @@ import pt.isec.pd.utils.Log;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
@@ -28,7 +29,7 @@ public class ClientManagement extends Thread {
     private List<ClientReceiveMessage> clientsThread = new ArrayList<>();
     private ArrayList<ClientReceiveMessage> viewingSeats = new ArrayList<>();
 
-    public ClientManagement(int pingPort, DBHandler dataBaseHandler, HeartBeatList hbList, HeartBeatController hbController) {
+    public ClientManagement(int pingPort, DBHandler dataBaseHandler, HeartBeatList hbList, HeartBeatController hbController,String ip) {
         try {
             this.hbController = hbController;
             this.serverSocket = new ServerSocket(0);
@@ -36,7 +37,7 @@ public class ClientManagement extends Thread {
             this.dbHandler = dataBaseHandler;
             this.clientsThread = new ArrayList<>();
             this.viewingSeats = new ArrayList<>();
-            hbList.add(new HeartBeat(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0));
+            hbList.add(new HeartBeat(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0, ip));
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }

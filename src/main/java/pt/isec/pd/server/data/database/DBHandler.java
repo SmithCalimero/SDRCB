@@ -3,11 +3,8 @@ package pt.isec.pd.server.data.database;
 import javafx.util.Pair;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.data.ClientData;
-import pt.isec.pd.shared_data.Reserve;
+import pt.isec.pd.shared_data.*;
 import pt.isec.pd.shared_data.Responses.*;
-import pt.isec.pd.shared_data.Seat;
-import pt.isec.pd.shared_data.Show;
-import pt.isec.pd.shared_data.Triple;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
@@ -748,7 +745,7 @@ public class DBHandler {
         SubmitReservationResponse response = new SubmitReservationResponse();
 
         // Receive reserve from client  (format: showId, List<Seat>)
-        Pair<Integer, List<Seat>> reserve = (Pair<Integer, List<Seat>>) clientData.getData();
+        SubmitReservation reserve = (SubmitReservation) clientData.getData();
 
         try {
             Statement statement = connection.createStatement();
@@ -765,7 +762,7 @@ public class DBHandler {
             String dateString = dateFormat.format(currentTime);
 
             boolean check = false;
-            for (Seat seat : reserve.getValue()) {
+            for (Seat seat : reserve.getSeats()) {
                 ResultSet checkSeats = statement.executeQuery("SELECT id FROM lugar WHERE fila= '" + seat.getRow() + "'" + " and assento='"
                         + seat.getNumber() + "' and espetaculo_id='" + seat.getShowId() + "'");
                 int id = checkSeats.getInt(1);
@@ -797,12 +794,12 @@ public class DBHandler {
                         "'" + dateString + "','"
                         + isPaid + "','"
                         + clientData.getId() + "','"
-                        + reserve.getKey() + "')";
+                        + reserve.getShowId() + "')";
 
                 listQuery.add(query);
 
                 // Insert seats
-                for (var s : reserve.getValue()) {
+                for (var s : reserve.getSeats()) {
                     query = "INSERT INTO reserva_lugar (" +
                             " id_reserva," +
                             " id_lugar)" +

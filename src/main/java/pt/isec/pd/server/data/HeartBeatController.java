@@ -81,7 +81,7 @@ public class HeartBeatController {
                 HeartBeat hbNew = hbDbVersion.get(hbDbVersion.size() - 1);
                 if (myVersion < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
                     LOG.log("Updating the server to the most recent version");
-                    Socket socket = new Socket("localhost", hbNew.getPortTcp());
+                    Socket socket = new Socket(hbNew.getIp(), hbNew.getPortTcp());
 
                     ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                     ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
@@ -115,8 +115,8 @@ public class HeartBeatController {
     }
 
     public synchronized HeartBeat updateHeartBeat() {
-            hbEvent = new HeartBeat(server.getServerPort(),isAvailable(), server.getDBVersion(), server.getActiveConnections());
-            return hbEvent;
+        hbEvent = new HeartBeat(server.getServerPort(),isAvailable(), server.getDBVersion(), server.getActiveConnections(),server.getIp());
+        return hbEvent;
     }
 
     public synchronized HeartBeat getHb() {
@@ -130,7 +130,6 @@ public class HeartBeatController {
 
         try {
             DatagramPacket dp;
-            LOG.log("Update Starting...");
 
             DatagramSocket ds = new DatagramSocket();
             ds.setSoTimeout(1000);
@@ -165,7 +164,6 @@ public class HeartBeatController {
                         LOG.log("Not all servers sent a confirmation trying again");
                         attempts++;
                     } else {
-                        LOG.log("End of Confirmation");
                         break;
                     }
                 }

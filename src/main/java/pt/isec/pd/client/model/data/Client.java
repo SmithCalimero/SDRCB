@@ -72,7 +72,7 @@ public class Client extends Thread {
     }
 
     public void submitReservation(List<Seat> seats) {
-        ch.writeToSocket(ClientAction.SUBMIT_RESERVATION,new Pair<>(seats.get(0).getShowId(),seats));
+        ch.writeToSocket(ClientAction.SUBMIT_RESERVATION,new SubmitReservation(seats.get(0).getShowId(),seats));
     }
 
     public void consultsPaymentsAwaiting() { ch.writeToSocket(ClientAction.CONSULT_PAYMENTS_AWAITING,null); }
