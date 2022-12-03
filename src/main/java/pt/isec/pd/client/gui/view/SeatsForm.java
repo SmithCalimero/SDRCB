@@ -57,11 +57,12 @@ public class SeatsForm {
         model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
             msg.setText("");
             SubmitReservationResponse submitReservationResponse = (SubmitReservationResponse) model.getResponse();
-            if (submitReservationResponse.isSuccess()) {
+            if (submitReservationResponse.isSuccess())
                 model.payReservationTransition(submitReservationResponse.getResId());
-            } else {
+            else
                 msg.setText("There was a client that requested that seat first sorry!");
-            }
+
+            //updateSeatsList();
         });
 
         cancelButton.setOnAction(actionEvent -> {
@@ -79,6 +80,8 @@ public class SeatsForm {
         VBox container = new VBox();
         container.prefWidthProperty().bind(pane.widthProperty().multiply(1));
 
+        centerPane.getChildren().clear();
+
         // Get all the rows, to search by row
         for (var s : seatsResponse.getSeats())
             if (!rows.contains(s.getRow()))
@@ -94,8 +97,8 @@ public class SeatsForm {
             for (var s : seatsResponse.getSeats()) {
                 if (s.getRow().equalsIgnoreCase(r)) {
                     VBox column = new VBox(10);
-
-                    Button button = new Button();
+                    //Label number = new Label(s.getNumber());
+                    Button button = new Button(s.getNumber());
                     ImageView view = new ImageView(
                             new Image(String.valueOf(getClass().getResource("/icons/seat.png")))
                     );
@@ -107,10 +110,15 @@ public class SeatsForm {
                     column.getChildren().add(button);
                     column.setAlignment(Pos.CENTER);
 
-                    button.setOnAction(actionEvent -> {
-                        seats.add(s);
-                        button.setBackground(Background.fill(Color.rgb(0,1,0,0.5)));
-                    });
+                    // If reserved button is disabled and red
+                    if (s.isReserved())
+                        button.setBackground(Background.fill(Color.rgb(200,0,0,0.5)));
+                    else {
+                        button.setOnAction(actionEvent -> {
+                            button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.5)));
+                            seats.add(s);
+                        });
+                    }
 
                     // Fill row
                     row.getChildren().add(column);
@@ -130,6 +138,6 @@ public class SeatsForm {
         hBoxReserve.setAlignment(Pos.CENTER);
         container.getChildren().add(hBoxReserve);
 
-        centerPane.getChildren().addAll(container);
+        centerPane.getChildren().add(container);
     }
 }

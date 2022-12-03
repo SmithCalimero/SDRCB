@@ -686,7 +686,6 @@ public class DBHandler {
         SeatsResponse seatsResponse = new SeatsResponse();
         List<Seat> available = new ArrayList<>();
 
-
         // At this moment the client has already selected the show, so we search by the show id
         // Receive show id
         int recShowId = clientData.getShowId();
@@ -713,18 +712,19 @@ public class DBHandler {
                 double price = availableSeats.getDouble("preco");
                 int showId = availableSeats.getInt("espetaculo_id");
 
-                // ignore this seat, skips to next
-                if (unavailable.contains(seatId))
-                    continue;
-
                 if (showId == recShowId) {
-                    available.add(new Seat(
+                    Seat newSeat = new Seat(
                             seatId,
                             row,
                             seat,
                             price,
                             showId
-                    ));
+                    );
+
+                    if (unavailable.contains(seatId))
+                        newSeat.setReserved(true);
+
+                    available.add(newSeat);
                 }
             }
 

@@ -55,7 +55,8 @@ public class ShowsForm {
 
         model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_VISIBLE.toString(), evt -> {
             ConsultShowsFilterResponse response = (ConsultShowsFilterResponse) model.getResponse();
-            list.setItems(FXCollections.observableList(response.getShows()));
+            if (response.getShows() != null)
+                list.setItems(FXCollections.observableList(response.getShows()));
         });
 
         retrocederButton.setOnAction(actionEvent -> {

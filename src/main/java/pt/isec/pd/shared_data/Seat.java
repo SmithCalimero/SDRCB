@@ -12,6 +12,7 @@ public class Seat implements Serializable {
     private String number;
     private double price;
     private int showId;
+    private boolean isReserved;
 
     public Seat(int id, String row, String number, double price, int showId) {
         this.id = id;
@@ -19,6 +20,7 @@ public class Seat implements Serializable {
         this.number = number;
         this.price = price;
         this.showId = showId;
+        this.isReserved = false;
     }
 
     public Seat(String row, String number, double price) {
@@ -36,6 +38,10 @@ public class Seat implements Serializable {
     public double getPrice() { return price; }
 
     public int getShowId() { return showId; }
+
+    public boolean isReserved() { return isReserved; }
+
+    public void setReserved(boolean value) { isReserved = value; }
 
     @Override
     public String toString() {
