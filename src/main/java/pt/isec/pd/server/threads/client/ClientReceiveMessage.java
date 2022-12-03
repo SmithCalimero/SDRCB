@@ -27,6 +27,13 @@ public class ClientReceiveMessage extends Thread {
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
+    private TimerTask tt = new TimerTask() {
+                @Override
+                public void run() {
+                    clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+                    request(clientData10sec);
+                }
+            };
 
     private ClientData clientData10sec;
 
@@ -67,7 +74,6 @@ public class ClientReceiveMessage extends Thread {
             handleClientRequest(clientData);
         } else {
             queue.add(new ClientData(clientData));
-
             LOG.log("The request " + clientData.getAction() +  " was added to the queue!");
         }
     }
@@ -118,23 +124,17 @@ public class ClientReceiveMessage extends Thread {
                 switch (clientData.getAction()) {
                     case SUBMIT_RESERVATION -> {
                         if (((SubmitReservationResponse) sqlCommands.getKey()).isSuccess()) {
+                            t = new Timer();
                             clientData10sec = new ClientData(clientData);
-
-                            TimerTask tt = new TimerTask() {
-                                @Override
-                                public void run() {
-                                    clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
-                                    request(clientData10sec);
-                                }
-                            };
-
                             Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
                             calendar.add(Calendar.SECOND, 10);
-                            t = new Timer();
                             t.schedule(tt, calendar.getTime());
                         }
                     }
-                    case PAY_RESERVATION,DELETE_UNPAID_RESERVATION -> t.cancel();
+                    case PAY_RESERVATION,DELETE_UNPAID_RESERVATION -> {
+                            tt.cancel();
+                            LOG.log("Timer was canceled");
+                    }
                     default -> {}
                 }
             } catch (IOException e) {
@@ -149,5 +149,9 @@ public class ClientReceiveMessage extends Thread {
 
     public ObjectInputStream getOis() {
         return ois;
+    }
+
+    public Timer getT() {
+        return t;
     }
 }

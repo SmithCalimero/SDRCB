@@ -1111,6 +1111,10 @@ public class DBHandler {
                                     query = "DELETE from reserva_lugar WHERE id_reserva = "+ id + ";";
                                     listQuery.add(query);
                                 }
+
+                                query = "DELETE from reserva WHERE id_espetaculo = "+ deleteShowId + ";";
+                                listQuery.add(query);
+
                                 query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
                                 listQuery.add(query);
 

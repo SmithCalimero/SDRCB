@@ -79,6 +79,7 @@ public class HeartBeatController {
             try {
                 int myVersion = dbHandler.getCurrentVersion();
                 HeartBeat hbNew = hbDbVersion.get(hbDbVersion.size() - 1);
+
                 if (myVersion < hbDbVersion.get(hbDbVersion.size() - 1).getDbVersion()) {
                     LOG.log("Updating the server to the most recent version");
                     Socket socket = new Socket(hbNew.getIp(), hbNew.getPortTcp());

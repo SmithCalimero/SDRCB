@@ -70,9 +70,11 @@ public class SeatsForm {
 
         model.addPropertyChangeListener(ClientAction.SUBMIT_RESERVATION.toString(), evt -> {
             msg.setText("");
+
             SubmitReservationResponse submitReservationResponse = (SubmitReservationResponse) model.getResponse();
+
             if (submitReservationResponse.isSuccess())
-                model.payReservationTransition(submitReservationResponse.getResId());
+                model.payReservationTransitionToState(submitReservationResponse.getResId(),seatsResponse.getShowId());
             else
                 msg.setText("There was a client that requested that seat first sorry!");
         });
@@ -88,7 +90,7 @@ public class SeatsForm {
 
     private void updateSeatsList() {
         if (model.getResponse() instanceof SeatsResponse) {
-            SeatsResponse seatsResponse = (SeatsResponse) model.getResponse();
+            seatsResponse = (SeatsResponse) model.getResponse();
             ArrayList<String> rows = new ArrayList<>();
             VBox container = new VBox();
             Popup stage = new Popup();
