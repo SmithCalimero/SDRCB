@@ -45,6 +45,19 @@ public class LoginForm {
         });
 
         loginButton.setOnAction(actionEvent -> {
+            if (usernameField.getText().isEmpty()) {
+                usernameField.setStyle("-fx-background-color: #FF2400;");
+                return;
+            } else {
+                usernameField.setStyle("");
+            }
+
+            if (passwordField.getText().isEmpty()) {
+                passwordField.setStyle("-fx-background-color: #FF2400;");
+                return;
+            } else {
+                passwordField.setStyle("");
+            }
             model.login(usernameField.getText(),passwordField.getText());
         });
 

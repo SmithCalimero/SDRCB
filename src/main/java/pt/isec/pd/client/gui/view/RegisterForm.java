@@ -36,6 +36,25 @@ public class RegisterForm {
 
         //Request
         registerButton.setOnAction(actionEvent -> {
+            if (userNameField.getText().isEmpty()) {
+                userNameField.setStyle("-fx-background-color: #FF2400;");
+                return;
+            } else {
+                userNameField.setStyle("");
+            }
+            if (nameField.getText().isEmpty()) {
+                nameField.setStyle("-fx-background-color: #FF2400;");
+                return;
+            } else {
+                nameField.setStyle("");
+            }
+            if (passwordField.getText().isEmpty()) {
+                passwordField.setStyle("-fx-background-color: #FF2400;");
+                return;
+            } else {
+                passwordField.setStyle("");
+            }
+
             model.register(userNameField.getText(),nameField.getText(),passwordField.getText());
         });
 
@@ -63,6 +82,9 @@ public class RegisterForm {
         passwordField.clear();
         nameField.clear();
         userNameField.clear();
+        userNameField.setStyle("");
+        nameField.setStyle("");
+        passwordField.setStyle("");
         errorMsg.setText("");
     }
 }

@@ -33,7 +33,6 @@ public class ClientData implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
-        System.out.println(data);
     }
 
     public boolean isAdmin() {

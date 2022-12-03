@@ -118,7 +118,7 @@ public class DBHandler {
 
             // Execute a query
             ResultSet result = statement.executeQuery(
-                    "SELECT * FROM utilizador"
+                    "SELECT username,nome FROM utilizador"
             );
 
             // Verify if admin is registered
@@ -128,7 +128,6 @@ public class DBHandler {
 
             // If table has registered users, verify if username and name are unique
             while (result.next()) {
-                id = result.getInt("id");
                 String username = result.getString("username");
                 String name = result.getString("nome");
 
@@ -143,9 +142,8 @@ public class DBHandler {
 
             if (requestAccepted) {
                 // Register user
-                query = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
+                query = "INSERT INTO utilizador(username,nome,password,administrador,autenticado)"
                         + "VALUES("
-                        + "'" + ++id + "',"
                         + "'" + data.getFirst() + "',"
                         + "'" + data.getSecond() + "',"
                         + "'" + data.getThird() + "',"

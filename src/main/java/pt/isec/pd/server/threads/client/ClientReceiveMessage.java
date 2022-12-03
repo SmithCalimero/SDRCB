@@ -47,7 +47,6 @@ public class ClientReceiveMessage extends Thread {
             try {
                 // Verifications for the clients actions
                 clientData = (ClientData) ois.readUnshared();
-                System.out.println(clientData.getData());
                 request(clientData);
             } catch (ClassNotFoundException e) {
                 LOG.log("Unable to read client data: " + e);
