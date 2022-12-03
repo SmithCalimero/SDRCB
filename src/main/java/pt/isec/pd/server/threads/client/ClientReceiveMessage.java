@@ -80,6 +80,7 @@ public class ClientReceiveMessage extends Thread {
                 case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData);
                 case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData);
                 case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin();
+                case SELECT_SHOWS -> dbHandler.selectShows();
                 case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData);
                 case VISIBLE_SHOW -> dbHandler.showVisible(clientData);
                 case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData);
@@ -102,7 +103,7 @@ public class ClientReceiveMessage extends Thread {
     private void update(Pair<Object, List<String>> sqlCommands, ClientData clientData) {
         boolean result = true;
         if (sqlCommands.getValue() != null) {
-            result = hbController.updateDataBase(sqlCommands, clientData, this);
+            result = hbController.updateDataBase(sqlCommands,clientData,this);
         }
 
         if (oos != null && result) {
@@ -131,6 +132,7 @@ public class ClientReceiveMessage extends Thread {
                         }
                     }
                     case PAY_RESERVATION -> t.cancel();
+                    default -> {}
                 }
             } catch (IOException e) {
                 e.printStackTrace();
