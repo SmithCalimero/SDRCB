@@ -50,6 +50,7 @@ public class RegisterForm {
         });
 
         loginButton.setOnAction(actionEvent -> {
+            clearView();
             model.swapToRegister();
         });
     }

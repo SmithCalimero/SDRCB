@@ -115,8 +115,15 @@ public class SeatsForm {
                         button.setBackground(Background.fill(Color.rgb(200,0,0,0.5)));
                     else {
                         button.setOnAction(actionEvent -> {
-                            button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.5)));
-                            seats.add(s);
+                            if (seats.contains(s)) {
+                                seats.remove(s);
+                                button.setStyle ("-fx-background-color: #f2f2f2");
+                                button.setStyle("-fx-focus-color: transparent;");
+                                button.setStyle("-fx-faint-focus-color: transparent;");
+                            } else {
+                                button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.5)));
+                                seats.add(s);
+                            }
                         });
                     }
 
@@ -132,7 +139,8 @@ public class SeatsForm {
         HBox hBoxReserve = new HBox(10);
         Button reserveButton = new Button("Reservar");
         reserveButton.setOnAction(actionEvent -> {
-            model.submitReservation(seats);
+            if (!seats.isEmpty())
+                model.submitReservation(seats);
         });
         hBoxReserve.getChildren().add(reserveButton);
         hBoxReserve.setAlignment(Pos.CENTER);

@@ -49,6 +49,7 @@ public class LoginForm {
         });
 
         registerButton.setOnAction(actionEvent -> {
+            clearView();
             model.swapToRegister();
         });
     }
