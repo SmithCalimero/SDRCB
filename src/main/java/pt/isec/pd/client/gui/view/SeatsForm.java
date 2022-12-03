@@ -118,6 +118,7 @@ public class SeatsForm {
                         view.setFitWidth(20);
                         view.preserveRatioProperty();
                         button.setGraphic(view);
+                        button.setStyle("-fx-background-color: #c9c9c9;-fx-opacity: 0.8");
 
                         column.getChildren().add(button);
                         column.setAlignment(Pos.CENTER);
@@ -132,40 +133,39 @@ public class SeatsForm {
                         info.setBackground(Background.fill(Color.rgb(1,1,1,0.5)));
                         info.getChildren().addAll(rowLabel,number,price);
 
-                        column.setOnMouseEntered(mouseEvent -> {
-                            Bounds bound = column.localToScene(column.getBoundsInLocal());
-                            stage.getContent().clear();
-                            stage.getContent().add(info);
-                            stage.setX(pane.getScene().getWindow().getX() + column.getLayoutX());
-                            stage.setY(pane.getScene().getWindow().getY() + bound.getMinY() - 25);
-                            stage.setAutoHide(true);
-                            stage.show(pane.getScene().getWindow());
-                        });
-
-                        column.setOnMouseExited(mouseEvent -> {
-                            stage.hide();
-                        });
-
                         // If reserved button is disabled and red
                         if (s.isReserved()) {
                             seats.remove(s);
-                            button.setBackground(Background.fill(Color.rgb(200, 0, 0, 0.5)));
+                            button.setStyle("-fx-background-color: #c80000;-fx-opacity: 1");
                         }
                         else {
                             // If the user had this seat selected before de update (sets selected color)
                             if (seats.contains(s))
-                                button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.65)));
+                                button.setStyle("-fx-background-color: #00c800;-fx-opacity: 1");
 
-                            button.setOnAction(actionEvent -> {
+                            button.setOnMouseEntered(mouseEvent -> {
+                                Bounds bound = column.localToScene(column.getBoundsInLocal());
+                                stage.getContent().clear();
+                                stage.getContent().add(info);
+                                stage.setX(pane.getScene().getWindow().getX() + column.getLayoutX());
+                                stage.setY(pane.getScene().getWindow().getY() + bound.getMinY() - 25);
+                                stage.setAutoHide(true);
+                                stage.show(pane.getScene().getWindow());
+                            });
+
+                            button.setOnMouseExited(mouseEvent -> {
+                                stage.hide();
+                            });
+
+                            button.setOnMouseClicked(mouseEvent -> {
+                                stage.hide();
                                 if (seats.contains(s)) {
                                     seats.remove(s);
-                                    button.setStyle("-fx-background-color: #f2f2f2");
-                                    button.setStyle("-fx-focus-color: transparent;");
-                                    button.setStyle("-fx-faint-focus-color: transparent;");
+                                    button.setBackground(null);
+                                    button.setStyle("-fx-background-color: #c9c9c9;-fx-opacity: 1");
                                 } else {
-                                    button.setBackground(Background.fill(Color.rgb(0, 200, 0, 0.65)));
+                                    button.setStyle("-fx-background-color: #00c800;-fx-opacity: 1");
                                     seats.add(s);
-                                    System.out.println("ADDED SEAT: " + s.getNumber());
                                 }
                             });
                         }
