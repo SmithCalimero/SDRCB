@@ -3,6 +3,7 @@ package pt.isec.pd.client.gui;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.TextAlignment;
 import pt.isec.pd.client.model.ModelManager;
 
 
@@ -19,14 +20,17 @@ public class StatusBar extends HBox {
     }
 
     private void createViews() {
-        Label lbMsgTitle = new Label("Log: ");
+        Label lbMsgTitle = new Label("");
         lbMsgTitle.setPrefWidth(Integer.MAX_VALUE);
-        lbMsgTitle.setAlignment(Pos.CENTER_RIGHT);
+        lbMsgTitle.setAlignment(Pos.CENTER);
         lbMsg = new Label();
         lbMsg.setPrefWidth(Integer.MAX_VALUE);
-        lbMsg.setAlignment(Pos.CENTER_LEFT);
-        this.getChildren().addAll(lbMsgTitle, lbMsg);
-        setAlignment(Pos.TOP_RIGHT);
+        lbMsg.setAlignment(Pos.CENTER);
+        Label boaPos = new Label("");
+        boaPos.setPrefWidth(Integer.MAX_VALUE);
+        boaPos.setAlignment(Pos.CENTER);
+        this.getChildren().addAll(lbMsgTitle, lbMsg, boaPos);
+        setAlignment(Pos.CENTER);
     }
 
     private void registerHandlers() {

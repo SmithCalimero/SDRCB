@@ -61,7 +61,7 @@ public class RootPane extends BorderPane {
         consultPayReservations.<ConsultPaymentsForm>getController().setModel(model);
 
         this.setCenter(stackPane);
-        this.setTop(new StatusBar(model));
+        this.setBottom(new StatusBar(model));
     }
 
     private void registerHandlers() { }
