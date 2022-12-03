@@ -19,10 +19,14 @@ import java.util.concurrent.TimeUnit;
 
 public class DBHandler {
     private final Log LOG = Log.getLogger(DBHandler.class);
-    private final Connection connection;
+    private Connection connection;
 
-    public DBHandler(String path) throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+    public DBHandler(String path) {
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:" + path);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getCurrentVersion() throws SQLException {

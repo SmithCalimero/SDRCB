@@ -6,6 +6,7 @@ import pt.isec.pd.server.threads.client.ClientManagement;
 import pt.isec.pd.server.threads.client.ClientReceiveMessage;
 import pt.isec.pd.utils.Log;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -39,12 +40,13 @@ public class Server {
     public void init(int pingPort) {
         hbList = new HeartBeatList();
 
-        try {
-            dbHandler = new DBHandler(dbPath);
-        } catch (SQLException e) {
-            LOG.log("DataBase could no be loaded");
-            dbHandler = null;
+        File f = new File(dbPath);
+        if(!f.exists() && !f.isDirectory()) {
+            LOG.log("Data base create: " + dbPath);
+            new CreateDataBase(dbPath);
         }
+
+        dbHandler = new DBHandler(dbPath);
 
         hbController = new HeartBeatController(hbList,this);
         cm = new ClientManagement(pingPort, dbHandler,hbList, hbController,ip);
@@ -55,20 +57,6 @@ public class Server {
 
         cm.startPingHandler();
         cm.start();
-    }
-
-    public boolean createDataBase() {
-        if (dbHandler == null) {
-            new CreateDataBase(dbPath);
-            try {
-                dbHandler = new DBHandler(dbPath);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-
-            return true;
-        }
-        return false;
     }
 
     public int getServerPort() {

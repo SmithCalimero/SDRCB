@@ -54,17 +54,17 @@ public class CreateDataBase {
                     );
                     """;
 
-            String reserva_lugar = """
-                    CREATE TABLE reserva_lugar (
-                        id_reserva INTEGER REFERENCES reserva (id)\s
-                                           NOT NULL,
-                        id_lugar   INTEGER REFERENCES lugar (id)\s
-                                           NOT NULL,
-                        PRIMARY KEY (
-                            id_reserva,
-                            id_lugar
-                        )
-                    );""";
+            String lugar = """
+                    CREATE TABLE lugar (
+                        id            INTEGER PRIMARY KEY AUTOINCREMENT
+                                              NOT NULL,
+                        fila          TEXT    NOT NULL,
+                        assento       TEXT    NOT NULL,
+                        preco         REAL    NOT NULL,
+                        espetaculo_id INTEGER REFERENCES espetaculo (id)\s
+                                              NOT NULL
+                    );
+                    """;
 
             String reserva = """
                     CREATE TABLE reserva (
@@ -80,29 +80,56 @@ public class CreateDataBase {
                     );
                     """;
 
-            String lugar = """
-                    CREATE TABLE lugar (
-                        id            INTEGER PRIMARY KEY AUTOINCREMENT
-                                              NOT NULL,
-                        fila          TEXT    NOT NULL,
-                        assento       TEXT    NOT NULL,
-                        preco         REAL    NOT NULL,
-                        espetaculo_id INTEGER REFERENCES espetaculo (id)\s
-                                              NOT NULL
-                    );
-                    """;
+            String reserva_lugar = """
+                    CREATE TABLE reserva_lugar (
+                        id_reserva INTEGER REFERENCES reserva (id)\s
+                                           NOT NULL,
+                        id_lugar   INTEGER REFERENCES lugar (id)\s
+                                           NOT NULL,
+                        PRIMARY KEY (
+                            id_reserva,
+                            id_lugar
+                        )
+                    );""";
+
 
             String initialVersion = "PRAGMA user_version = 1";
 
             stmt.execute(initialVersion);
             stmt.executeUpdate(espetaculo);
             stmt.executeUpdate(utilizador);
+            stmt.executeUpdate(lugar);
             stmt.executeUpdate(reserva);
             stmt.executeUpdate(reserva_lugar);
-            stmt.executeUpdate(lugar);
             stmt.close();
 
+            String admin = "INSERT INTO utilizador (" +
+                    "                           username," +
+                    "                           nome," +
+                    "                           password," +
+                    "                           administrador," +
+                    "                           autenticado" +
+                    "                       )" +
+                    "                       VALUES (" +
+                    "                           'admin'," +
+                    "                           'admin'," +
+                    "                           'admin'," +
+                    "                           '1'," +
+                    "                           '0'" +
+                    "                       );";
+
+            String versao = "CREATE TABLE \"versao\" (\n" +
+                    "\t\"id\"\tINTEGER NOT NULL,\n" +
+                    "\t\"query\"\tTEXT NOT NULL,\n" +
+                    "\t\"key\"\tINTEGER,\n" +
+                    "\tPRIMARY KEY(\"key\" AUTOINCREMENT)\n" +
+                    ");";
+
+            stmt.executeUpdate(admin);
+            stmt.executeUpdate(versao);
+
             c.close();
+            stmt.close();
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);

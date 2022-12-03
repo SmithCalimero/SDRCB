@@ -51,6 +51,7 @@ public class HeartBeatReceiver extends Thread{
                     try {
                         if (!hbList.isEmpty() && controller.isEndOfStartup() && !controller.isUpdating()) {
                             HeartBeat highest = hbDbVersion.get(hbDbVersion.size() - 1);
+                            System.out.println( hbEvent.getDbVersion() + "   " + highest.getDbVersion());
                             if (controller.getHb().getDbVersion() < highest.getDbVersion()) {
                                 controller.setAvailable(false);
 
@@ -84,6 +85,10 @@ public class HeartBeatReceiver extends Thread{
 
                                 dbHandler.updateToNewVersion(update);
                                 controller.setAvailable(true);
+
+                                bytes = Utils.serializeObject(controller.updateHeartBeat());
+                                dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+                                ms.send(dp);
                             }
                         }
                     } catch (SQLException | ClassNotFoundException e) {
