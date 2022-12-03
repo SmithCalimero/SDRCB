@@ -73,22 +73,21 @@ public class ClientReceiveMessage extends Thread {
         LOG.log("Execution " + clientData.getAction());
         try {
             Pair<Object,List<String>> sqlCommands = switch(clientData.getAction()) {
-                case REGISTER -> dbHandler.register(clientData,oos);
-                case LOGIN -> dbHandler.login(clientData,oos);
-                case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData,oos);
-                case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData,oos);
-                case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData,oos);
-                case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData,oos);
-                case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin(oos);
-                case SELECT_SHOWS -> dbHandler.selectShows(oos);
-                case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData,oos);
-                case VISIBLE_SHOW -> dbHandler.showVisible(clientData,oos);
-                case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData,oos);
-                case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData,oos);
-                case PAY_RESERVATION -> dbHandler.payReservation(clientData,oos);
-                case INSERT_SHOWS -> dbHandler.insertShows(clientData,oos);
-                case DELETE_SHOW -> dbHandler.deleteShow(clientData,oos);
-                case DISCONNECTED -> dbHandler.disconnect(clientData,oos);
+                case REGISTER -> dbHandler.register(clientData);
+                case LOGIN -> dbHandler.login(clientData);
+                case EDIT_NAME,EDIT_USERNAME,EDIT_PASSWORD -> dbHandler.editClientData(clientData);
+                case CONSULT_PAYMENTS_AWAITING -> dbHandler.consultPaymentsAwaiting(clientData);
+                case CONSULT_PAYED_RESERVATIONS -> dbHandler.consultPayedReservations(clientData);
+                case CONSULT_SHOWS_VISIBLE -> dbHandler.consultShows(clientData);
+                case CONSULT_SHOWS_ALL -> dbHandler.consultShowsAdmin();
+                case VIEW_SEATS_PRICES -> dbHandler.viewSeatsAndPrices(clientData);
+                case VISIBLE_SHOW -> dbHandler.showVisible(clientData);
+                case SUBMIT_RESERVATION -> dbHandler.submitReservation(clientData);
+                case DELETE_UNPAID_RESERVATION -> dbHandler.deleteUnpaidReservation(clientData);
+                case PAY_RESERVATION -> dbHandler.payReservation(clientData);
+                case INSERT_SHOWS -> dbHandler.insertShows(clientData);
+                case DELETE_SHOW -> dbHandler.deleteShow(clientData);
+                case DISCONNECTED -> dbHandler.disconnect(clientData);
 
                 default -> throw new IllegalArgumentException("Unexpected action value");
             };
@@ -103,7 +102,7 @@ public class ClientReceiveMessage extends Thread {
     private void update(Pair<Object, List<String>> sqlCommands, ClientData clientData) {
         boolean result = true;
         if (sqlCommands.getValue() != null) {
-            result = hbController.updateDataBase(sqlCommands,clientData,this);
+            result = hbController.updateDataBase(sqlCommands, clientData, this);
         }
 
         if (oos != null && result) {
@@ -112,52 +111,30 @@ public class ClientReceiveMessage extends Thread {
                 oos.writeObject(sqlCommands.getKey());
 
                 //SUBMIT_RESERVATION
-                if (clientData.getAction() == ClientAction.SUBMIT_RESERVATION) {
-                    if (((SubmitReservationResponse) sqlCommands.getKey()).isSuccess()) {
-                        clientData10sec = new ClientData(clientData);
+                switch (clientData.getAction()) {
+                    case SUBMIT_RESERVATION -> {
+                        if (((SubmitReservationResponse) sqlCommands.getKey()).isSuccess()) {
+                            clientData10sec = new ClientData(clientData);
 
-                        TimerTask tt = new TimerTask() {
-                            @Override
-                            public void run() {
-                                clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
-                                request(clientData10sec);
-                            }
-                        };
+                            TimerTask tt = new TimerTask() {
+                                @Override
+                                public void run() {
+                                    clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+                                    request(clientData10sec);
+                                }
+                            };
 
-                        Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-                        calendar.add(Calendar.SECOND, 10);
-                        t = new Timer();
-                        t.schedule(tt,calendar.getTime());
+                            Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+                            calendar.add(Calendar.SECOND, 10);
+                            t = new Timer();
+                            t.schedule(tt, calendar.getTime());
+                        }
                     }
-                } else if (clientData.getAction() == ClientAction.PAY_RESERVATION) {
-                    t.cancel();
+                    case PAY_RESERVATION -> t.cancel();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private void broadcastObserver(ClientData clientData) {
-        try {
-            switch (clientData.getAction()) {
-                case SUBMIT_RESERVATION,DELETE_UNPAID_RESERVATION -> {
-                    for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
-                        if (client != this) {
-                            dbHandler.viewSeatsAndPrices(clientData,client.getOos());
-                        }
-                    }
-                }
-                case VISIBLE_SHOW,INSERT_SHOWS,DELETE_SHOW -> {
-                    for (ClientReceiveMessage client : clientManagement.getClientsThread()) {
-                        if (client != this) {
-                            dbHandler.selectShows(client.getOos());
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

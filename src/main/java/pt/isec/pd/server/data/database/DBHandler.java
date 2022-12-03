@@ -100,7 +100,7 @@ public class DBHandler {
     }
 
     //======================  ACTIONS ======================
-    public synchronized Pair<Object,List<String>> register(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> register(ClientData clientData) throws IOException {
         int id = 0;     // 'id' is defined earlier because the users table can be empty
         int isAdmin = 0;
         int isAuthenticated = 0;
@@ -175,7 +175,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> login(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> login(ClientData clientData) throws IOException {
         boolean requestAccepted = false;
         int isAuthenticated = 0;
         boolean isAdmin = false;
@@ -255,7 +255,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> editClientData(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> editClientData(ClientData clientData) throws IOException {
         boolean requestAccepted = true;
         String msg;
         String query;
@@ -400,7 +400,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> consultPaymentsAwaiting(ClientData clientData, ObjectOutputStream oos) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized Pair<Object,List<String>> consultPaymentsAwaiting(ClientData clientData) throws SQLException, IOException, ClassNotFoundException {
         List<Reserve> reserves = new ArrayList<>();
         ConsultUnpayedReservationResponse response = new ConsultUnpayedReservationResponse();
         Statement statement = connection.createStatement();
@@ -453,7 +453,7 @@ public class DBHandler {
         return new Pair<>(response,null);
     }
 
-    public synchronized Pair<Object,List<String>> consultPayedReservations(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> consultPayedReservations(ClientData clientData) throws IOException {
         // Stores reserves awaiting payment to be sent to the user
         ArrayList<Reserve> reserves = new ArrayList<>();
         String msg;
@@ -505,13 +505,12 @@ public class DBHandler {
         } catch(SQLException e) {
             msg = "Unable to get data from the database";
             LOG.log(msg);
-            oos.writeObject(msg);
         }
 
         return new Pair<>(response,null);
     }
 
-    public synchronized Pair<Object,List<String>> consultShows(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> consultShows(ClientData clientData) throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         ConsultShowsFilterResponse response = new ConsultShowsFilterResponse();
@@ -572,7 +571,7 @@ public class DBHandler {
         return new Pair<>(response,null);
     }
 
-    public synchronized Pair<Object,List<String>> consultShowsAdmin(ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> consultShowsAdmin() throws IOException {
         // stores reserves to be sent to the user
         ArrayList<Show> shows = new ArrayList<>();
         ShowsResponse response = new ShowsResponse();
@@ -613,7 +612,7 @@ public class DBHandler {
         return new Pair<>(response,null);
     }
 
-    public synchronized Pair<Object,List<String>> selectShows(ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> selectShows() throws IOException {
         ArrayList<Show> availableShows = new ArrayList<>();
         ShowsResponse response = new ShowsResponse();
 
@@ -683,7 +682,7 @@ public class DBHandler {
         return new Pair<>(response,null);
     }
 
-    public synchronized Pair<Object,List<String>> viewSeatsAndPrices(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> viewSeatsAndPrices(ClientData clientData) throws IOException {
         SeatsResponse seatsResponse = new SeatsResponse();
         List<Seat> available = new ArrayList<>();
 
@@ -741,7 +740,7 @@ public class DBHandler {
         return new Pair<>(seatsResponse,null);
     }
 
-    public synchronized Pair<Object,List<String>> submitReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> submitReservation(ClientData clientData) throws IOException {
         Date currentTime = new Date();
         int isPaid = 0;
         String query;
@@ -835,7 +834,7 @@ public class DBHandler {
 
     }
 
-    public synchronized Pair<Object,List<String>> deleteUnpaidReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> deleteUnpaidReservation(ClientData clientData) throws IOException {
         DeleteReservationResponse response = new DeleteReservationResponse();
         String query;
         List<String> listQuery = new ArrayList<>();
@@ -890,7 +889,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> payReservation(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> payReservation(ClientData clientData) throws IOException {
         List<String> listQuery = new ArrayList<>();
         String query;
 
@@ -934,7 +933,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> showVisible(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> showVisible(ClientData clientData) throws IOException {
         Integer showId = (Integer) clientData.getData();
         String query;
         String msg;
@@ -976,7 +975,7 @@ public class DBHandler {
     }
 
 
-    public synchronized Pair<Object,List<String>> insertShows(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> insertShows(ClientData clientData) throws IOException {
         String msg;
         InsertShowResponse response = new InsertShowResponse();
 
@@ -1058,7 +1057,7 @@ public class DBHandler {
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> deleteShow(ClientData clientData, ObjectOutputStream oos) throws IOException {
+    public synchronized Pair<Object,List<String>> deleteShow(ClientData clientData) throws IOException {
         boolean hasPaidReserve = false;
         String msg;
         List<String> listQuery = new ArrayList<>();
@@ -1129,7 +1128,6 @@ public class DBHandler {
                 LOG.log(msg);
                 response.setSuccess(false);
                 response.setMsg(msg);
-                oos.writeObject(response);
                 statement.close();
                 isAdmin.close();
             }
@@ -1138,13 +1136,12 @@ public class DBHandler {
             LOG.log(msg);
             response.setSuccess(false);
             response.setMsg(msg);
-            oos.writeObject(response);
         }
 
         return new Pair<>(response,listQuery);
     }
 
-    public synchronized Pair<Object,List<String>> disconnect(ClientData clientData, ObjectOutputStream oos) throws SQLException, IOException, ClassNotFoundException {
+    public synchronized Pair<Object,List<String>> disconnect(ClientData clientData) throws SQLException, IOException, ClassNotFoundException {
         String query;
         List<String> listQuery = new ArrayList<>();
         DisconnectResponse response = new DisconnectResponse();
