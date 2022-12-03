@@ -132,7 +132,7 @@ public class DBHandler {
                 String name = result.getString("nome");
 
                 // Validate client username & name
-                if (username.equals(data.getFirst()) && name.equals(data.getSecond())) {
+                if (username.equals(data.getFirst())) {
                     msg = "User[" + data.getFirst() + "] already exists";
                     LOG.log(msg);
                     requestAccepted = false;

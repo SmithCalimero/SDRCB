@@ -36,6 +36,7 @@ public class RegisterForm {
 
         //Request
         registerButton.setOnAction(actionEvent -> {
+            errorMsg.setText("");
             if (userNameField.getText().isEmpty()) {
                 userNameField.setStyle("-fx-background-color: #FF2400;");
                 return;
@@ -53,6 +54,10 @@ public class RegisterForm {
                 return;
             } else {
                 passwordField.setStyle("");
+            }
+            if (userNameField.getText().equals(nameField.getText())) {
+                errorMsg.setText("O username e nome devem ser diferentes");
+                return;
             }
 
             model.register(userNameField.getText(),nameField.getText(),passwordField.getText());
