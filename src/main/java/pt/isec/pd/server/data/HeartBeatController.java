@@ -158,11 +158,11 @@ public class HeartBeatController {
                     LOG.log("Ping " + servers + "/" + hbList.size());
 
                 } catch (SocketTimeoutException e) {
-                    if (servers != hbList.size()) {
+                    if (servers >= hbList.size()) {
                         if (attempts == 1) {
                             break;
                         }
-                        prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
+                        /*prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
                         LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
                         prepareBytes = Utils.serializeObject(prepare);
 
@@ -170,7 +170,7 @@ public class HeartBeatController {
                         ms.send(dp);
                         LOG.log("Not all servers sent a confirmation trying again");
                         attempts++;
-                        servers = 0;
+                        servers = 0;*/
                     } else {
                         break;
                     }
