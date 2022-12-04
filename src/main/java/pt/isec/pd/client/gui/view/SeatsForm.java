@@ -44,12 +44,10 @@ public class SeatsForm {
 
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
-            seats.clear();
             update();
         });
 
         model.addPropertyChangeListener(ClientAction.VIEW_SEATS_PRICES.toString(), evt -> {
-            seats.clear();
             model.setMessage("");
             if (model.getState() == State.SEATS_PRICES)
                 updateSeatsList();
@@ -61,7 +59,7 @@ public class SeatsForm {
                     ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
                     if (showsResponse != null && showsResponse.getShowId() == seatsResponse.getShowId()) {
                         model.previous();
-                        model.setMessage("O show foi removido pelo administrado");
+                        model.setMessage("O show foi removido pelo administrador");
                     }
                 } catch (ClassCastException ignored) {}
             }
@@ -76,7 +74,7 @@ public class SeatsForm {
             if (submitReservationResponse.isSuccess())
                 model.payReservationTransitionToState(submitReservationResponse.getResId(),seatsResponse.getShowId());
             else
-                msg.setText("There was a client that requested that seat first sorry!");
+                msg.setText("Houve um cliente que reservou este assento primeiro!");
         });
 
         cancelButton.setOnAction(actionEvent -> {
@@ -142,8 +140,9 @@ public class SeatsForm {
                         }
                         else {
                             // If the user had this seat selected before de update (sets selected color)
-                            if (seats.contains(s))
-                                button.setStyle("-fx-background-color: #00c800;-fx-opacity: 1");
+                            for (var seat : seats)
+                                if (seat.getId() == s.getId())
+                                    button.setStyle("-fx-background-color: #00c800;-fx-opacity: 1");
 
                             button.setOnMouseEntered(mouseEvent -> {
                                 Bounds bound = column.localToScene(column.getBoundsInLocal());
