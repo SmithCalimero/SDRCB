@@ -98,20 +98,25 @@ public class HeartBeatReceiver extends Thread{
 
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare != null && this.prepare.getNextVersion() != prepare.getNextVersion()) {
+                    if (this.prepare != null) {
                         this.prepare = prepare;
-                        controller.setUpdating(true);
-                        LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
+                        if (this.prepare.getNextVersion() != prepare.getNextVersion()) {
+                            this.prepare = prepare;
+                            controller.setUpdating(true);
+                            LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
 
-                        // 1. An update is needed
-                        DatagramSocket ds = new DatagramSocket();
-                        byte[] databaseVersion = Utils.serializeObject(prepare.getNextVersion());
-                        DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(prepare.getIp()),prepare.getPort());
-                        ds.send(dpSend);
+                            // 1. An update is needed
+                            DatagramSocket ds = new DatagramSocket();
+                            byte[] databaseVersion = Utils.serializeObject(prepare.getNextVersion());
+                            DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(prepare.getIp()),prepare.getPort());
+                            ds.send(dpSend);
+                        }
                     }
+
                 } else if(object instanceof Commit commit) {
-                        if (this.commit != null && commit.getNextVersion() != this.commit.getNextVersion()) {
-                            this.commit = commit;
+                    if (this.commit != null) {
+                        this.commit = commit;
+                        if (commit.getNextVersion() != this.commit.getNextVersion()) {
                             LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                             // 2. Update the database
                             dbHandler.updateDataBase(prepare.getUpdate());
@@ -142,14 +147,15 @@ public class HeartBeatReceiver extends Thread{
 
                             controller.setUpdating(false);
                         }
-                    } else if (object instanceof Abort) {
-                        LOG.log("Abort receive: " + prepare.getData().getAction());
-                        synchronized (controller) {
-                            if (controller.imUpdating())
-                                controller.notify();
-                        }
-                        controller.setUpdating(false);
                     }
+                } else if (object instanceof Abort) {
+                    LOG.log("Abort receive: " + prepare.getData().getAction());
+                    synchronized (controller) {
+                        if (controller.imUpdating())
+                            controller.notify();
+                    }
+                    controller.setUpdating(false);
+                }
 
             }
 
