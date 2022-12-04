@@ -73,8 +73,10 @@ public class SeatsForm {
 
             if (submitReservationResponse.isSuccess())
                 model.payReservationTransitionToState(submitReservationResponse.getResId(),seatsResponse.getShowId());
-            else
-                msg.setText("Houve um cliente que reservou este assento primeiro!");
+            else {
+                msg.setText("Alguém reservou este(s) assento(s) primeiro! Volte atrás e tente de novo");
+            }
+
         });
 
         cancelButton.setOnAction(actionEvent -> {
