@@ -92,7 +92,7 @@ public class SeatsForm {
             ArrayList<String> rows = new ArrayList<>();
             VBox container = new VBox();
             Popup stage = new Popup();
-            container.prefWidthProperty().bind(pane.widthProperty().multiply(1));
+            //container.prefWidthProperty().bind(pane.widthProperty().multiply(1));
             centerPane.getChildren().clear();
 
             // Get all the rows, to search by row
@@ -194,6 +194,10 @@ public class SeatsForm {
             container.getChildren().add(hBoxReserve);
 
             centerPane.getChildren().add(container);
+
+            // Resize scene according to the seats container width and height
+            container.widthProperty().addListener(e -> pane.getScene().getWindow().setWidth(container.getWidth() + 20));
+            container.heightProperty().addListener(e -> pane.getScene().getWindow().setHeight(container.getHeight() + 70));
         }
     }
 }

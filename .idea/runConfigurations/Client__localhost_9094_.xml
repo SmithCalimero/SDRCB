@@ -4,7 +4,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="pt.isec.pd.client.Main" />
     <module name="SDRCB" />
-    <option name="PROGRAM_PARAMETERS" value="local 9094" />
+    <option name="PROGRAM_PARAMETERS" value="127.0.0.1 9094" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="pt.isec.pd.client.*" />
