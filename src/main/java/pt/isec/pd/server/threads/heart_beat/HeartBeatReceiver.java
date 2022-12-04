@@ -113,8 +113,8 @@ public class HeartBeatReceiver extends Thread{
                     }
                 }
                 else if(object instanceof Commit commit) {
-
                     if (this.commit == null || commit.getNextVersion() != this.commit.getNextVersion()) {
+                        this.commit = commit;
                         LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getUpdate());
