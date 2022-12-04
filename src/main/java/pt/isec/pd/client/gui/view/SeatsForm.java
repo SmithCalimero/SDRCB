@@ -128,7 +128,7 @@ public class SeatsForm {
                         VBox info = new VBox();
                         Label rowLabel = new Label("Fila: " + s.getRow());
                         Label number = new Label("Numero: " + s.getNumber());
-                        Label price = new Label("Preco: " + s.getPrice());
+                        Label price = new Label("Preco: " + s.getPrice() + " €");
                         rowLabel.setStyle("-fx-text-fill: white");
                         number.setStyle("-fx-text-fill: white");
                         price.setStyle("-fx-text-fill: white");
