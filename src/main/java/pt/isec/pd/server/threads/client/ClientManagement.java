@@ -65,6 +65,7 @@ public class ClientManagement extends Thread {
                     ClientReceiveMessage clientRM = new ClientReceiveMessage(oos,ois, dbHandler, this,hbController);
                     clientRM.start();
 
+                    hbController.sendHeartBeat();
                     clientsThread.add(clientRM);
                 }
             }
@@ -84,9 +85,11 @@ public class ClientManagement extends Thread {
     public int getNumConnections() {
         return numConnections;
     }
+
     public synchronized List<ClientReceiveMessage> getClientsThread() {
         return clientsThread;
     }
+
     public synchronized void incConnection() {
         numConnections++;
     }

@@ -233,4 +233,16 @@ public class HeartBeatController {
     public synchronized boolean isEndOfStartup() {
         return endOfStartup;
     }
+
+    public void sendHeartBeat() {
+        try {
+            byte[] bytes = Utils.serializeObject(updateHeartBeat());
+            DatagramPacket dp = new DatagramPacket(bytes,bytes.length, InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
+            ms.send(dp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
