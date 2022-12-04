@@ -19,6 +19,5 @@ public enum ClientAction {
     INSERT_SHOWS,
     DELETE_SHOW,                    // done
     DISCONNECTED,                   // done
-    VISIBLE_SHOW,
-    STOP_TIMER
+    VISIBLE_SHOW
 }
