@@ -135,12 +135,12 @@ public class HeartBeatController {
         try {
             DatagramPacket dp;
 
-            DatagramSocket ds = new DatagramSocket();
+            DatagramSocket ds = new DatagramSocket(0);
             ds.setSoTimeout(1000);
 
             // 1. Send the 'prepare' object to the multicast
             Prepare prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
-            LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
+            LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size() + " port: " + ds.getLocalPort());
             byte[] prepareBytes = Utils.serializeObject(prepare);
 
             dp = new DatagramPacket(prepareBytes,prepareBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
@@ -190,7 +190,6 @@ public class HeartBeatController {
                 ms.send(dp);
                 r = false;
             }
-
 
             wait();
             setUpdater(false);
