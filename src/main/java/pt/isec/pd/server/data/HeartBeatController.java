@@ -135,7 +135,7 @@ public class HeartBeatController {
         try {
             DatagramPacket dp;
 
-            DatagramSocket ds = new DatagramSocket(0);
+            DatagramSocket ds = new DatagramSocket();
             ds.setSoTimeout(1000);
 
             // 1. Send the 'prepare' object to the multicast
@@ -155,7 +155,6 @@ public class HeartBeatController {
                     ds.receive(dpReceive);
                     servers++;
                 } catch (SocketTimeoutException e) {
-                    System.out.println(servers + " " +hbList.size());
                     if (servers != hbList.size()) {
                         if (attempts == 1) {
                             break;
