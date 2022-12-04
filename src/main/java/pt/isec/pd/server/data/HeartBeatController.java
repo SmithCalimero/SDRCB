@@ -158,7 +158,7 @@ public class HeartBeatController {
                     LOG.log("Ping " + servers + "/" + hbList.size());
 
                 } catch (SocketTimeoutException e) {
-                    if (servers >= hbList.size()) {
+                    if (servers != hbList.size()) {
                         if (attempts == 1) {
                             break;
                         }

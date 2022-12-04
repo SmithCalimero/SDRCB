@@ -43,6 +43,7 @@ public class HeartBeatReceiver extends Thread{
                 DatagramPacket dp = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                 ms.receive(dp);
                 Object object = Utils.deserializeObject(dp.getData());
+                LOG.log(object+ "");
 
                 if (object instanceof HeartBeat hbEvent) {
                     hbList.updateList(hbEvent);
@@ -74,7 +75,7 @@ public class HeartBeatReceiver extends Thread{
                                 HeartBeat hbNew = hbDbVersion.get(hbDbVersion.size() - 1);
 
                                 LOG.log("Updating the server to the most recent version");
-                                Socket socket = new Socket("localhost", hbNew.getPortTcp());
+                                Socket socket = new Socket(hbNew.getIp(), hbNew.getPortTcp());
 
                                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
@@ -97,7 +98,7 @@ public class HeartBeatReceiver extends Thread{
 
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare.getNextVersion() != prepare.getNextVersion()) {
+                    if (this.prepare != null & this.prepare.getNextVersion() != prepare.getNextVersion()) {
                         this.prepare = prepare;
                         controller.setUpdating(true);
                         LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
@@ -109,7 +110,7 @@ public class HeartBeatReceiver extends Thread{
                         ds.send(dpSend);
                     }
                 } else if(object instanceof Commit commit) {
-                        if (commit.getNextVersion() != this.commit.getNextVersion()) {
+                        if (this.commit != null & commit.getNextVersion() != this.commit.getNextVersion()) {
                             this.commit = commit;
                             LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                             // 2. Update the database
