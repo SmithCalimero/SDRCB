@@ -26,7 +26,7 @@ public class ClientReceiveMessage extends Thread {
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
     
-    private List<Submissions> submissions = new ArrayList<>();
+    private List<Submission> submissions = new ArrayList<>();
     private ClientData clientData;
 
     public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
@@ -127,7 +127,7 @@ public class ClientReceiveMessage extends Thread {
                                 }
                             };
 
-                            submissions.add(new Submissions(submission,tt));
+                            submissions.add(new Submission(submission,tt));
 
                             Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
                             calendar.add(Calendar.SECOND, 10);
@@ -135,9 +135,14 @@ public class ClientReceiveMessage extends Thread {
                         }
                     }
                     case PAY_RESERVATION,DELETE_UNPAID_RESERVATION -> {
-                            Submissions submission = submissions.remove(0);
-                            submission.getTask().cancel();
-                            LOG.log("Timer was canceled for reservation " + submission.getSubmit().getData());
+                            for (Submission submission : submissions) {
+                                if (submission.getSubmit().getData().equals(clientData.getData())) {
+                                    submission.getTask().cancel();
+                                    LOG.log("Timer was canceled for reservation " + submission.getSubmit().getData());
+                                    submissions.remove(submission);
+                                    break;
+                                }
+                            }
                     }
                     default -> {}
                 }

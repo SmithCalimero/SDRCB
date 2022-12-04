@@ -2,14 +2,13 @@ package pt.isec.pd.server.threads.client;
 
 import pt.isec.pd.client.model.data.ClientData;
 
-import java.util.List;
 import java.util.TimerTask;
 
-public class Submissions {
+public class Submission {
     ClientData submit;
     TimerTask task;
 
-    public Submissions(ClientData submit, TimerTask task) {
+    public Submission(ClientData submit, TimerTask task) {
         this.submit = submit;
         this.task = task;
     }
