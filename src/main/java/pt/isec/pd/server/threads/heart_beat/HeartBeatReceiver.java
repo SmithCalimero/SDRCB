@@ -97,7 +97,7 @@ public class HeartBeatReceiver extends Thread{
                 }
                 else if(object instanceof Prepare prepare) {
                     controller.setUpdating(true);
-                    LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion());
+                    LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
                     this.prepare = prepare;
 
                     // 1. An update is needed
