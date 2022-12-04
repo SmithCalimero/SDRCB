@@ -25,7 +25,7 @@ public class HeartBeatList extends LinkedList<HeartBeat>{
         Collections.sort(orderList);
 
         for (HeartBeat event : orderList) {
-            servers.add(new ServerAddress("127.0.0.1",event.getPortTcp()));
+            servers.add(new ServerAddress(event.getIp(),event.getPortTcp()));
         }
 
         return servers;
