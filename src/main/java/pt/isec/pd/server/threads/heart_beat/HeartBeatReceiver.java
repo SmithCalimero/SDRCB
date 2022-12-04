@@ -97,11 +97,7 @@ public class HeartBeatReceiver extends Thread{
 
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare == null) {
-                        this.prepare = prepare;
-                    }
-                    System.out.println(prepare.getNextVersion()  + " " + this.prepare.getNextVersion());
-                    if (prepare.getNextVersion() != this.prepare.getNextVersion()) {
+                    if (this.prepare == null || prepare.getNextVersion() != this.prepare.getNextVersion()) {
                         this.prepare = prepare;
                         controller.setUpdating(true);
                         LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
@@ -112,12 +108,13 @@ public class HeartBeatReceiver extends Thread{
                         DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(prepare.getIp()),prepare.getPort());
                         ds.send(dpSend);
                     }
+                    if (this.prepare == null) {
+                        this.prepare = prepare;
+                    }
                 }
                 else if(object instanceof Commit commit) {
-                    if (this.commit == null) {
-                        this.commit = commit;
-                    }
-                    if (commit.getNextVersion() != this.commit.getNextVersion()) {
+
+                    if (this.commit == null || commit.getNextVersion() != this.commit.getNextVersion()) {
                         LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getUpdate());
@@ -149,6 +146,9 @@ public class HeartBeatReceiver extends Thread{
                         controller.setUpdating(false);
                     }
 
+                    if (this.commit == null) {
+                        this.commit = commit;
+                    }
                 } else if (object instanceof Abort) {
                     LOG.log("Abort receive: " + prepare.getData().getAction());
                     synchronized (controller) {
