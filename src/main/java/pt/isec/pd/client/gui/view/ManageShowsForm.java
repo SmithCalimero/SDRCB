@@ -37,6 +37,11 @@ public class ManageShowsForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+
+            list.prefWidthProperty().bind(pane.widthProperty().multiply(0.5));
+            list.prefHeightProperty().bind(pane.heightProperty().multiply(0.75));
+
+            pane.getScene().getWindow().setWidth(pane.getScene().getWidth() + 50);
         });
 
         model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_ALL.toString(), evt -> {
