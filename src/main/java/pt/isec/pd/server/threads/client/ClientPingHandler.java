@@ -16,7 +16,7 @@ import java.util.List;
 
 /* UDP: Receives the ping from a client and sends a list of servers to later initialize a tcp connection*/
 public class ClientPingHandler extends Thread{
-    private final Log LOG = Log.getLogger(Server.class);
+    private final Log LOG = Log.getLogger(ClientPingHandler.class);
     private final int port;
     private HeartBeatList hbList;
 
