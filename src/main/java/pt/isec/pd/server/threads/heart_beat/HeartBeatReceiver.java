@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,8 @@ public class HeartBeatReceiver extends Thread{
     private Prepare prepare;
     private Commit commit;
     private final Server server;
+    private Date datePrepare;
+    private Date dateCommit;
 
     public HeartBeatReceiver(HeartBeatController controller, DBHandler dbHandler,Server server) {
         this.ms = controller.getMs();
@@ -100,8 +103,10 @@ public class HeartBeatReceiver extends Thread{
                     }
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare == null || prepare.getNextVersion() != this.prepare.getNextVersion()) {
+                    Date currentDate = new Date();
+                    if (this.prepare == null || prepare.getNextVersion() != this.prepare.getNextVersion() || datePrepare.compareTo(currentDate) != 0) {
                         this.prepare = prepare;
+                        datePrepare = currentDate;
                         controller.setUpdating(true);
                         LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
 
@@ -110,14 +115,13 @@ public class HeartBeatReceiver extends Thread{
                         byte[] databaseVersion = Utils.serializeObject(prepare.getNextVersion());
                         DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(prepare.getIp()),prepare.getPort());
                         ds.send(dpSend);
-                    }
-                    if (this.prepare == null) {
-                        this.prepare = prepare;
-                    }
+                   }
                 }
                 else if(object instanceof Commit commit) {
-                    if (this.commit == null || commit.getNextVersion() != this.commit.getNextVersion()) {
+                    Date currentDate = new Date();
+                    if (this.commit == null || commit.getNextVersion() != this.commit.getNextVersion()  || dateCommit.compareTo(currentDate) != 0) {
                         this.commit = commit;
+                        dateCommit = currentDate;
                         LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getUpdate());
@@ -147,10 +151,6 @@ public class HeartBeatReceiver extends Thread{
                         ms.send(dp);
 
                         controller.setUpdating(false);
-                    }
-
-                    if (this.commit == null) {
-                        this.commit = commit;
                     }
                 } else if (object instanceof Abort) {
                     LOG.log("Abort receive: " + prepare.getData().getAction());

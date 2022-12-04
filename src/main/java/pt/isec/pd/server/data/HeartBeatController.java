@@ -144,6 +144,7 @@ public class HeartBeatController {
         if (sqlCommand.getValue().isEmpty()){
             return true;
         }
+
         try {
             DatagramPacket dp;
 
