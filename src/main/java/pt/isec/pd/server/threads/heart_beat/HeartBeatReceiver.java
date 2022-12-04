@@ -43,7 +43,6 @@ public class HeartBeatReceiver extends Thread{
                 DatagramPacket dp = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                 ms.receive(dp);
                 Object object = Utils.deserializeObject(dp.getData());
-                LOG.log(object+ "");
 
                 if (object instanceof HeartBeat hbEvent) {
                     hbList.updateList(hbEvent);
@@ -101,6 +100,7 @@ public class HeartBeatReceiver extends Thread{
                     if (this.prepare == null) {
                         this.prepare = prepare;
                     }
+                    System.out.println(prepare.getNextVersion()  + " " + this.prepare.getNextVersion());
                     if (prepare.getNextVersion() != this.prepare.getNextVersion()) {
                         this.prepare = prepare;
                         controller.setUpdating(true);
