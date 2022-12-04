@@ -36,7 +36,5 @@ public class MenuAdminForm {
         });
 
     }
-    private void update() {
-        pane.setVisible(model != null && model.getState() == State.MENU_ADMIN);
-    }
+    private void update() { pane.setVisible(model != null && model.getState() == State.MENU_ADMIN); }
 }

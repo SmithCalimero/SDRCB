@@ -51,6 +51,7 @@ public class ShowsForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
+            bindList();
         });
 
         model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_VISIBLE.toString(), evt -> {
@@ -150,8 +151,12 @@ public class ShowsForm {
         });
     }
 
-
     private void update() {
         pane.setVisible(model != null && model.getState() == State.SHOWS);
+    }
+
+    private void bindList() {
+        list.prefWidthProperty().bind(pane.widthProperty().multiply(0.5));
+        list.prefHeightProperty().bind(pane.heightProperty().multiply(0.75));
     }
 }
