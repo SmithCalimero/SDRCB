@@ -145,9 +145,14 @@ public class DBHandler {
             }
 
             if (requestAccepted) {
+                result = statement.executeQuery(
+                        "SELECT max(id) from utilizador"
+                );
+
                 // Register user
-                query = "INSERT INTO utilizador(username,nome,password,administrador,autenticado)"
+                query = "INSERT INTO utilizador(id,username,nome,password,administrador,autenticado)"
                         + "VALUES("
+                        + "'" + (result.getInt(1) + 1) + "',"
                         + "'" + data.getFirst() + "',"
                         + "'" + data.getSecond() + "',"
                         + "'" + data.getThird() + "',"
@@ -1076,7 +1081,7 @@ public class DBHandler {
             if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                     isAdmin.getString("nome").equalsIgnoreCase("admin")) {
                     // Receive from client the ID of the show to be deleted
-                    Integer deleteShowId = clientData.getShowId();
+                    int deleteShowId = clientData.getShowId();
 
                     // Search reservations
                     ResultSet reservations = statement.executeQuery(
@@ -1199,7 +1204,7 @@ public class DBHandler {
             updateVersion(sqlCommand);
             LOG.log("Database updated");
         } catch (SQLException e) {
-            LOG.log("Error updating database");
+            LOG.log("Error updating database " + e);
         }
     }
 }

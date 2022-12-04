@@ -7,8 +7,6 @@ import pt.isec.pd.server.data.HeartBeatController;
 import pt.isec.pd.server.data.Server;
 import pt.isec.pd.server.data.database.DBHandler;
 import pt.isec.pd.shared_data.Responses.SubmitReservationResponse;
-import pt.isec.pd.shared_data.Seat;
-import pt.isec.pd.shared_data.SubmitReservation;
 import pt.isec.pd.utils.Log;
 
 import java.io.IOException;
@@ -27,15 +25,9 @@ public class ClientReceiveMessage extends Thread {
     private final List<ClientData> queue = new ArrayList<>();
     private final QueueUpdate queueUpdate;
     private Timer t = new Timer();
-    private TimerTask tt = new TimerTask() {
-                @Override
-                public void run() {
-                    clientData10sec.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
-                    request(clientData10sec);
-                }
-            };
-
-    private ClientData clientData10sec;
+    
+    private List<Submissions> submissions = new ArrayList<>();
+    private ClientData clientData;
 
     public ClientReceiveMessage(ObjectOutputStream oos, ObjectInputStream ois, DBHandler dbHandler, ClientManagement clientManagement, HeartBeatController controller) {
         this.oos = oos;
@@ -50,7 +42,6 @@ public class ClientReceiveMessage extends Thread {
     @Override
     public synchronized void run() {
         while (true) {
-            ClientData clientData = new ClientData();
             try {
                 // Verifications for the clients actions
                 clientData = (ClientData) ois.readUnshared();
@@ -62,8 +53,10 @@ public class ClientReceiveMessage extends Thread {
                 clientManagement.subConnection();
                 clientManagement.getClientsThread().remove(this);
                 oos = null;
-                clientData.setAction(ClientAction.DISCONNECTED);
-                request(clientData);
+                if (!(clientData.getAction() == ClientAction.DISCONNECTED)) {
+                    clientData.setAction(ClientAction.DISCONNECTED);
+                    request(clientData);
+                }
                 break;
             }
         }
@@ -112,7 +105,7 @@ public class ClientReceiveMessage extends Thread {
     private void update(Pair<Object, List<String>> sqlCommands, ClientData clientData) {
         boolean result = true;
         if (sqlCommands.getValue() != null) {
-            result = hbController.updateDataBase(sqlCommands,clientData,this);
+            result = hbController.updateDataBase(sqlCommands,clientData);
         }
 
         if (oos != null && result) {
@@ -124,16 +117,27 @@ public class ClientReceiveMessage extends Thread {
                 switch (clientData.getAction()) {
                     case SUBMIT_RESERVATION -> {
                         if (((SubmitReservationResponse) sqlCommands.getKey()).isSuccess()) {
-                            t = new Timer();
-                            clientData10sec = new ClientData(clientData);
+                            ClientData submission = new ClientData(clientData);
+                            submission.setAction(ClientAction.DELETE_UNPAID_RESERVATION);
+
+                            TimerTask tt = new TimerTask() {
+                                @Override
+                                public void run() {
+                                    request(submissions.get(0).getSubmit());
+                                }
+                            };
+
+                            submissions.add(new Submissions(submission,tt));
+
                             Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
                             calendar.add(Calendar.SECOND, 10);
                             t.schedule(tt, calendar.getTime());
                         }
                     }
                     case PAY_RESERVATION,DELETE_UNPAID_RESERVATION -> {
-                            tt.cancel();
-                            LOG.log("Timer was canceled");
+                            Submissions submission = submissions.remove(0);
+                            submission.getTask().cancel();
+                            LOG.log("Timer was canceled for reservation " + submission.getSubmit().getData());
                     }
                     default -> {}
                 }
@@ -145,10 +149,6 @@ public class ClientReceiveMessage extends Thread {
 
     public ObjectOutputStream getOos() {
         return oos;
-    }
-
-    public ObjectInputStream getOis() {
-        return ois;
     }
 
     public Timer getT() {

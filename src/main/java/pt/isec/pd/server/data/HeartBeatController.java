@@ -125,9 +125,13 @@ public class HeartBeatController {
     }
 
     // Only called when a request from client updated the database
-    public synchronized boolean updateDataBase(Pair<Object, List<String>> sqlCommand, ClientData clientData,ClientReceiveMessage client) {
+    public synchronized boolean updateDataBase(Pair<Object, List<String>> sqlCommand, ClientData clientData) {
         setUpdater(true);
         boolean r = false;
+
+        if (sqlCommand.getValue().isEmpty()){
+            return true;
+        }
 
         try {
             DatagramPacket dp;
