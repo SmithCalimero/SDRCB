@@ -89,7 +89,6 @@ public class CommunicationHandler extends Thread {
 
     private boolean tryConnection(ServerAddress address) {
         try {
-            System.out.println(address.getIp());
             socket = new Socket(address.getIp(), address.getPort());
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());

@@ -148,4 +148,9 @@ public abstract class StateAdapter implements IState {
     @Override
     public void setMessage(String message) {
     }
+
+    @Override
+    public void notifyMessage() {
+
+    }
 }

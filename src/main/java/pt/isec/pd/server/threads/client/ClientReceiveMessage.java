@@ -12,6 +12,7 @@ import pt.isec.pd.utils.Log;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.SyncFailedException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -44,7 +45,7 @@ public class ClientReceiveMessage extends Thread {
         while (true) {
             try {
                 // Verifications for the clients actions
-                clientData = (ClientData) ois.readUnshared();
+                clientData = (ClientData) ois.readObject();
                 request(clientData);
             } catch (ClassNotFoundException e) {
                 LOG.log("Unable to read client data: " + e);
@@ -146,6 +147,13 @@ public class ClientReceiveMessage extends Thread {
                     }
                     default -> {}
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (oos != null) {
+            try {
+                LOG.log("Sending problem response");
+                oos.writeObject(new SyncFailedException("The request was denied due to communication problems"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

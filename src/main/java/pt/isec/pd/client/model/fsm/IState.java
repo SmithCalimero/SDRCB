@@ -40,5 +40,6 @@ public interface IState {
 
     String getMessage();
     void setMessage(String message);
+    void notifyMessage();
     Object getResponse();
 }

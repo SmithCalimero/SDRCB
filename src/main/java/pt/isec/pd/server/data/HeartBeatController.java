@@ -139,7 +139,7 @@ public class HeartBeatController {
             ds.setSoTimeout(1000);
 
             // 1. Send the 'prepare' object to the multicast
-            Prepare prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
+            Prepare prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion() + 1);
             LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size() + " port: " + ds.getLocalPort());
             byte[] prepareBytes = Utils.serializeObject(prepare);
 
@@ -162,7 +162,7 @@ public class HeartBeatController {
                         if (attempts == 1) {
                             break;
                         }
-                        /*prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
+                        prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion() + 1);
                         LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
                         prepareBytes = Utils.serializeObject(prepare);
 
@@ -170,27 +170,26 @@ public class HeartBeatController {
                         ms.send(dp);
                         LOG.log("Not all servers sent a confirmation trying again");
                         attempts++;
-                        servers = 0;*/
+                        servers = 0;
                     } else {
                         break;
                     }
                 }
             }
 
-            if (attempts == 0) {
+            if (attempts <= 0) {
                 // 3. Send a 'commit' to start the updating
                 Commit commit = new Commit(prepare.getNextVersion());
                 byte[] commitBytes = Utils.serializeObject(commit);
                 dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
                 r = true;
-
             } else {
                 Abort abort = new Abort(prepare.getNextVersion());
                 byte[] commitBytes = Utils.serializeObject(abort);
                 dp = new DatagramPacket(commitBytes,commitBytes.length,InetAddress.getByName(Constants.IP_MULTICAST),Constants.PORT_MULTICAST);
                 ms.send(dp);
-                r = false;
+                return false;
             }
 
             wait();
