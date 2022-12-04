@@ -75,11 +75,11 @@ public class CommunicationHandler extends Thread {
             try {
                 establishingTcpConn(serverList);
             } catch (NoServerFound ex) {
-                LOG.log("Could not establish connection with any server\nShutting down application");
+                LOG.log("Could not establish connection with any server");
+                LOG.log("Shutting down application");
                 Platform.exit();
                 System.exit(0);
             }
-
         } catch (NoServerFound e) {
             LOG.log("Could not establish connection with any server\nShutting down application");
             Platform.exit();

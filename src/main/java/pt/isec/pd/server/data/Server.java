@@ -20,9 +20,13 @@ public class Server {
     private final String dbPath;
     private HeartBeatController hbController;
     private DBHandler dbHandler;
+    private Scanf scanf;
 
     public Server(int pingPort,String dbPath) {
         this.dbPath = dbPath;
+        scanf = new Scanf();
+        scanf.start();
+
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
             System.out.println("Device ip: " + ip);

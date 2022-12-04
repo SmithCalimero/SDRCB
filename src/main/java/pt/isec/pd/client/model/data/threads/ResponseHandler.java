@@ -138,8 +138,10 @@ public class ResponseHandler extends Thread {
                     ch.setServerList(updateServerList.getServerAddressList());
                 }
             } catch (IOException e) {
-                LOG.log("There was a problem with the server we are trying to fix it " + e);
-                ch.sendPing();
+                if (isConnected) {
+                    LOG.log("There was a problem with the server we are trying to fix it " + e);
+                    ch.sendPing();
+                }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }

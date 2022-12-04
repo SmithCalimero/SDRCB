@@ -73,11 +73,10 @@ public class DBHandler {
             List<String> querys = version.getValue();
             updateVersion(querys);
             for (var query : querys) {
-                LOG.log("Executing: " + query);
                 statement.executeUpdate(query);
             }
         }
-
+        LOG.log("Done updating...");
         statement.close();
     }
 
@@ -1083,13 +1082,21 @@ public class DBHandler {
             //Get id of show
 
             Map<String, List<Seat>> seats = mapShows.getValue();
-            //Go through all the rows
+
+            ResultSet maxIdSeatSet = statement.executeQuery(
+                    "SELECT max(id) FROM lugar"
+            );
+
+            int maxIdSeat = maxIdSeatSet.getInt(1);
+
+                        //Go through all the rows
             for (String key : seats.keySet()) {
                 //Go through all the seats
                 List<Seat> seatsList = seats.get(key);
                 for (Seat seat : seatsList) {
-                    query = "INSERT INTO lugar(fila,assento,preco,espetaculo_id) "
+                    query = "INSERT INTO lugar(id,fila,assento,preco,espetaculo_id) "
                             + "VALUES ("
+                            + "'" + ++maxIdSeat + "',"
                             + "'" + seat.getRow() + "',"
                             + "'" + seat.getNumber() + "',"
                             + "'" + seat.getPrice() + "',"
