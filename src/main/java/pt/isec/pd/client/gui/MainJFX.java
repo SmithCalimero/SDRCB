@@ -46,7 +46,6 @@ public class MainJFX extends Application {
         stage.setScene(scene);
         stage.setTitle("PD-meta1");
         stage.sizeToScene();
-        //stage.setMinWidth(400);
         stage.show();
 
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
