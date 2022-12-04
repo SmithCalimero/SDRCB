@@ -34,7 +34,6 @@ public class LoginForm {
 
         model.addPropertyChangeListener(ClientAction.LOGIN.toString(), evt -> {
             LoginResponse loginResponse = (LoginResponse) model.getResponse();
-
             model.setMessage("");
             if (loginResponse.isSuccess()) {
                 model.next();
@@ -66,7 +65,6 @@ public class LoginForm {
         });
     }
 
-
     private void update() {
         pane.setVisible(model != null && model.getState() == State.LOGIN);
     }
@@ -74,6 +72,5 @@ public class LoginForm {
     private void clearView() {
         usernameField.clear();
         passwordField.clear();
-        model.setMessage("");
     }
 }

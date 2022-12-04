@@ -8,6 +8,7 @@ import pt.isec.pd.shared_data.Responses.*;
 import pt.isec.pd.utils.Log;
 import pt.isec.pd.utils.Utils;
 
+import javax.swing.plaf.synth.SynthUI;
 import java.io.*;
 import java.sql.*;
 import java.text.DateFormat;
@@ -159,8 +160,10 @@ public class DBHandler {
                         + "'" + isAdmin + "',"
                         + "'" + isAuthenticated + "')";
 
-                LOG.log("User[" + data.getFirst() + "] has registered successfully");
+                msg = "User[" + data.getFirst() + "] has registered successfully";
+                LOG.log(msg);
                 clientData.setId(id);
+                response.setMsg(msg);
                 response.setSuccess(true);
                 listQuery.add(query);
 
@@ -416,6 +419,8 @@ public class DBHandler {
 
         String clientName = clientResult.getString(1);
 
+        clientResult.close();
+
         // Execute query to search reserves
         ResultSet result = statement.executeQuery(
                 "SELECT * FROM reserva;"
@@ -428,21 +433,46 @@ public class DBHandler {
             int userId = result.getInt("id_utilizador");
             int showId = result.getInt("id_espetaculo");
 
+
+
             // Validate client id & verify if the reserve is unpaid
             if (clientData.getId() == userId && !paid) {
+                ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ showId +";");
                 try {
-                    reserves.add(new Reserve(
+                    reserves.add(new UnPayedReserve(
                             id,
                             date,
                             false,
                             userId,
-                            showId
+                            showId,
+                            espetaculo.getString(1)
                     ));
                 } catch (Exception e) {
                     LOG.log("Unable to consult unpaid reserves from user [" + clientName + "]");
                 }
+                espetaculo.close();
             }
         }
+
+        result.close();
+
+        for (Reserve reserve : reserves) {
+            List<Seat> seats = new ArrayList<>();
+            ResultSet lugar = statement.executeQuery("SELECT id,fila,assento,preco,espetaculo_id FROM lugar where id in "
+                    + "(SELECT id_lugar FROM reserva_lugar WHERE id_reserva =" + reserve.getId() + ")");
+            while(lugar.next()) {
+                int id = lugar.getInt(1);
+                System.out.println(id);
+                String fila = lugar.getString(2);
+                String assento = lugar.getString(3);
+                double preco = lugar.getDouble(4);
+                int espetaculo_id = lugar.getInt(5);
+                seats.add(new Seat(id,fila,assento,preco,espetaculo_id));
+            }
+            reserve.setSeats(seats);
+            lugar.close();
+        }
+
 
         if (reserves.isEmpty())
             LOG.log("No payments awaiting from user [" + clientName + "]");
@@ -485,17 +515,37 @@ public class DBHandler {
                 boolean paid = result.getBoolean("pago");
                 int userId = result.getInt("id_utilizador");
                 int showId = result.getInt("id_espetaculo");
-
-                // Validate client id & verify if the reserve is paid
                 if (clientData.getId() == userId && paid) {
+                    ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ showId +";");
+
                     reserves.add(new Reserve(
                             id,
                             date,
                             true,
                             userId,
-                            showId
+                            showId,
+                            espetaculo.getString(1)
                     ));
+
+                    espetaculo.close();
                 }
+            }
+
+            for (Reserve reserve : reserves) {
+                List<Seat> seats = new ArrayList<>();
+                ResultSet lugar = statement.executeQuery("SELECT id,fila,assento,preco,espetaculo_id FROM lugar where id in "
+                        + "(SELECT id_lugar FROM reserva_lugar WHERE id_reserva =" + reserve.getId() + ")");
+                while(lugar.next()) {
+                    int id = lugar.getInt(1);
+                    System.out.println(id);
+                    String fila = lugar.getString(2);
+                    String assento = lugar.getString(3);
+                    double preco = lugar.getDouble(4);
+                    int espetaculo_id = lugar.getInt(5);
+                    seats.add(new Seat(id,fila,assento,preco,espetaculo_id));
+                }
+                reserve.setSeats(seats);
+                lugar.close();
             }
 
             response.setReserves(reserves);

@@ -65,9 +65,10 @@ public class RegisterForm {
         // Response
         model.addPropertyChangeListener(ClientAction.REGISTER.toString(), evt -> {
             RegisterResponse registerResponse = (RegisterResponse) model.getResponse();
+
+            model.setMessage(registerResponse.getMsg());
             if (registerResponse.isSuccess()) {
                 model.swapToRegister();
-            } else {
                 model.setMessage(registerResponse.getMsg());
             }
         });
@@ -80,7 +81,6 @@ public class RegisterForm {
 
     private void update() {
         pane.setVisible(model != null && model.getState() == State.REGISTER);
-        model.setMessage("");
     }
 
     private void clearView() {

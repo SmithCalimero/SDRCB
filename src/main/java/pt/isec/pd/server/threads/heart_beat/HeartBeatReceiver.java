@@ -117,20 +117,11 @@ public class HeartBeatReceiver extends Thread{
                                     client.getOos().writeObject(dbHandler.viewSeatsAndPrices(prepare.getData()).getKey());
                                 }
                             }
-                            case INSERT_SHOWS ->  {
+                            case INSERT_SHOWS,VISIBLE_SHOW,DELETE_SHOW ->  {
                                 for (ClientReceiveMessage client : controller.getClients()) {
                                     ShowsResponse response = (ShowsResponse) dbHandler.selectShows().getKey();
                                     response.setShowId(prepare.getData().getShowId());
                                     client.getOos().writeObject(response);
-                                }
-                            }
-                            case VISIBLE_SHOW,DELETE_SHOW -> {
-                                for (ClientReceiveMessage client : controller.getClients()) {
-                                    ShowsResponse response = (ShowsResponse) dbHandler.selectShows().getKey();
-                                    response.setShowId(prepare.getData().getShowId());
-                                    client.getOos().writeObject(response);
-                                    //client.getT().cancel();
-                                    //client.getT().purge();
                                 }
                             }
                         }
