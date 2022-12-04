@@ -126,4 +126,8 @@ public class Context {
     public void setMessage(String message) {
         data.setMessage(message);
     }
+
+    public void notifyMessage() {
+        data.setMessage("There was a problem with the server try again");
+    }
 }

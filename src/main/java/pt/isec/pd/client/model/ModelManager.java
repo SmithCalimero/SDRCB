@@ -24,6 +24,8 @@ public class ModelManager {
     public ModelManager(ServerAddress udpConn) {
         pcs = new PropertyChangeSupport(this);
         this.context = new Context(udpConn,pcs);
+
+        notifyMessage();
     }
 
     public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
@@ -43,6 +45,12 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_DATA,null,null);
     }
 
+    public void notifyMessage() {
+       addPropertyChangeListener("notify", evt -> {
+           context.notifyMessage();
+           pcs.firePropertyChange(PROP_DATA,null,null);
+        });
+    }
 
     public void login(String userName, String password) {
         context.login(userName,password);

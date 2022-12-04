@@ -93,9 +93,6 @@ public class CreateDataBase {
                     );""";
 
 
-            String initialVersion = "PRAGMA user_version = 1";
-
-            stmt.execute(initialVersion);
             stmt.executeUpdate(espetaculo);
             stmt.executeUpdate(utilizador);
             stmt.executeUpdate(lugar);
@@ -128,6 +125,9 @@ public class CreateDataBase {
             stmt.executeUpdate(admin);
             stmt.executeUpdate(versao);
 
+            String initialVersion = "PRAGMA user_version = 1";
+
+            stmt.execute(initialVersion);
             c.close();
             stmt.close();
         } catch ( Exception e ) {

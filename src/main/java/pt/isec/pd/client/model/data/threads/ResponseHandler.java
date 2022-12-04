@@ -12,6 +12,7 @@ import pt.isec.pd.utils.Log;
 
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.io.SyncFailedException;
 import java.util.List;
 
 public class ResponseHandler extends Thread {
@@ -30,8 +31,7 @@ public class ResponseHandler extends Thread {
     public void run() {
         while (true) {
             try {
-
-                Object object = ch.getOis().readUnshared();
+                Object object = ch.getOis().readObject();
                 data = object;
                 LOG.log("Response received: " + data.getClass().getSimpleName().toUpperCase());
 
@@ -118,7 +118,8 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof ConsultShowsFilterResponse) {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.CONSULT_SHOWS_VISIBLE.toString(),null,null));
-                } else if (object instanceof ListServerAddress list) {
+                }
+                else if (object instanceof ListServerAddress list) {
                     try {
                         LOG.log("Establishing connection to a new server");
                         ch.establishingTcpConn(list.getServers());
@@ -126,9 +127,14 @@ public class ResponseHandler extends Thread {
                         e.printStackTrace();
                     }
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                LOG.log("There was a problem with the server we are trying to fix it");
+                else if (object instanceof SyncFailedException) {
+                    Platform.runLater(() ->pcs.firePropertyChange("notify",null,null));
+                }
+            } catch (IOException e) {
+                LOG.log("There was a problem with the server we are trying to fix it " + e);
                 ch.sendPing();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }
