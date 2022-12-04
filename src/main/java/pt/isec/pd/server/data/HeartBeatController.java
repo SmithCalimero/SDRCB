@@ -149,11 +149,14 @@ public class HeartBeatController {
             // 2. Wait for the servers to send the signal (timeout 1000 ms)
             int servers = 0;
             int attempts = 0;
+
+            DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
             while (true) {
                 try {
-                    DatagramPacket dpReceive = new DatagramPacket(new byte[Constants.MAX_BYTES],Constants.MAX_BYTES);
                     ds.receive(dpReceive);
                     servers++;
+                    LOG.log("Ping " + servers + "/" + hbList.size());
+
                 } catch (SocketTimeoutException e) {
                     if (servers != hbList.size()) {
                         if (attempts == 1) {
