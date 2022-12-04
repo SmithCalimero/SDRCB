@@ -198,6 +198,7 @@ public class SeatsForm {
             // Resize scene according to the seats container width and height
             container.widthProperty().addListener(e -> pane.getScene().getWindow().setWidth(container.getWidth() + 20));
             container.heightProperty().addListener(e -> pane.getScene().getWindow().setHeight(container.getHeight() + 70));
+
         }
     }
 }
