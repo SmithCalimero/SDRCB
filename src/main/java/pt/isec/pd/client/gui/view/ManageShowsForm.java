@@ -38,15 +38,10 @@ public class ManageShowsForm {
     private void registerHandlers() {
         model.addPropertyChangeListener(ModelManager.PROP_STATE, evt -> {
             update();
-            setWidth(640);
         });
 
         model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_ALL.toString(), evt -> {
             bindList();
-            setWidth(710);
-        });
-
-        model.addPropertyChangeListener(ClientAction.CONSULT_SHOWS_ALL.toString(), evt -> {
             ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
             list.setItems(FXCollections.observableList(showsResponse.getShows()));
         });
@@ -102,10 +97,8 @@ public class ManageShowsForm {
         pane.setVisible(model != null && model.getState() == State.MANAGE_SHOWS);
     }
 
-    private void setWidth(double width) { pane.getScene().getWindow().setWidth(width); }
-
     private void bindList() {
-        list.prefWidthProperty().bind(pane.widthProperty().multiply(0.5));
+        list.prefWidthProperty().bind(pane.widthProperty().multiply(0.45));
         list.prefHeightProperty().bind(pane.heightProperty().multiply(0.75));
     }
 }
