@@ -98,7 +98,7 @@ public class HeartBeatReceiver extends Thread{
 
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare != null & this.prepare.getNextVersion() != prepare.getNextVersion()) {
+                    if (this.prepare != null && this.prepare.getNextVersion() != prepare.getNextVersion()) {
                         this.prepare = prepare;
                         controller.setUpdating(true);
                         LOG.log("Prepare receive action: " + prepare.getData().getAction() +  " version: " + prepare.getNextVersion() + " ip: " + prepare.getIp());
@@ -110,7 +110,7 @@ public class HeartBeatReceiver extends Thread{
                         ds.send(dpSend);
                     }
                 } else if(object instanceof Commit commit) {
-                        if (this.commit != null & commit.getNextVersion() != this.commit.getNextVersion()) {
+                        if (this.commit != null && commit.getNextVersion() != this.commit.getNextVersion()) {
                             this.commit = commit;
                             LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                             // 2. Update the database
