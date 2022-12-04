@@ -7,16 +7,16 @@ public class Show implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private int id;
-    private String description;
-    private String type;
-    private String dateHour;
-    private int duration;
-    private String location;
-    private String locality;
-    private String country;
-    private String ageClassification;
-    private boolean visible;
+    protected int id;
+    protected String description;
+    protected String type;
+    protected String dateHour;
+    protected int duration;
+    protected String location;
+    protected String locality;
+    protected String country;
+    protected String ageClassification;
+    protected boolean visible;
 
     public Show(
             int id,
@@ -30,27 +30,6 @@ public class Show implements Serializable {
             String ageClassification,
             boolean visible) {
         this.id = id;
-        this.description = description;
-        this.type = type;
-        this.dateHour = dateHour;
-        this.duration = duration;
-        this.location = location;
-        this.locality = locality;
-        this.country = country;
-        this.ageClassification = ageClassification;
-        this.visible = visible;
-    }
-
-    public Show(
-            String description,
-            String type,
-            String dateHour,
-            int duration,
-            String location,
-            String locality,
-            String country,
-            String ageClassification,
-            boolean visible) {
         this.description = description;
         this.type = type;
         this.dateHour = dateHour;
@@ -122,5 +101,6 @@ public class Show implements Serializable {
 
     @Override
     public String toString() {
-        return "descrição: " + description  + "\n" + "duração: " + duration  + "\n" + "data: " + dateHour + "\n" + visible;}
+        return "Descrição: " + description  + "\n"+ "Tipo: " + type  + "\n" + "Data: " + dateHour + "\n" + "Duração: " + duration + " minutos"+ "\n" +
+                "Local: " + location + "\n" + "Localidade: " + locality + "\n" + "País: " + country + "\n" + "Classificação Etária: " + ageClassification + "\n";}
 }

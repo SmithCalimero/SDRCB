@@ -640,7 +640,7 @@ public class DBHandler {
             ResultSet result = statement.executeQuery("SELECT * FROM espetaculo");
 
             while (result.next()) {
-                shows.add(new Show(
+                shows.add(new ShowAdmin(
                         result.getInt("id"),
                         result.getString("descricao"),
                         result.getString("tipo"),
