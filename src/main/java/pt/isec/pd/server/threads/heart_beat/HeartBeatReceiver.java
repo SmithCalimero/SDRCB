@@ -98,7 +98,7 @@ public class HeartBeatReceiver extends Thread{
 
                 }
                 else if(object instanceof Prepare prepare) {
-                    if (this.prepare != null) {
+                    if (this.prepare == null) {
                         this.prepare = prepare;
                     }
                     if (prepare.getNextVersion() != this.prepare.getNextVersion()) {
@@ -114,7 +114,7 @@ public class HeartBeatReceiver extends Thread{
                     }
                 }
                 else if(object instanceof Commit commit) {
-                    if (this.commit != null) {
+                    if (this.commit == null) {
                         this.commit = commit;
                     }
                     if (commit.getNextVersion() != this.commit.getNextVersion()) {
