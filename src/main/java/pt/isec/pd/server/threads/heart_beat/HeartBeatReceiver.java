@@ -97,17 +97,17 @@ public class HeartBeatReceiver extends Thread{
                 }
                 else if(object instanceof Prepare prepare) {
                     controller.setUpdating(true);
-                    LOG.log("Prepare receive; port: " + prepare.getPort());
+                    LOG.log("Prepare receive;" +  " version: " + prepare.getNextVersion());
                     this.prepare = prepare;
 
                     // 1. An update is needed
                     DatagramSocket ds = new DatagramSocket();
                     byte[] databaseVersion = Utils.serializeObject(prepare.getNextVersion());
-                    DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(Constants.IP_LOCALHOST),prepare.getPort());
+                    DatagramPacket dpSend = new DatagramPacket(databaseVersion,0,databaseVersion.length, InetAddress.getByName(prepare.getIp()),prepare.getPort());
                     ds.send(dpSend);
 
-                } else if(object instanceof Commit) {
-                        LOG.log("Commit receive: " + prepare.getData().getAction());
+                } else if(object instanceof Commit commit) {
+                        LOG.log("Commit receive: " + prepare.getData().getAction() + " version: " + commit.getNextVersion());
                         // 2. Update the database
                         dbHandler.updateDataBase(prepare.getUpdate());
 

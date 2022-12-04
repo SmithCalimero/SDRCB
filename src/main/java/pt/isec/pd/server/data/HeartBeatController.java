@@ -132,7 +132,6 @@ public class HeartBeatController {
         if (sqlCommand.getValue().isEmpty()){
             return true;
         }
-
         try {
             DatagramPacket dp;
 
@@ -140,7 +139,7 @@ public class HeartBeatController {
             ds.setSoTimeout(1000);
 
             // 1. Send the 'prepare' object to the multicast
-            Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand.getValue(),clientData);
+            Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),server.getIp(),sqlCommand.getValue(),clientData);
             LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
             byte[] prepareBytes = Utils.serializeObject(prepare);
 
@@ -156,11 +155,12 @@ public class HeartBeatController {
                     ds.receive(dpReceive);
                     servers++;
                 } catch (SocketTimeoutException e) {
+                    System.out.println(servers + " " +hbList.size());
                     if (servers != hbList.size()) {
                         if (attempts == 1) {
                             break;
                         }
-                        prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),sqlCommand.getValue(),clientData);
+                        prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),server.getIp(),sqlCommand.getValue(),clientData);
                         LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
                         prepareBytes = Utils.serializeObject(prepare);
 
@@ -168,6 +168,7 @@ public class HeartBeatController {
                         ms.send(dp);
                         LOG.log("Not all servers sent a confirmation trying again");
                         attempts++;
+                        servers = 0;
                     } else {
                         break;
                     }

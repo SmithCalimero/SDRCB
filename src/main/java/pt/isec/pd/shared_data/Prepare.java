@@ -11,13 +11,15 @@ public class Prepare implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private int port;
+    private String ip;
     private List<String> update;
     private ClientData data;
     private int nextVersion;
 
-    public Prepare(int port, int serverPort, List<String> sqlCommand, ClientData data) {
+    public Prepare(int port, int serverPort,String ip, List<String> sqlCommand, ClientData data) {
         this.port = port;
         this.data = data;
+        this.ip = ip;
         this.update = sqlCommand;
     }
 
@@ -39,6 +41,10 @@ public class Prepare implements Serializable {
 
     public int getNextVersion() {
         return nextVersion;
+    }
+
+    public String getIp() {
+        return ip;
     }
 
     @Override
