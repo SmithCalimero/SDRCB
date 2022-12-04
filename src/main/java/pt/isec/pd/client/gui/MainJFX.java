@@ -42,7 +42,7 @@ public class MainJFX extends Application {
         model = new ModelManager(udpConn);
 
         BorderPane root = new RootPane(model);
-        Scene scene = new Scene(root,640,350);
+        Scene scene = new Scene(root,640,380);
         stage.setScene(scene);
         stage.setTitle("PD-meta1");
         stage.sizeToScene();

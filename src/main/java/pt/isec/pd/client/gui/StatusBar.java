@@ -20,16 +20,10 @@ public class StatusBar extends HBox {
     }
 
     private void createViews() {
-        Label lbMsgTitle = new Label("");
-        lbMsgTitle.setPrefWidth(Integer.MAX_VALUE);
-        lbMsgTitle.setAlignment(Pos.CENTER);
         lbMsg = new Label();
         lbMsg.setPrefWidth(Integer.MAX_VALUE);
         lbMsg.setAlignment(Pos.CENTER);
-        Label boaPos = new Label("");
-        boaPos.setPrefWidth(Integer.MAX_VALUE);
-        boaPos.setAlignment(Pos.CENTER);
-        this.getChildren().addAll(lbMsgTitle, lbMsg, boaPos);
+        this.getChildren().addAll(lbMsg);
         setAlignment(Pos.CENTER);
     }
 
