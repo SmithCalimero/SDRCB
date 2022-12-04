@@ -43,6 +43,10 @@ public class Reserve implements Serializable {
         this.seats = seats;
     }
 
+    public void setDateShow(String dateShow) {
+        this.dateShow = dateShow;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

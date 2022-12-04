@@ -10,6 +10,7 @@ import javafx.util.Pair;
 import pt.isec.pd.client.model.ModelManager;
 import pt.isec.pd.client.model.data.ClientAction;
 import pt.isec.pd.client.model.fsm.State;
+import pt.isec.pd.shared_data.Responses.DeleteResponse;
 import pt.isec.pd.shared_data.Responses.HandleVisibleShowResponse;
 import pt.isec.pd.shared_data.Responses.InsertShowResponse;
 import pt.isec.pd.shared_data.Responses.ShowsResponse;
@@ -49,8 +50,8 @@ public class ManageShowsForm {
         });
 
         model.addPropertyChangeListener(ClientAction.DELETE_SHOW.toString(), evt -> {
-            InsertShowResponse insertShowResponse = (InsertShowResponse) model.getResponse();
-            model.setMessage(insertShowResponse.getMsg());
+            DeleteResponse response = (DeleteResponse) model.getResponse();
+            model.setMessage(response.getMsg());
         });
 
         model.addPropertyChangeListener(ClientAction.VISIBLE_SHOW.toString(), evt -> {
@@ -63,12 +64,14 @@ public class ManageShowsForm {
         });
 
         insertShowsButton.setOnAction(actionEvent -> {
+            model.setMessage("");
             if (filePath.getText().isEmpty())
                 return;
             model.insertShows(filePath.getText());
         });
 
         removeButton.setOnAction(actionEvent -> {
+            model.setMessage("");
             if (list.getSelectionModel().getSelectedItem() == null) {
                 model.setMessage("Selecione o espetaculo que pretende remover");
                 return;
@@ -78,6 +81,7 @@ public class ManageShowsForm {
         });
 
         handleVisibilityButton.setOnAction(actionEvent -> {
+            model.setMessage("");
             if (list.getSelectionModel().getSelectedItem() == null) {
                 model.setMessage("Selecione o espetaculo que pretende tornar visivel");
                 return;
@@ -88,6 +92,5 @@ public class ManageShowsForm {
     }
     private void update() {
         pane.setVisible(model != null && model.getState() == State.MANAGE_SHOWS);
-        model.setMessage("");
     }
 }

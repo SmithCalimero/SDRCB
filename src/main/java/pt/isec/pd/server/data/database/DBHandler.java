@@ -427,35 +427,23 @@ public class DBHandler {
 
         // Execute query to search reserves
         ResultSet result = statement.executeQuery(
-                "SELECT * FROM reserva;"
+                "SELECT id,data_hora,id_utilizador,id_espetaculo FROM reserva where id_utilizador= " + clientData.getId() + " and pago= 0"
         );
 
         while(result.next()) {
             int id = result.getInt("id");
             String date = result.getString("data_hora");
-            boolean paid = result.getBoolean("pago");
             int userId = result.getInt("id_utilizador");
             int showId = result.getInt("id_espetaculo");
 
-
-
-            // Validate client id & verify if the reserve is unpaid
-            if (clientData.getId() == userId && !paid) {
-                ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ showId +";");
-                try {
-                    reserves.add(new UnPayedReserve(
-                            id,
-                            date,
-                            false,
-                            userId,
-                            showId,
-                            espetaculo.getString(1)
-                    ));
-                } catch (Exception e) {
-                    LOG.log("Unable to consult unpaid reserves from user [" + clientName + "]");
-                }
-                espetaculo.close();
-            }
+            reserves.add(new UnPayedReserve(
+                    id,
+                    date,
+                    false,
+                    userId,
+                    showId,
+                    "----"
+            ));
         }
 
         result.close();
@@ -466,7 +454,6 @@ public class DBHandler {
                     + "(SELECT id_lugar FROM reserva_lugar WHERE id_reserva =" + reserve.getId() + ")");
             while(lugar.next()) {
                 int id = lugar.getInt(1);
-                System.out.println(id);
                 String fila = lugar.getString(2);
                 String assento = lugar.getString(3);
                 double preco = lugar.getDouble(4);
@@ -475,6 +462,13 @@ public class DBHandler {
             }
             reserve.setSeats(seats);
             lugar.close();
+        }
+
+
+        for (Reserve reserve : reserves) {
+            ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ reserve.getShowId() +";");
+            reserve.setDateShow(espetaculo.getString(1));
+            espetaculo.close();
         }
 
 
@@ -510,30 +504,26 @@ public class DBHandler {
 
             // Execute query to search reserves
             ResultSet result = statement.executeQuery(
-                    "SELECT * FROM reserva"
+                    "SELECT id,data_hora,id_utilizador,id_espetaculo FROM reserva where id_utilizador= " + clientData.getId() + " and pago=1"
             );
 
-            while (result.next()) {
+            while(result.next()) {
                 int id = result.getInt("id");
                 String date = result.getString("data_hora");
-                boolean paid = result.getBoolean("pago");
                 int userId = result.getInt("id_utilizador");
                 int showId = result.getInt("id_espetaculo");
-                if (clientData.getId() == userId && paid) {
-                    ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ showId +";");
 
-                    reserves.add(new Reserve(
-                            id,
-                            date,
-                            true,
-                            userId,
-                            showId,
-                            espetaculo.getString(1)
-                    ));
-
-                    espetaculo.close();
-                }
+                reserves.add(new UnPayedReserve(
+                        id,
+                        date,
+                        false,
+                        userId,
+                        showId,
+                        "----"
+                ));
             }
+
+            result.close();
 
             for (Reserve reserve : reserves) {
                 List<Seat> seats = new ArrayList<>();
@@ -541,7 +531,6 @@ public class DBHandler {
                         + "(SELECT id_lugar FROM reserva_lugar WHERE id_reserva =" + reserve.getId() + ")");
                 while(lugar.next()) {
                     int id = lugar.getInt(1);
-                    System.out.println(id);
                     String fila = lugar.getString(2);
                     String assento = lugar.getString(3);
                     double preco = lugar.getDouble(4);
@@ -551,6 +540,14 @@ public class DBHandler {
                 reserve.setSeats(seats);
                 lugar.close();
             }
+
+
+            for (Reserve reserve : reserves) {
+                ResultSet espetaculo = statement.executeQuery("SELECT data_hora FROM espetaculo where id = "+ reserve.getShowId() +";");
+                reserve.setDateShow(espetaculo.getString(1));
+                espetaculo.close();
+            }
+
 
             response.setReserves(reserves);
 
@@ -1134,64 +1131,63 @@ public class DBHandler {
             // Verify if the client has admin privilege
             if (isAdmin.getString("username").equalsIgnoreCase("admin") &&
                     isAdmin.getString("nome").equalsIgnoreCase("admin")) {
-                    // Receive from client the ID of the show to be deleted
-                    int deleteShowId = clientData.getShowId();
+                // Receive from client the ID of the show to be deleted
+                int deleteShowId = clientData.getShowId();
 
-                    // Search reservations
-                    ResultSet reservations = statement.executeQuery(
-                            "SELECT pago from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
+                // Search reservations
+                ResultSet reservations = statement.executeQuery(
+                        "SELECT pago from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
 
-                    // If there are no reservations associated
-                    if (!reservations.next())
-                        hasPaidReserve = false;
+                // If there are no reservations associated
 
-                    else {
-                        // Search reservations and verify if a paid reservation exists
-                        while (reservations.next()) {
-                            // If a paid reserve exists, the show can't be deleted
-                            if (reservations.getBoolean("pago")) {
-                                msg = "Show[" + deleteShowId + "] already has a paid reservation...";
-                                LOG.log(msg);
-                                response.setSuccess(false);
-                                response.setMsg(msg);
-                                hasPaidReserve = true;
-                            }
-                        }
+
+                // Search reservations and verify if a paid reservation exists
+                while (reservations.next()) {
+                    boolean pago = reservations.getBoolean("pago");
+                    // If a paid reserve exists, the show can't be deleted
+                    if (pago) {
+                        msg = "Show[" + deleteShowId + "] already has a paid reservation...";
+                        LOG.log(msg);
+                        response.setSuccess(false);
+                        response.setMsg(msg);
+                        hasPaidReserve = true;
                     }
-                        // If there are no paid reservations associated, the show can be deleted
-                        if (!hasPaidReserve) {
-                            try {
-                                ResultSet reserva = statement.executeQuery(
-                                        "SELECT id from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
+                }
 
-                                while (reserva.next()) {
-                                    int id = reserva.getInt("id");
-                                    System.out.println(id);
-                                    query = "DELETE from reserva_lugar WHERE id_reserva = "+ id + ";";
-                                    listQuery.add(query);
-                                }
+                // If there are no paid reservations associated, the show can be deleted
+                if (!hasPaidReserve) {
+                    try {
+                        ResultSet reserva = statement.executeQuery(
+                                "SELECT id from reserva WHERE id_espetaculo = '" + deleteShowId + "'");
 
-                                query = "DELETE from reserva WHERE id_espetaculo = "+ deleteShowId + ";";
-                                listQuery.add(query);
+                        while (reserva.next()) {
+                            int id = reserva.getInt("id");
 
-                                query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
-                                listQuery.add(query);
-
-                                query = "DELETE from lugar WHERE espetaculo_id = "+ deleteShowId + ";";
-                                listQuery.add(query);
-
-                                msg = "Show[" + deleteShowId + "] was deleted successfully...";
-                                LOG.log(msg);
-
-                                listQuery.add(query);
-                                response.setSuccess(true);
-                                response.setMsg(msg);
-                            } finally {
-                                statement.close();
-                                reservations.close();
-                                isAdmin.close();
-                            }
+                            query = "DELETE from reserva_lugar WHERE id_reserva = "+ id + ";";
+                            listQuery.add(query);
                         }
+
+                        query = "DELETE from reserva WHERE id_espetaculo = "+ deleteShowId + ";";
+                        listQuery.add(query);
+
+                        query = "DELETE FROM espetaculo WHERE id = '" + deleteShowId + "'";
+                        listQuery.add(query);
+
+                        query = "DELETE from lugar WHERE espetaculo_id = "+ deleteShowId + ";";
+                        listQuery.add(query);
+
+                        msg = "Show[" + deleteShowId + "] was deleted successfully...";
+                        LOG.log(msg);
+
+                        listQuery.add(query);
+                        response.setSuccess(true);
+                        response.setMsg(msg);
+                    } finally {
+                        statement.close();
+                        reservations.close();
+                        isAdmin.close();
+                    }
+                }
 
             } else {
                 msg = "Unable to delete show. Only the admin can execute this function";
