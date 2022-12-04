@@ -148,6 +148,16 @@ public class DBHandler {
                 }
             }
 
+            ResultSet nomeSet = statement.executeQuery(
+                    "SELECT id FROM utilizador where nome='" + data.getSecond() + "'"
+            );
+
+            if (nomeSet.next()) {
+                msg = "Name[" + data.getSecond() + "] already exists";
+                LOG.log(msg);
+                requestAccepted = false;
+            }
+
             if (requestAccepted) {
                 result = statement.executeQuery(
                         "SELECT max(id) from utilizador"
