@@ -38,7 +38,7 @@ public class ClientManagement extends Thread {
             this.clientsThread = new ArrayList<>();
             this.viewingSeats = new ArrayList<>();
             hbList.add(new HeartBeat(serverSocket.getLocalPort(), true, dbHandler.getCurrentVersion(), 0, ip));
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

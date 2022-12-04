@@ -64,11 +64,7 @@ public class Server {
     }
 
     public int getDBVersion() {
-        try {
-            return dbHandler.getCurrentVersion();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return dbHandler.getCurrentVersion();
     }
 
     public synchronized int getActiveConnections() {
