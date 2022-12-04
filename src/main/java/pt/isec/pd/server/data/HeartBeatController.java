@@ -46,7 +46,7 @@ public class HeartBeatController {
         this.hbList = hbList;
         receiver = new HeartBeatReceiver(this,server.getDbHandler(),server);
         sender = new HeartBeatSender(this);
-        lifeTimeChecker = new HeartBeatLifeTime(hbList);
+        lifeTimeChecker = new HeartBeatLifeTime(hbList,this);
     }
 
     private void joinGroup() {
@@ -105,6 +105,18 @@ public class HeartBeatController {
 
         endOfStartup = true;
         sender.start();
+    }
+
+    public synchronized void sendUpdateServerList() {
+        for (ClientReceiveMessage client : getClients()) {
+            UpdateServerList serverList = new UpdateServerList();
+            serverList.setServerAddressList(hbList.getOrderList());
+            try {
+                client.getOos().writeObject(serverList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public synchronized boolean isAvailable() {

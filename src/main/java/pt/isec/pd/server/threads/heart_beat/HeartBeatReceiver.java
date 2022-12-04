@@ -45,7 +45,7 @@ public class HeartBeatReceiver extends Thread{
                 Object object = Utils.deserializeObject(dp.getData());
 
                 if (object instanceof HeartBeat hbEvent) {
-                    hbList.updateList(hbEvent);
+                    boolean updated = hbList.updateList(hbEvent);
                     List<HeartBeat> hbDbVersion = new ArrayList<>(List.copyOf(hbList));
                     hbDbVersion.sort(new CompareDbVersionHeartBeat());
 
@@ -95,6 +95,9 @@ public class HeartBeatReceiver extends Thread{
                         e.printStackTrace();
                     }
 
+                    if (updated) {
+                        controller.sendUpdateServerList();
+                    }
                 }
                 else if(object instanceof Prepare prepare) {
                     if (this.prepare == null || prepare.getNextVersion() != this.prepare.getNextVersion()) {

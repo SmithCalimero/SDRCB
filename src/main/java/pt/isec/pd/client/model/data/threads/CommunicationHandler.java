@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommunicationHandler extends Thread {
@@ -26,6 +27,7 @@ public class CommunicationHandler extends Thread {
     private ObjectInputStream ois;
     private final DatagramSocket ds;
     private ClientData clientData;
+    private List<ServerAddress> serverList = new ArrayList<>();
     private ResponseHandler responseHandler;
     private PropertyChangeSupport pcs;
     private boolean start = false;
@@ -63,13 +65,23 @@ public class CommunicationHandler extends Thread {
             ds.receive(dpReceive);
 
             //2. try establishing connection
-            List<ServerAddress> serverAddr = Utils.deserializeObject(dpReceive.getData());
+            serverList = Utils.deserializeObject(dpReceive.getData());
             LOG.log("List received from the server");
-            establishingTcpConn(serverAddr);
+            establishingTcpConn(serverList);
 
-        } catch (IOException | NoServerFound e) {
+        } catch (IOException e) {
             // Udp Time-out or no establish connection
-            LOG.log("No tcp connection found or the udp connection was not establish: shutting down application : "+  pingAddr.getIp() + ":" + pingAddr.getPort());
+            LOG.log("The udp connection was not establish, trying with the list stored");
+            try {
+                establishingTcpConn(serverList);
+            } catch (NoServerFound ex) {
+                LOG.log("Could not establish connection with any server\nShutting down application");
+                Platform.exit();
+                System.exit(0);
+            }
+
+        } catch (NoServerFound e) {
+            LOG.log("Could not establish connection with any server\nShutting down application");
             Platform.exit();
             System.exit(0);
         }
@@ -118,13 +130,20 @@ public class CommunicationHandler extends Thread {
         }
     }
 
+    public void setServerList(List<ServerAddress> serverList) {
+        this.serverList = serverList;
+    }
+
     public ClientAction getClientAction() { return clientData.getAction(); }
+
     public ClientData getClientData() {
         return clientData;
     }
+
     public synchronized ObjectOutputStream getOos() {
         return oos;
     }
+
     public synchronized ObjectInputStream getOis() {
         return ois;
     }

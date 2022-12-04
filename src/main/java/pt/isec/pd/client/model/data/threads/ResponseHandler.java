@@ -7,6 +7,7 @@ import pt.isec.pd.client.model.data.ClientData;
 import pt.isec.pd.shared_data.ListServerAddress;
 import pt.isec.pd.shared_data.Responses.*;
 import pt.isec.pd.shared_data.ServerAddress;
+import pt.isec.pd.shared_data.UpdateServerList;
 import pt.isec.pd.utils.Exceptions.NoServerFound;
 import pt.isec.pd.utils.Log;
 
@@ -21,6 +22,7 @@ public class ResponseHandler extends Thread {
     private final PropertyChangeSupport pcs;
     private Object data;
     private final ClientData clientData;
+    private boolean isConnected = true;
     public ResponseHandler(CommunicationHandler ch, PropertyChangeSupport pcs, ClientData clientData) {
         this.pcs = pcs;
         this.ch = ch;
@@ -29,7 +31,7 @@ public class ResponseHandler extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (isConnected) {
             try {
                 Object object = ch.getOis().readObject();
                 data = object;
@@ -108,6 +110,8 @@ public class ResponseHandler extends Thread {
                     Platform.runLater(() -> pcs.firePropertyChange(ClientAction.PAY_RESERVATION.toString(),null,null));
                 }
                 else if (object instanceof DisconnectResponse) {
+                    LOG.log("Disconnecting");
+                    isConnected = false;
                     break;
                 }
                 else if (object instanceof ConsultPayedReservationResponse) {
@@ -129,6 +133,9 @@ public class ResponseHandler extends Thread {
                 }
                 else if (object instanceof SyncFailedException) {
                     Platform.runLater(() ->pcs.firePropertyChange("notify",null,null));
+                }
+                else if (object instanceof UpdateServerList updateServerList) {
+                    ch.setServerList(updateServerList.getServerAddressList());
                 }
             } catch (IOException e) {
                 LOG.log("There was a problem with the server we are trying to fix it " + e);

@@ -51,7 +51,6 @@ public class MainJFX extends Application {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                LOG.log("Disconnecting");
                 model.disconnect();
             }
         });
