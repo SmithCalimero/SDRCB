@@ -16,11 +16,12 @@ public class Prepare implements Serializable {
     private ClientData data;
     private int nextVersion;
 
-    public Prepare(int port, int serverPort,String ip, List<String> sqlCommand, ClientData data) {
+    public Prepare(int port,String ip, List<String> sqlCommand, ClientData data,int nextVersion) {
         this.port = port;
         this.data = data;
         this.ip = ip;
         this.update = sqlCommand;
+        this.nextVersion = nextVersion;
     }
 
     public int getPort() {

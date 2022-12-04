@@ -30,16 +30,20 @@ public class DBHandler {
         }
     }
 
-    public int getCurrentVersion() throws SQLException {
-        Statement statement = connection.createStatement();
+    public int getCurrentVersion() {
+        int version = 0;
 
-        String sqlQuery = "PRAGMA user_version;";
-        ResultSet resultSet = statement.executeQuery(sqlQuery);
+        try {
+            Statement statement = connection.createStatement();
+            String sqlQuery = "PRAGMA user_version;";
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
 
-        int version = resultSet.getInt(1);
+             version = resultSet.getInt(1);
 
-        statement.close();
-
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return version;
     }
 

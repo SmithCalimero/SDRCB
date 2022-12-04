@@ -139,7 +139,7 @@ public class HeartBeatController {
             ds.setSoTimeout(1000);
 
             // 1. Send the 'prepare' object to the multicast
-            Prepare prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),server.getIp(),sqlCommand.getValue(),clientData);
+            Prepare prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
             LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
             byte[] prepareBytes = Utils.serializeObject(prepare);
 
@@ -160,7 +160,7 @@ public class HeartBeatController {
                         if (attempts == 1) {
                             break;
                         }
-                        prepare = new Prepare(ds.getLocalPort(),server.getServerPort(),server.getIp(),sqlCommand.getValue(),clientData);
+                        prepare = new Prepare(ds.getLocalPort(),server.getIp(),sqlCommand.getValue(),clientData,dbHandler.getCurrentVersion());
                         LOG.log("Action: " + clientData.getAction() + " SqlCommands: " + sqlCommand.getValue().size());
                         prepareBytes = Utils.serializeObject(prepare);
 
