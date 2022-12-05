@@ -71,10 +71,12 @@ public class SeatsForm {
 
             SubmitReservationResponse submitReservationResponse = (SubmitReservationResponse) model.getResponse();
 
-            if (submitReservationResponse.isSuccess())
+            if (submitReservationResponse.isSuccess()){
+                model.setMessage("Reserva feita com sucesso! Por favor pague!");
                 model.payReservationTransitionToState(submitReservationResponse.getResId(),seatsResponse.getShowId());
+            }
             else {
-                msg.setText("Alguém reservou este(s) assento(s) primeiro! Volte atrás e tente de novo");
+                msg.setText("Alguém reservou este(s) assento(s) primeiro! Volte atrás e escolha de novo!");
             }
 
         });
@@ -198,8 +200,8 @@ public class SeatsForm {
             centerPane.getChildren().add(container);
 
             // Resize scene according to the seats container width and height
-            container.widthProperty().addListener(e -> pane.getScene().getWindow().setWidth(container.getWidth() + 20));
-            container.heightProperty().addListener(e -> pane.getScene().getWindow().setHeight(container.getHeight() + 70));
+            container.widthProperty().addListener(e -> pane.getScene().getWindow().setWidth(container.getWidth() + 40));
+            container.heightProperty().addListener(e -> pane.getScene().getWindow().setHeight(container.getHeight() + 100));
         }
     }
 }

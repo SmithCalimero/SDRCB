@@ -1048,11 +1048,13 @@ public class DBHandler {
 
         try {
             String filePath = (String) clientData.getData();
-            Pair<Show, Map<String, List<Seat>>> mapShows = Utils.readFile(filePath);
+            Triple<Show, Map<String, List<Seat>>, String> mapShows = Utils.readFile(filePath);
 
-            if (mapShows == null) {
+            if (mapShows == null || !mapShows.getThird().isEmpty()) {
                 response.setSuccess(false);
-                response.setMsg("There was a problem reading from the file");
+                msg = mapShows.getThird();
+                LOG.log(msg);
+                response.setMsg(msg);
                 return new Pair<>(response,listQuery);
             }
             // Create connection
@@ -1060,7 +1062,7 @@ public class DBHandler {
 
             //Check if the show exists
             ResultSet idExist = statement.executeQuery(
-                    "SELECT id FROM espetaculo WHERE descricao = '" + mapShows.getKey().getDescription() + "'"
+                    "SELECT id FROM espetaculo WHERE descricao = '" + mapShows.getFirst().getDescription() + "'"
             );
 
             if (idExist.next()) {
@@ -1078,20 +1080,20 @@ public class DBHandler {
             query = "INSERT INTO espetaculo(id,descricao,tipo,data_hora,duracao,local,localidade,pais,classificacao_etaria) "
                     + "VALUES("
                     + "'" + id + "',"
-                    + "'" + mapShows.getKey().getDescription() + "',"
-                    + "'" + mapShows.getKey().getType() + "',"
-                    + "'" + mapShows.getKey().getDateHour() + "',"
-                    + "'" + mapShows.getKey().getDuration() + "',"
-                    + "'" + mapShows.getKey().getLocation() + "',"
-                    + "'" + mapShows.getKey().getLocality() + "',"
-                    + "'" + mapShows.getKey().getCountry() + "',"
-                    + "'" + mapShows.getKey().getAgeClassification() + "')";
+                    + "'" + mapShows.getFirst().getDescription() + "',"
+                    + "'" + mapShows.getFirst().getType() + "',"
+                    + "'" + mapShows.getFirst().getDateHour() + "',"
+                    + "'" + mapShows.getFirst().getDuration() + "',"
+                    + "'" + mapShows.getFirst().getLocation() + "',"
+                    + "'" + mapShows.getFirst().getLocality() + "',"
+                    + "'" + mapShows.getFirst().getCountry() + "',"
+                    + "'" + mapShows.getFirst().getAgeClassification() + "')";
 
             listQuery.add(query);
 
             //Get id of show
 
-            Map<String, List<Seat>> seats = mapShows.getValue();
+            Map<String, List<Seat>> seats = mapShows.getSecond();
 
             ResultSet maxIdSeatSet = statement.executeQuery(
                     "SELECT max(id) FROM lugar"

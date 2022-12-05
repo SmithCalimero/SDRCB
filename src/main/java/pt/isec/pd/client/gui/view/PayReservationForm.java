@@ -32,6 +32,7 @@ public class PayReservationForm {
         });
 
         model.addPropertyChangeListener(ClientAction.DELETE_UNPAID_RESERVATION.toString(), evt -> {
+            model.setMessage("Pagamento cancelado com sucesso!");
             model.previous();
         });
 
@@ -39,12 +40,13 @@ public class PayReservationForm {
             if (model.getState() == State.PAY_RESERVATION) {
                 ShowsResponse showsResponse = (ShowsResponse) model.getResponse();
                 model.showNotification(showsResponse.getShowId());
-                model.setMessage("O show foi removido pelo administrado a sua reserva foi cancelada");
+                model.setMessage("O show foi removido pelo administrado e a sua reserva foi cancelada");
             }
         });
 
 
         model.addPropertyChangeListener(ClientAction.PAY_RESERVATION.toString(), evt -> {
+            model.setMessage("Pagamento efetuado com sucesso!");
             model.previous();
         });
 

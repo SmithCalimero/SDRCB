@@ -3,6 +3,7 @@ package pt.isec.pd.utils;
 import javafx.util.Pair;
 import pt.isec.pd.shared_data.Seat;
 import pt.isec.pd.shared_data.Show;
+import pt.isec.pd.shared_data.Triple;
 
 import java.io.*;
 import java.text.ParseException;
@@ -27,9 +28,10 @@ public class Utils {
         return null;
     }
 
-    public static Pair<Show,Map<String,List<Seat>>> readFile(String path) {
+    public static Triple<Show,Map<String,List<Seat>>, String> readFile(String path) {
         Show show = new Show();
         Map<String,List<Seat>> seatsMap = new HashMap<>();
+        String msgerror;
         try (Scanner input = new Scanner(new FileReader(path))) {
             while(input.hasNext()){
                 input.useDelimiter(";|:|\n");
@@ -39,24 +41,122 @@ public class Utils {
                     case "Designação" -> show.setDescription(processString(input.nextLine()));
                     case "Tipo" -> show.setType(processString(input.nextLine()));
                     case "Data" -> {
+
+                        //dia
                         String day = processString(input.next());
+                        try {
+                            Integer.parseInt(day);
+                        } catch (NumberFormatException e) {
+                            msgerror = "O dia no ficheiro está errado! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        if (Integer.parseInt(day) >= 99){
+                            msgerror = "O dia no ficheiro está errado! Dias só podem ter dois dígitos!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        //mes
                         String month = processString(input.next());
+                        try {
+                            Integer.parseInt(month);
+                        } catch (NumberFormatException e) {
+                            msgerror = "O mês no ficheiro está errado! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        if (Integer.parseInt(month) >= 99){
+                            msgerror = "O mês no ficheiro está errado! Meses só podem ter dois dígitos!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        //ano
                         String year = processString(input.next());
+                        try {
+                            Integer.parseInt(year);
+                        } catch (NumberFormatException e) {
+                            msgerror = "O ano no ficheiro está errado! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        if (Integer.parseInt(year) >= 9999){
+                            msgerror = "O ano no ficheiro está errado! Só são aceites 4 digitos!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        //hora e minutos
 
                         input.next();
 
+                        //hora
+
                         String hours = processString(input.next());
+
+                        try {
+                            Integer.parseInt(hours);
+                        } catch (NumberFormatException e) {
+                            msgerror = "A hora no ficheiro está errada! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        if (Integer.parseInt(hours) >= 99){
+                            msgerror = "A hora no ficheiro está errada! Só pode ter 2 digitos!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        //minutos
+
                         String minutes = processString(input.next());
+
+                        try {
+                            Integer.parseInt(hours);
+                        } catch (NumberFormatException e) {
+                            msgerror = "Os minutos no ficheiro estao errados! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        if (Integer.parseInt(hours) >= 99){
+                            msgerror = "Os minutos no ficheiro estao errados! Só pode ter 2 digitos!";
+                            return new Triple<>(null,null,msgerror);
+                        }
 
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         Date date = format.parse(year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":00");
                         show.setDateHour(year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":00");
                     }
-                    case "Duração" -> show.setDuration(Integer.parseInt(processString(input.next())));
+                    case "Duração" -> {
+
+                        String Duration = processString(input.next());
+
+                        try {
+                            Integer.parseInt(Duration);
+                        } catch (NumberFormatException e) {
+                            msgerror = "A duração no ficheiro está errada! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        show.setDuration(Integer.parseInt(Duration));
+
+                    }
+
                     case "Local" -> show.setLocation(processString(input.nextLine()));
                     case "Localidade" -> show.setLocality(processString(input.next()));
                     case "País" -> show.setCountry(processString(input.next()));
-                    case "Classificação etária" -> show.setAgeClassification(processString(input.next()));
+                    case "Classificação etária" -> {
+
+                        String ClassEtaria = processString(input.next());
+
+                        try {
+                            Integer.parseInt(ClassEtaria);
+                        } catch (NumberFormatException e) {
+                            msgerror = "A classificação etária no ficheiro está errada! Não é um inteiro válido!";
+                            return new Triple<>(null,null,msgerror);
+                        }
+
+                        show.setAgeClassification(ClassEtaria);
+
+                    }
+
                     case "Fila" -> {
                         input.nextLine();
                         while(input.hasNext()) {
@@ -66,9 +166,10 @@ public class Utils {
                 }
             }
         } catch (FileNotFoundException | ParseException e) {
-            return null;
+            msgerror = "O ficheiro não existe!";
+            return new Triple<>(null,null,msgerror);
         }
-        return new Pair<>(show,seatsMap);
+        return new Triple<>(show,seatsMap,"");
     }
 
     private static String processString(String value) {

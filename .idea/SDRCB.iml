@@ -11,7 +11,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="sqlite-jdbc-3.39.3.0" level="project" />
-    <orderEntry type="library" name="lib" level="application" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.40.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:19" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:win:19" level="project" />
